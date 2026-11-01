@@ -1,15 +1,1162 @@
-<!doctype html>
-<!-- Krishnas Spiele - Platzhalter @ Joschy -->
+<!DOCTYPE html>
+<!--
+  ================================================================
+   Krishnas Spiele  @ Joschy
+   Ruhige Musik-Spiele fuer Krishna (Samsung Galaxy Tab S5e, Chrome, Querformat)
+   Eine einzige Datei, keine externen Bibliotheken, laeuft komplett offline.
+   Modi: Langsame Kacheln, Warte-Modus, Muster merken, Beruhigende Spiele,
+         Kuthu-Trommeln
+   Kein Lied-Editor, kein MIDI-Import (bewusst so gewuenscht).
+  ================================================================
+-->
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#26334a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="author" content="@ Joschy">
 <title>Krishnas Spiele @ Joschy</title>
 <style>
-  html, body { margin: 0; height: 100%; background: #F4F1EA; color: #3E5A50;
-    font-family: sans-serif; display: flex; align-items: center; justify-content: center; }
-  h1 { font-size: 9vw; font-weight: 600; }
+:root{
+  --bg:#26334a; --bg2:#2e3d57; --panel:#38496a; --panel2:#425578;
+  --text:#eef2f7; --muted:#bac6d6; --accent:#f1e2a9; --accent-text:#2a3346;
+  --c1:#8fb8de; --c2:#a8d5ba; --c3:#efc9a5; --c4:#c9b6e4;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:system-ui,"Segoe UI",Roboto,"Noto Sans",sans-serif;
+  touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+  overscroll-behavior:none;
+}
+button{font:inherit;color:inherit;border:0;cursor:pointer;touch-action:none;background:none}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;background:var(--bg)}
+.screen.active{display:flex}
+
+/* ---------- Menue ---------- */
+#menu{padding:18px 26px 8px;gap:14px}
+.menu-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex:0 0 auto}
+.menu-head h1{margin:0;font-size:38px;font-weight:600;letter-spacing:.3px}
+.small-btn{min-height:80px;min-width:80px;padding:0 22px;border-radius:22px;background:var(--panel);font-size:22px}
+.modes{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;flex:1 1 auto;min-height:0}
+.mode{border-radius:28px;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;padding:12px;min-height:140px;box-shadow:0 6px 0 rgba(0,0,0,.14);transition:transform .25s ease, background-color .4s}
+.mode:active{transform:scale(.97);background:var(--panel2)}
+.mode .ico{width:92px;height:92px;border-radius:26px;display:grid;place-items:center;font-size:52px}
+.mode .name{font-size:25px;font-weight:600;text-align:center}
+.mode .desc{font-size:17px;color:var(--muted);text-align:center;line-height:1.3}
+.settings{flex:0 0 auto;background:var(--bg2);border-radius:24px;padding:8px 22px;
+  display:grid;grid-template-columns:130px 1fr;gap:2px 18px;align-items:center}
+.label{font-size:22px;color:var(--muted)}
+.songs{display:flex;gap:10px;flex-wrap:wrap;padding:6px 0}
+.song{min-height:72px;padding:0 18px;border-radius:20px;background:var(--panel);font-size:20px;border:3px solid transparent;transition:background-color .3s,border-color .3s}
+.song.sel{border-color:var(--accent);background:var(--panel2)}
+footer{flex:0 0 auto;text-align:center;color:var(--muted);font-size:18px;padding:2px 0 4px}
+
+/* ---------- Schieberegler (gross fuer Finger) ---------- */
+.slider-row{display:flex;align-items:center;gap:14px;min-width:0}
+.slider-row .sym{font-size:28px;flex:0 0 auto}
+.val{min-width:78px;font-size:22px;text-align:right;color:var(--muted);flex:0 0 auto}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;min-width:0;height:80px;background:transparent;margin:0;touch-action:none}
+input[type=range]:focus{outline:none}
+input[type=range]::-webkit-slider-runnable-track{height:16px;border-radius:8px;background:#53678a}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:56px;height:56px;border-radius:50%;
+  background:var(--accent);margin-top:-20px;border:4px solid rgba(255,255,255,.55)}
+input[type=range]::-moz-range-track{height:16px;border-radius:8px;background:#53678a}
+input[type=range]::-moz-range-thumb{width:52px;height:52px;border-radius:50%;background:var(--accent);border:4px solid rgba(255,255,255,.55)}
+
+/* ---------- Leiste oben in jedem Spiel ---------- */
+.bar{display:flex;align-items:center;gap:16px;padding:10px 16px;background:var(--bg2);min-height:108px;flex:0 0 auto}
+.back{min-width:190px;min-height:88px;border-radius:24px;background:var(--accent);color:var(--accent-text);
+  font-size:28px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;flex:0 0 auto;
+  box-shadow:0 5px 0 rgba(0,0,0,.18);transition:transform .2s}
+.back:active{transform:scale(.97)}
+.bar .title{font-size:25px;font-weight:600;flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .title small{display:block;font-size:19px;font-weight:400;color:var(--muted)}
+.bar .ctl{width:250px;flex:0 1 auto}
+.bar .ctl.tempo-ctl{width:300px}
+.tab{min-height:80px;min-width:120px;padding:0 20px;border-radius:20px;background:var(--panel);font-size:22px;border:3px solid transparent;flex:0 0 auto}
+.tab.sel{border-color:var(--accent);background:var(--panel2)}
+.stage{flex:1 1 auto;position:relative;overflow:hidden}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+
+/* ---------- Warte-Modus ---------- */
+.wgrid{position:absolute;inset:18px 18px 38px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:18px}
+.cell{border-radius:28px;background:#36465f;position:relative;overflow:hidden;min-height:80px;
+  transition:background-color 1s ease, filter 1s ease}
+.cell.glow{background:var(--col);animation:breathe 3.2s ease-in-out infinite}
+.cell.glow.hint{animation:breathe 3.2s ease-in-out infinite, hintpulse 1.4s ease-in-out 2}
+@keyframes breathe{
+  0%,100%{box-shadow:0 0 0 0 rgba(241,226,169,0);filter:brightness(.96)}
+  50%{box-shadow:0 0 40px 8px rgba(241,226,169,.32);filter:brightness(1.06)}
+}
+@keyframes hintpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.progress{position:absolute;left:18px;right:18px;bottom:14px;height:10px;border-radius:5px;background:#34445f;overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:#9fb9d6;border-radius:5px;transition:width .6s ease}
+.ripple{position:absolute;width:260px;height:260px;margin:-130px 0 0 -130px;border-radius:50%;
+  background:rgba(255,255,255,.30);transform:scale(0);animation:ripple 1.1s ease-out forwards;pointer-events:none}
+@keyframes ripple{to{transform:scale(1.7);opacity:0}}
+
+/* ---------- Muster merken ---------- */
+.sgrid{position:absolute;top:16px;bottom:118px;left:50%;transform:translateX(-50%);width:min(96%,1040px);
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:22px}
+.sfield{border-radius:32px;background:var(--col);filter:brightness(.68) saturate(.85);min-height:80px;position:relative;overflow:hidden;
+  transition:filter .35s ease, transform .35s ease}
+.sfield.on{filter:brightness(1.05) saturate(1);transform:scale(1.02)}
+.sfield.hint{animation:hintpulse 1.4s ease-in-out 2;filter:brightness(.95) saturate(.95)}
+.sbottom{position:absolute;left:0;right:0;bottom:14px;height:92px;display:flex;align-items:center;justify-content:center;gap:28px}
+.status{font-size:30px;min-width:360px;text-align:center}
+.slen{font-size:20px;color:var(--muted)}
+.again-show{min-height:84px;padding:0 26px;border-radius:22px;background:var(--panel);font-size:23px}
+
+/* ---------- Beruhigende Spiele ---------- */
+.pads{position:absolute;inset:18px;display:none;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,1fr);gap:16px}
+.pads.show{display:grid}
+.pad{border-radius:28px;background:var(--col);filter:brightness(.82) saturate(.85);position:relative;overflow:hidden;min-height:80px;
+  transition:filter .6s ease}
+.pad:active{filter:brightness(.95) saturate(.95)}
+#calmCanvas.hidden{display:none}
+
+/* ---------- Kuthu-Trommeln ---------- */
+.bar .ctl.bpm-ctl{width:270px;flex:0 0 auto}
+.bg-toggle{min-height:80px;min-width:150px;padding:0 16px;border-radius:20px;background:var(--panel);font-size:20px;
+  border:3px solid transparent;flex:0 0 auto;line-height:1.15}
+.bg-toggle.sel{border-color:var(--accent);background:var(--panel2)}
+.dwrap{position:absolute;inset:14px 18px 16px;display:flex;flex-direction:column;gap:12px}
+.drow{display:flex;align-items:center;gap:10px;flex:0 0 auto;flex-wrap:wrap}
+.rhy{min-height:76px;padding:0 18px;border-radius:20px;background:var(--panel);font-size:20px;border:3px solid transparent;
+  transition:background-color .3s,border-color .3s}
+.rhy.sel{border-color:var(--accent);background:var(--panel2)}
+.demo{min-height:76px;padding:0 20px;border-radius:20px;background:var(--panel);font-size:20px;margin-left:auto}
+.dsteps{display:flex;justify-content:center;gap:14px;flex:0 0 auto;min-height:34px;align-items:center}
+.dstep{width:30px;height:30px;border-radius:50%;background:#34445f;transition:background-color .5s ease, transform .5s ease}
+.dstep.big{width:34px;height:34px}
+.dstep.done{background:#6f86a8}
+.dstep.now{background:var(--accent);transform:scale(1.15)}
+.dgrid{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.dgrid .cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#2a3346;font-weight:700}
+.dgrid .cell .dl{font-size:30px;color:var(--text);transition:color 1s ease}
+.dgrid .cell .ds{font-size:56px;opacity:.8}
+.dgrid .cell.glow .dl{color:#2a3346}
+.dgrid .cell.on{background:var(--col);filter:brightness(.92)}
+.dprog{height:10px;border-radius:5px;background:#34445f;overflow:hidden;flex:0 0 auto}
+.dprog i{display:block;height:100%;width:0;background:#9fb9d6;border-radius:5px;transition:width .6s ease}
+
+/* ---------- Belohnung (ruhige Sterne) ---------- */
+#reward{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+  pointer-events:none;opacity:0;transition:opacity .8s ease;z-index:50;background:rgba(38,51,74,.55)}
+#reward.visible{display:flex}
+#reward.show{opacity:1}
+#reward .stars{display:flex;gap:18px}
+#reward .star{width:74px;height:74px;opacity:0;transform:scale(.85);transition:opacity .8s ease, transform .8s ease}
+#reward.show .star{opacity:1;transform:scale(1)}
+#reward .msg{font-size:36px;margin-top:18px}
+#reward .again{pointer-events:auto;margin-top:26px;min-height:96px;min-width:300px;padding:0 30px;border-radius:26px;
+  background:var(--accent);color:var(--accent-text);font-size:30px;font-weight:700;box-shadow:0 5px 0 rgba(0,0,0,.18)}
+
+@media (max-height:680px){
+  .mode .ico{width:70px;height:70px;font-size:40px}
+  .mode .desc{font-size:16px}
+  .menu-head h1{font-size:32px}
+}
+@media (max-height:720px){
+  #menu{padding-top:10px;gap:10px}
+  .mode{min-height:0;padding:8px}
+  .mode .desc{display:none}
+  .small-btn{min-height:72px}
+  .song{min-height:64px}
+  input[type=range]{height:68px}
+}
 </style>
 </head>
-<body><h1>Test, @ Joschy</h1></body>
+<body>
+
+<!-- ===================== MENUE ===================== -->
+<section id="menu" class="screen active">
+  <div class="menu-head">
+    <h1>&#127925; Krishnas Spiele</h1>
+    <button class="small-btn" id="fullBtn">&#9974; Vollbild</button>
+  </div>
+  <div class="modes">
+    <button class="mode" data-mode="tiles"><div class="ico" style="background:var(--c1)">&#127929;</div><div class="name">Langsame Kacheln</div><div class="desc">Kacheln fallen langsam.<br>Tempo selbst wählen.</div></button>
+    <button class="mode" data-mode="wait"><div class="ico" style="background:var(--c2)">&#10024;</div><div class="name">Warte-Modus</div><div class="desc">Eine Kachel leuchtet<br>und wartet auf dich.</div></button>
+    <button class="mode" data-mode="simon"><div class="ico" style="background:var(--c3)">&#129504;</div><div class="name">Muster merken</div><div class="desc">Zuhören, anschauen,<br>nachspielen.</div></button>
+    <button class="mode" data-mode="calm"><div class="ico" style="background:var(--c4)">&#129767;</div><div class="name">Beruhigende Spiele</div><div class="desc">Blasen und Farben.<br>Einfach tippen.</div></button>
+    <button class="mode" data-mode="drum"><div class="ico" style="background:#e3c7a0">&#129345;</div><div class="name">Kuthu-Trommeln</div><div class="desc">Weiche Trommeln.<br>Rhythmus nachspielen.</div></button>
+  </div>
+  <div class="settings">
+    <div class="label">Lied</div>
+    <div class="songs" id="songList"></div>
+    <div class="label">Tempo</div>
+    <div class="slider-row"><span class="sym">&#128034;</span><input type="range" class="tempo" min="1" max="10" step="0.5" aria-label="Tempo"><span class="sym">&#128007;</span><span class="val tempo-val"></span></div>
+    <div class="label">Lautstärke</div>
+    <div class="slider-row"><span class="sym">&#128264;</span><input type="range" class="vol" min="0" max="100" step="1" aria-label="Lautstärke"><span class="sym">&#128266;</span><span class="val vol-val"></span></div>
+  </div>
+  <footer>Krishnas Spiele &middot; gebaut @ Joschy</footer>
+</section>
+
+<!-- ===================== LANGSAME KACHELN ===================== -->
+<section id="tiles" class="screen">
+  <div class="bar" data-title="Langsame Kacheln" data-tempo="1"></div>
+  <div class="stage"><canvas id="tilesCanvas"></canvas></div>
+</section>
+
+<!-- ===================== WARTE-MODUS ===================== -->
+<section id="wait" class="screen">
+  <div class="bar" data-title="Warte-Modus"></div>
+  <div class="stage">
+    <div class="wgrid" id="wgrid"></div>
+    <div class="progress"><i id="waitProg"></i></div>
+  </div>
+</section>
+
+<!-- ===================== MUSTER MERKEN ===================== -->
+<section id="simon" class="screen">
+  <div class="bar" data-title="Muster merken" data-nosong="1"></div>
+  <div class="stage">
+    <div class="sgrid">
+      <button class="sfield" data-i="0" style="--col:var(--c1)" aria-label="Blau"></button>
+      <button class="sfield" data-i="1" style="--col:var(--c2)" aria-label="Grün"></button>
+      <button class="sfield" data-i="2" style="--col:var(--c3)" aria-label="Orange"></button>
+      <button class="sfield" data-i="3" style="--col:var(--c4)" aria-label="Lila"></button>
+    </div>
+    <div class="sbottom">
+      <span class="slen" id="simonLen"></span>
+      <span class="status" id="simonStatus"></span>
+      <button class="again-show" id="simonReplay">&#128065; Nochmal zeigen</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BERUHIGENDE SPIELE ===================== -->
+<section id="calm" class="screen">
+  <div class="bar" data-title="Beruhigende Spiele" data-nosong="1" data-tabs="1"></div>
+  <div class="stage">
+    <canvas id="calmCanvas"></canvas>
+    <div class="pads" id="pads"></div>
+  </div>
+</section>
+
+<!-- ===================== KUTHU-TROMMELN ===================== -->
+<section id="drum" class="screen">
+  <div class="bar" data-title="Kuthu-Trommeln" data-nosong="1" data-drum="1"></div>
+  <div class="stage">
+    <div class="dwrap">
+      <div class="drow" id="rhyList"><button class="demo" id="drumDemo">&#128066; Vorspielen</button></div>
+      <div class="dsteps" id="dsteps"></div>
+      <div class="dgrid" id="dgrid"></div>
+      <div class="dprog"><i id="drumProg"></i></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BELOHNUNG ===================== -->
+<div id="reward" aria-live="polite">
+  <div class="stars"></div>
+  <div class="msg"></div>
+  <button class="again">&#8635; Noch einmal</button>
+</div>
+
+<script>
+/* Krishnas Spiele @ Joschy */
+'use strict';
+
+/* ================================================================
+   LIEDER  -  HIER WEITERE LIEDER ERGAENZEN
+   ----------------------------------------------------------------
+   Einfach einen neuen Eintrag in die Liste SONGS schreiben:
+     { name: 'Liedname', notes: ['C4','D4','E4', ...] },
+   Notennamen: C, C#, D, D#, E, F, F#, G, G#, A, A#, H (oder B)
+   plus Oktave, z. B. 'G3', 'C4' (mittleres C), 'C5'.
+   Bitte nur gemeinfreie (alte, freie) oder selbst ausgedachte Melodien.
+   Das neue Lied erscheint automatisch im Menue.
+   Die Kuthu-Lieder unten sind eigene Kompositionen fuer diese App
+   (Mohanam-Tonleiter C D E G A, "Tanzlied" mit Mayamalavagowla-Faerbung
+   C C# E F G G# H). Die zwei Uebungen sind einfache Tonleiter-Muster.
+   ================================================================ */
+const SONGS = [
+  { name: 'Alle meine Entchen', notes: [
+    'C4','D4','E4','F4','G4','G4',
+    'A4','A4','A4','A4','G4',
+    'A4','A4','A4','A4','G4',
+    'F4','F4','F4','F4','E4','E4',
+    'D4','D4','D4','D4','C4'
+  ]},
+  { name: 'Hänschen klein', notes: [
+    'G4','E4','E4','F4','D4','D4',
+    'C4','D4','E4','F4','G4','G4','G4',
+    'G4','E4','E4','F4','D4','D4',
+    'C4','E4','G4','G4','C4',
+    'D4','D4','D4','D4','D4','E4','F4',
+    'E4','E4','E4','E4','E4','F4','G4',
+    'G4','E4','E4','F4','D4','D4',
+    'C4','E4','G4','G4','C4'
+  ]},
+  { name: 'Bruder Jakob', notes: [
+    'C4','D4','E4','C4', 'C4','D4','E4','C4',
+    'E4','F4','G4', 'E4','F4','G4',
+    'G4','A4','G4','F4','E4','C4', 'G4','A4','G4','F4','E4','C4',
+    'C4','G3','C4', 'C4','G3','C4'
+  ]},
+  { name: 'Ode an die Freude', notes: [
+    'E4','E4','F4','G4','G4','F4','E4','D4','C4','C4','D4','E4','E4','D4','D4',
+    'E4','E4','F4','G4','G4','F4','E4','D4','C4','C4','D4','E4','D4','C4','C4',
+    'D4','D4','E4','C4','D4','E4','F4','E4','C4','D4','E4','F4','E4','D4','C4','D4','G3',
+    'E4','E4','F4','G4','G4','F4','E4','D4','C4','C4','D4','E4','D4','C4','C4'
+  ]},
+  /* ---- Eigene Lieder im Kuthu-Stil (Original-Kompositionen) ---- */
+  { name: 'Trommelfest', notes: [
+    'G4','G4','A4','G4','E4','D4','E4','G4',
+    'A4','A4','C5','A4','G4','E4','G4','G4',
+    'E4','G4','A4','C5','D5','C5','A4','G4',
+    'E4','D4','C4','D4','E4','G4','E4','C4'
+  ]},
+  { name: 'Tanzlied', notes: [
+    'C4','C#4','E4','F4','G4','F4','E4','C#4',
+    'E4','F4','G4','G#4','G4','F4','E4','E4',
+    'G4','G#4','H4','C5','H4','G#4','G4','F4',
+    'E4','F4','E4','C#4','C4','C#4','C4'
+  ]},
+  { name: 'Sonnenaufgang', notes: [
+    'C4','D4','E4','G4','E4','D4','C4',
+    'D4','E4','G4','A4','G4','E4','D4',
+    'E4','G4','A4','C5','A4','G4','E4',
+    'G4','A4','C5','D5','E5','D5','C5',
+    'A4','G4','E4','D4','C4'
+  ]},
+  { name: 'Festtag', notes: [
+    'A4','G4','A4','C5','A4','G4','E4','G4',
+    'A4','G4','E4','D4','E4','G4','A4','A4',
+    'C5','C5','D5','C5','A4','G4','A4','C5',
+    'A4','G4','E4','D4','C4','D4','C4','C4'
+  ]},
+  /* ---- Einfache Uebungsfolgen (Mohanam) ---- */
+  { name: 'Übung: Auf und ab', notes: [
+    'C4','D4','E4','G4','A4','C5',
+    'C5','A4','G4','E4','D4','C4'
+  ]},
+  { name: 'Übung: Stufen', notes: [
+    'C4','D4','E4', 'D4','E4','G4', 'E4','G4','A4', 'G4','A4','C5',
+    'C5','A4','G4', 'A4','G4','E4', 'G4','E4','D4', 'E4','D4','C4'
+  ]}
+  // , { name: 'Neues Lied', notes: ['C4','D4','E4'] }
+];
+
+/* ---------------- Hilfsfunktionen ---------------- */
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const nowSec = () => performance.now() / 1000;
+
+/* ---------------- Einstellungen (localStorage) ---------------- */
+const STORE_KEY = 'krishnaSpiele.v1';
+const DEFAULTS = { tempo: 2, volume: 60, song: 0, bpm: 44, drumBg: false, rhythm: 0 };
+const BPM_MIN = 30, BPM_MAX = 120;
+let settings = loadSettings();
+
+function loadSettings() {
+  const s = Object.assign({}, DEFAULTS);
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      const o = JSON.parse(raw);
+      if (o && typeof o.tempo === 'number' && o.tempo >= 1 && o.tempo <= 10) s.tempo = o.tempo;
+      if (o && typeof o.volume === 'number' && o.volume >= 0 && o.volume <= 100) s.volume = o.volume;
+      if (o && typeof o.song === 'number' && o.song >= 0 && o.song < SONGS.length) s.song = Math.floor(o.song);
+      if (o && typeof o.bpm === 'number' && o.bpm >= BPM_MIN && o.bpm <= BPM_MAX) s.bpm = o.bpm;
+      if (o && typeof o.drumBg === 'boolean') s.drumBg = o.drumBg;
+      if (o && typeof o.rhythm === 'number' && o.rhythm >= 0 && o.rhythm < 20) s.rhythm = Math.floor(o.rhythm);
+    }
+  } catch (e) { /* Speicher nicht verfuegbar - Standardwerte nutzen */ }
+  return s;
+}
+function saveSettings() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(settings)); } catch (e) { /* ignorieren */ }
+}
+
+/* ---------------- Klang (Web Audio, weiche Toene) ---------------- */
+const NOTE_IDX = { C:0, D:2, E:4, F:5, G:7, A:9, B:11, H:11 };
+function noteFreq(name) {
+  const m = /^([A-Ha-h])(#|b)?(-?\d)$/.exec(String(name).trim());
+  if (!m) return 261.63;
+  let n = NOTE_IDX[m[1].toUpperCase()];
+  if (m[2] === '#') n += 1;
+  if (m[2] === 'b') n -= 1;
+  const midi = (parseInt(m[3], 10) + 1) * 12 + n;
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+let actx = null, master = null;
+function ensureAudio() {
+  try {
+    if (!actx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      actx = new AC();
+      const lp = actx.createBiquadFilter();
+      lp.type = 'lowpass'; lp.frequency.value = 3200; lp.Q.value = 0.4;
+      const comp = actx.createDynamicsCompressor();
+      comp.threshold.value = -20; comp.knee.value = 14; comp.ratio.value = 4;
+      comp.attack.value = 0.004; comp.release.value = 0.25;
+      master = actx.createGain();
+      master.gain.value = volGain();
+      master.connect(lp); lp.connect(comp); comp.connect(actx.destination);
+    }
+    if (actx.state === 'suspended') actx.resume().catch(() => {});
+  } catch (e) { return null; }
+  return actx;
+}
+function volGain() { const v = settings.volume / 100; return v * v * 0.55; }
+function applyVolume() {
+  try { if (actx && master) master.gain.setTargetAtTime(volGain(), actx.currentTime, 0.05); } catch (e) {}
+}
+/* Weicher Klavier-/Xylophon-artiger Ton: sanfter Anschlag, langer, leiser Ausklang */
+function playFreq(freq, vel, dur) {
+  vel = vel == null ? 1 : vel; dur = dur || 1.8;
+  const ctx = ensureAudio(); if (!ctx || !master) return;
+  try {
+    const t = ctx.currentTime + 0.01;
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0.0001, t);
+    env.gain.linearRampToValueAtTime(0.42 * vel, t + 0.015);
+    env.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    env.connect(master);
+    const parts = [[1, 1, 'sine'], [2, 0.22, 'sine'], [3, 0.06, 'triangle'], [4.01, 0.035, 'sine']];
+    parts.forEach(([mul, g, type]) => {
+      const o = ctx.createOscillator();
+      o.type = type; o.frequency.value = freq * mul;
+      const pg = ctx.createGain();
+      pg.gain.setValueAtTime(g, t);
+      if (mul > 1) pg.gain.exponentialRampToValueAtTime(0.0001, t + Math.max(0.2, dur / (mul * 1.1)));
+      o.connect(pg); pg.connect(env);
+      o.start(t); o.stop(t + dur + 0.05);
+    });
+  } catch (e) {}
+}
+function playNote(name, vel, dur) { playFreq(noteFreq(name), vel, dur); }
+function hintTone() { playFreq(noteFreq('G3'), 0.2, 0.9); }   /* leiser, tiefer Hinweis-Ton */
+function chime() { ['C5','E5','G5'].forEach((n, i) => setTimeout(() => playNote(n, 0.3, 1.6), i * 220)); }
+
+/* ---------------- Weiche Trommeln (Parai/Thavil-artig, rein synthetisch) ----------------
+   'D' = dumpfer Schlag (tief), 'T' = hellerer Schlag, 'K' = kurzer Doppelschlag.
+   Alle Klaenge mit weichem Anschlag und Tiefpass, nichts Schrilles. */
+let noiseBuf = null;
+function getNoise(ctx) {
+  if (!noiseBuf) {
+    noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.5), ctx.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  return noiseBuf;
+}
+function drumHit(ctx, t, f0, f1, decay, vel, noiseFreq, noiseAmt) {
+  /* Koerper: Sinus mit sanft fallender Tonhoehe */
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(f0, t);
+  o.frequency.exponentialRampToValueAtTime(f1, t + decay * 0.6);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(0.7 * vel, t + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+  o.connect(g); g.connect(master);
+  o.start(t); o.stop(t + decay + 0.05);
+  /* Fell: kurzes, gefiltertes Rauschen, sehr leise */
+  const n = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), ng = ctx.createGain();
+  n.buffer = getNoise(ctx);
+  bp.type = 'bandpass'; bp.frequency.value = noiseFreq; bp.Q.value = 0.9;
+  ng.gain.setValueAtTime(0.0001, t);
+  ng.gain.linearRampToValueAtTime(noiseAmt * vel, t + 0.005);
+  ng.gain.exponentialRampToValueAtTime(0.0001, t + Math.min(0.12, decay * 0.4));
+  n.connect(bp); bp.connect(ng); ng.connect(master);
+  n.start(t); n.stop(t + 0.2);
+}
+function playDrum(type, vel, when) {
+  vel = vel == null ? 1 : vel;
+  const ctx = ensureAudio(); if (!ctx || !master) return;
+  try {
+    const t = Math.max(when || 0, ctx.currentTime + 0.01);
+    if (type === 'D') drumHit(ctx, t, 115, 58, 0.55, vel, 420, 0.10);
+    else if (type === 'T') drumHit(ctx, t, 330, 230, 0.22, vel * 0.8, 1300, 0.14);
+    else { drumHit(ctx, t, 290, 210, 0.16, vel * 0.65, 1500, 0.11); drumHit(ctx, t + 0.11, 310, 220, 0.18, vel * 0.75, 1500, 0.12); }
+  } catch (e) {}
+}
+
+/* Audio erst nach dem ersten Tipp starten (Browser-Vorgabe) */
+document.addEventListener('pointerdown', ensureAudio, { capture: true });
+
+/* ---------------- Bildschirm anlassen (Wake Lock) ---------------- */
+let wakeLock = null, wantWake = false;
+async function requestWake() {
+  wantWake = true;
+  try {
+    if ('wakeLock' in navigator && document.visibilityState === 'visible' && !wakeLock) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    }
+  } catch (e) { wakeLock = null; }
+}
+function releaseWake() {
+  wantWake = false;
+  try { if (wakeLock) { wakeLock.release().catch(() => {}); } } catch (e) {}
+  wakeLock = null;
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && wantWake) requestWake();
+});
+
+/* ---------------- Gesten blockieren (kein Zoom, kein Markieren) ---------------- */
+['gesturestart', 'gesturechange', 'dblclick', 'contextmenu', 'selectstart', 'dragstart'].forEach(ev =>
+  document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
+document.addEventListener('touchmove', e => { if (e.target.type !== 'range') e.preventDefault(); }, { passive: false });
+document.addEventListener('touchstart', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+
+/* ---------------- Leisten oben aufbauen ---------------- */
+$$('.bar').forEach(bar => {
+  let html = '<button class="back">&#8962; Menü</button>';
+  html += '<div class="title">' + bar.dataset.title + (bar.dataset.nosong ? '' : '<small class="song-name"></small>') + '</div>';
+  if (bar.dataset.tabs) {
+    html += '<button class="tab sel" data-sub="bubbles">&#129767; Blasen</button><button class="tab" data-sub="pads">&#127912; Farben</button>';
+  }
+  if (bar.dataset.drum) {
+    html += '<button class="bg-toggle" id="drumBgBtn"></button>';
+    html += '<div class="ctl bpm-ctl slider-row"><span class="sym">&#128034;</span><input type="range" class="bpm" min="' + BPM_MIN + '" max="' + BPM_MAX + '" step="2" aria-label="Trommel-Tempo"><span class="val bpm-val"></span></div>';
+  }
+  if (bar.dataset.tempo) {
+    html += '<div class="ctl tempo-ctl slider-row"><span class="sym">&#128034;</span><input type="range" class="tempo" min="1" max="10" step="0.5" aria-label="Tempo"><span class="val tempo-val"></span></div>';
+  }
+  html += '<div class="ctl slider-row"><span class="sym">&#128264;</span><input type="range" class="vol" min="0" max="100" step="1" aria-label="Lautstärke"></div>';
+  bar.innerHTML = html;
+});
+
+/* ---------------- Regler und Liedauswahl ---------------- */
+function fmtTempo(t) { return String(t).replace('.', ','); }
+function syncUI() {
+  $$('input.vol').forEach(el => { if (+el.value !== settings.volume) el.value = settings.volume; });
+  $$('.vol-val').forEach(el => { el.textContent = settings.volume + ' %'; });
+  $$('input.tempo').forEach(el => { if (+el.value !== settings.tempo) el.value = settings.tempo; });
+  $$('.tempo-val').forEach(el => { el.textContent = fmtTempo(settings.tempo); });
+  $$('.song-name').forEach(el => { el.textContent = SONGS[settings.song].name; });
+  $$('.song').forEach((el, i) => el.classList.toggle('sel', i === settings.song));
+  $$('input.bpm').forEach(el => { if (+el.value !== settings.bpm) el.value = settings.bpm; });
+  $$('.bpm-val').forEach(el => { el.textContent = settings.bpm; });
+  $$('.bg-toggle').forEach(el => {
+    el.classList.toggle('sel', settings.drumBg);
+    el.innerHTML = settings.drumBg ? '&#127926; Begleitung<br>an' : '&#127926; Begleitung<br>aus';
+  });
+}
+$$('input.bpm').forEach(el => {
+  el.addEventListener('input', () => { settings.bpm = +el.value; syncUI(); saveSettings(); });
+});
+$$('input.vol').forEach(el => {
+  el.addEventListener('input', () => { settings.volume = +el.value; applyVolume(); syncUI(); saveSettings(); });
+  el.addEventListener('change', () => playNote('E5', 0.5, 1.2));
+});
+$$('input.tempo').forEach(el => {
+  el.addEventListener('input', () => { settings.tempo = +el.value; syncUI(); saveSettings(); });
+});
+const songList = $('#songList');
+SONGS.forEach((s, i) => {
+  const b = document.createElement('button');
+  b.className = 'song'; b.textContent = s.name;
+  b.addEventListener('click', () => {
+    settings.song = i; saveSettings(); syncUI();
+    playNote(s.notes[0], 0.6);
+  });
+  songList.appendChild(b);
+});
+
+/* ---------------- Belohnung: kleine Sterne, ruhig ---------------- */
+const reward = $('#reward');
+const STAR_SVG = '<svg class="star" viewBox="0 0 24 24"><path d="M12 2.6l2.85 5.95 6.55.8-4.8 4.5 1.25 6.5L12 17.2l-5.85 3.15 1.25-6.5-4.8-4.5 6.55-.8z" fill="#f1e2a9" stroke="#fff6d8" stroke-width=".6" stroke-linejoin="round"/></svg>';
+(function () {
+  const box = $('.stars', reward);
+  for (let i = 0; i < 5; i++) box.insertAdjacentHTML('beforeend', STAR_SVG);
+  $$('.star', box).forEach((s, i) => { s.style.transitionDelay = (0.15 + i * 0.18) + 's'; });
+})();
+let rewardTimer = 0;
+function showReward(msg, againFn) {
+  clearTimeout(rewardTimer);
+  $('.msg', reward).textContent = msg;
+  const btn = $('.again', reward);
+  btn.style.display = againFn ? '' : 'none';
+  btn.onclick = againFn ? () => { hideReward(); againFn(); } : null;
+  reward.classList.add('visible');
+  void reward.offsetWidth;          /* Reflow, damit das Einblenden sanft laeuft */
+  reward.classList.add('show');
+  chime();
+  if (!againFn) rewardTimer = setTimeout(hideReward, 2500);
+}
+function hideReward() {
+  clearTimeout(rewardTimer);
+  reward.classList.remove('show');
+  $('.again', reward).onclick = null;
+  rewardTimer = setTimeout(() => reward.classList.remove('visible'), 850);
+}
+
+/* Sanfte Welle beim Antippen */
+function ripple(el, e) {
+  const r = el.getBoundingClientRect();
+  const sp = document.createElement('span');
+  sp.className = 'ripple';
+  sp.style.left = ((e && e.clientX != null ? e.clientX : r.left + r.width / 2) - r.left) + 'px';
+  sp.style.top = ((e && e.clientY != null ? e.clientY : r.top + r.height / 2) - r.top) + 'px';
+  el.appendChild(sp);
+  setTimeout(() => sp.remove(), 1200);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  r = Math.max(0, Math.min(r, w / 2, h / 2));
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function fitCanvas(cv, ctx) {
+  const r = cv.getBoundingClientRect();
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = Math.max(1, Math.round(r.width * dpr));
+  cv.height = Math.max(1, Math.round(r.height * dpr));
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { W: r.width, H: r.height };
+}
+
+const LANE_COL = ['#8fb8de', '#a8d5ba', '#efc9a5', '#c9b6e4'];
+
+/* ================================================================
+   MODUS 1: LANGSAME KACHELN
+   Kacheln fallen langsam. Erreicht die naechste Kachel unten die Linie,
+   bleibt sie stehen und wartet. Kein Verlieren.
+   ================================================================ */
+const Tiles = (() => {
+  const cv = $('#tilesCanvas'), ctx = cv.getContext('2d');
+  let W = 0, H = 0, raf = 0, last = 0, running = false;
+  let tiles = [], next = 0, scroll = 0, hintUntil = 0, done = false;
+
+  function resize() { const s = fitCanvas(cv, ctx); W = s.W; H = s.H; }
+  function geo() {
+    const tileH = Math.max(120, H * 0.24);
+    const gap = tileH * 0.35;
+    return { tileH, step: tileH + gap, stopY: H - 18, startY: H * 0.45, laneW: W / 4 };
+  }
+  function build() {
+    const notes = SONGS[settings.song].notes;
+    tiles = []; let prev = -1;
+    for (let i = 0; i < notes.length; i++) {
+      let l; do { l = Math.floor(Math.random() * 4); } while (l === prev);
+      prev = l;
+      tiles.push({ lane: l, note: notes[i], hit: false, hitT: 0 });
+    }
+    next = 0; scroll = 0; done = false; hintUntil = 0;
+  }
+  const bottomOf = (i, g) => g.startY + scroll - i * g.step;
+  /* Tempo 1 = sehr langsam ... Tempo 10 = zuegig (immer noch ruhiger als Magic Tiles) */
+  const speed = () => H * (0.03 + (settings.tempo - 1) * 0.03);
+
+  function frame(ts) {
+    if (!running) return;
+    const dt = last ? Math.min(0.05, (ts - last) / 1000) : 0;
+    last = ts;
+    const g = geo();
+    if (!done) {
+      scroll += speed() * dt;
+      const maxScroll = g.stopY - g.startY + next * g.step;   /* naechste Kachel wartet unten */
+      if (scroll > maxScroll) scroll = maxScroll;
+    }
+    draw(ts / 1000, g);
+    raf = requestAnimationFrame(frame);
+  }
+
+  function draw(now, g) {
+    ctx.clearRect(0, 0, W, H);
+    for (let l = 0; l < 4; l++) {
+      ctx.fillStyle = l % 2 ? '#2b3a53' : '#2f3f5b';
+      ctx.fillRect(l * g.laneW, 0, g.laneW, H);
+    }
+    /* ruhige Zielzone unten */
+    ctx.fillStyle = 'rgba(241,226,169,0.06)';
+    ctx.fillRect(0, g.stopY - g.tileH, W, g.tileH);
+
+    for (let i = Math.max(0, next - 4); i < tiles.length; i++) {
+      const t = tiles[i];
+      const b = bottomOf(i, g), top = b - g.tileH;
+      if (b < 0) break;
+      if (top > H) continue;
+      const x = t.lane * g.laneW + 10, w = g.laneW - 20;
+      let alpha = 1, grow = 0;
+      if (t.hit) {
+        const a = (now - t.hitT) / 0.8;
+        if (a >= 1) continue;
+        alpha = 0.55 * (1 - a); grow = a * 12;
+      }
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = LANE_COL[t.lane];
+      roundRect(ctx, x - grow, top - grow, w + 2 * grow, g.tileH + 2 * grow, 24);
+      ctx.fill();
+      if (i === next && !t.hit) {
+        /* naechste Kachel: sanfter heller Rand, langsam atmend */
+        const p = 0.5 + 0.5 * Math.sin(now * Math.PI * 0.8);
+        const hint = now < hintUntil;
+        const e = hint ? 4 + 8 * (0.5 + 0.5 * Math.sin(now * Math.PI * 1.4)) : 0;
+        ctx.globalAlpha = 0.35 + 0.3 * p;
+        ctx.strokeStyle = '#fff6d8';
+        ctx.lineWidth = 6;
+        roundRect(ctx, x - e, top - e, w + 2 * e, g.tileH + 2 * e, 26);
+        ctx.stroke();
+        ctx.globalAlpha = 0.45 + 0.25 * p;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(x + w / 2, top + g.tileH / 2, Math.min(w, g.tileH) * 0.12, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+    ctx.globalAlpha = 1;
+    /* Fortschritt oben */
+    ctx.fillStyle = '#34445f';
+    ctx.fillRect(0, 0, W, 8);
+    ctx.fillStyle = '#9fb9d6';
+    ctx.fillRect(0, 0, W * (tiles.length ? next / tiles.length : 0), 8);
+    if (next === 0) {
+      ctx.fillStyle = 'rgba(238,242,247,0.85)';
+      ctx.font = '600 30px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Tippe auf die helle Kachel', W / 2, 60);
+    }
+  }
+
+  cv.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    if (!running || done) return;
+    const r = cv.getBoundingClientRect();
+    const g = geo();
+    const lane = Math.min(3, Math.max(0, Math.floor((e.clientX - r.left) / g.laneW)));
+    const t = tiles[next]; if (!t) return;
+    const visible = bottomOf(next, g) > g.tileH * 0.35;
+    if (lane === t.lane && visible) {
+      t.hit = true; t.hitT = nowSec();
+      playNote(t.note);
+      next++;
+      if (next >= tiles.length) {
+        done = true;
+        setTimeout(() => { if (running) showReward('Super gespielt!', () => { build(); }); }, 900);
+      }
+    } else {
+      hintTone();
+      hintUntil = nowSec() + 2.8;
+    }
+  });
+
+  return {
+    start() { resize(); build(); running = true; last = 0; cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); },
+    stop() { running = false; cancelAnimationFrame(raf); },
+    resize() { if (running) resize(); }
+  };
+})();
+
+/* ================================================================
+   MODUS 2: WARTE-MODUS
+   Eine Kachel leuchtet sanft und wartet beliebig lange.
+   ================================================================ */
+const Wait = (() => {
+  const grid = $('#wgrid'), prog = $('#waitProg');
+  const COLS = ['#8fb8de', '#a8d5ba', '#efc9a5', '#c9b6e4', '#b3d0e3', '#d9cba6', '#a9cbc4', '#dcbcc8'];
+  const cells = COLS.map((c, i) => {
+    const d = document.createElement('button');
+    d.className = 'cell'; d.style.setProperty('--col', c);
+    d.addEventListener('pointerdown', e => { e.preventDefault(); tap(i, e); });
+    grid.appendChild(d);
+    return d;
+  });
+  let active = -1, idx = 0, notes = [], busy = false, running = false, hintTimer = 0;
+
+  function setActive(n) {
+    cells.forEach(c => c.classList.remove('glow', 'hint'));
+    active = n;
+    if (n >= 0) cells[n].classList.add('glow');
+  }
+  function pick() {
+    let n; do { n = Math.floor(Math.random() * cells.length); } while (n === active);
+    setActive(n);
+  }
+  function updateProgress() { prog.style.width = (notes.length ? 100 * idx / notes.length : 0) + '%'; }
+  function reset() {
+    notes = SONGS[settings.song].notes; idx = 0; busy = false; active = -1;
+    updateProgress(); pick();
+  }
+  function tap(i, e) {
+    if (!running || busy || active < 0) return;
+    if (i === active) {
+      playNote(notes[idx]);
+      ripple(cells[i], e);
+      idx++; updateProgress();
+      busy = true;
+      cells[i].classList.remove('glow', 'hint');
+      if (idx >= notes.length) {
+        active = -1;
+        setTimeout(() => { if (running) showReward('Toll gemacht!', reset); }, 700);
+      } else {
+        setTimeout(() => { if (!running) return; busy = false; pick(); }, 500);
+      }
+    } else {
+      hintTone();
+      const c = cells[active];
+      c.classList.remove('hint'); void c.offsetWidth; c.classList.add('hint');
+      clearTimeout(hintTimer);
+      hintTimer = setTimeout(() => c.classList.remove('hint'), 2900);
+    }
+  }
+  return {
+    start() { running = true; reset(); },
+    stop() { running = false; clearTimeout(hintTimer); setActive(-1); }
+  };
+})();
+
+/* ================================================================
+   MODUS 3: MUSTER MERKEN (Simon-artig)
+   Start bei 2 Toenen, nach je 2 geschafften Runden kommt ein Ton dazu.
+   ================================================================ */
+const Simon = (() => {
+  const fields = $$('.sfield');
+  const TONES = ['C4', 'E4', 'G4', 'C5'];
+  const status = $('#simonStatus'), lenEl = $('#simonLen');
+  let seq = [], pos = 0, locked = true, wins = 0, timers = [], running = false;
+  const lightTimers = [0, 0, 0, 0];
+
+  const later = (fn, ms) => { timers.push(setTimeout(() => { if (running) fn(); }, ms)); };
+  const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+  const setStatus = s => { status.textContent = s; };
+  const updateLen = () => { lenEl.textContent = seq.length + ' Töne'; };
+  function rand() {
+    let n; do { n = Math.floor(Math.random() * 4); } while (seq.length && n === seq[seq.length - 1] && Math.random() < 0.6);
+    return n;
+  }
+  function light(i, ms) {
+    clearTimeout(lightTimers[i]);
+    fields[i].classList.add('on');
+    lightTimers[i] = setTimeout(() => fields[i].classList.remove('on'), ms);
+  }
+  function pulse(i) {
+    const f = fields[i];
+    f.classList.remove('hint'); void f.offsetWidth; f.classList.add('hint');
+    setTimeout(() => f.classList.remove('hint'), 2900);
+  }
+  function playSeq() {
+    clearTimers();
+    locked = true; pos = 0;
+    setStatus('Schau gut zu …');
+    const step = 1050;
+    seq.forEach((v, k) => later(() => { light(v, 650); playNote(TONES[v]); }, 900 + k * step));
+    later(() => { locked = false; pos = 0; setStatus('Jetzt du!'); }, 900 + seq.length * step);
+  }
+  function tap(i) {
+    if (!running || locked) return;
+    if (i === seq[pos]) {
+      light(i, 400); playNote(TONES[i]);
+      pos++;
+      if (pos >= seq.length) {
+        locked = true; wins++;
+        setStatus('Super!');
+        later(() => showReward('Richtig gemerkt!'), 500);
+        later(() => {
+          if (wins % 2 === 0) seq.push(rand());
+          updateLen(); playSeq();
+        }, 3600);
+      }
+    } else {
+      locked = true;
+      hintTone();
+      pulse(seq[pos]);
+      setStatus('Fast! Schau noch einmal zu.');
+      later(playSeq, 3000);
+    }
+  }
+  fields.forEach((f, i) => f.addEventListener('pointerdown', e => { e.preventDefault(); tap(i); }));
+  $('#simonReplay').addEventListener('click', () => { if (running && !locked) playSeq(); });
+
+  return {
+    start() { running = true; seq = []; seq.push(rand()); seq.push(rand()); wins = 0; updateLen(); playSeq(); },
+    stop() { running = false; clearTimers(); fields.forEach(f => f.classList.remove('on', 'hint')); }
+  };
+})();
+
+/* ================================================================
+   MODUS 4: BERUHIGENDE SPIELE
+   Blasen platzen lassen oder Farbflaechen antippen. Kein Ziel.
+   ================================================================ */
+const Calm = (() => {
+  const cv = $('#calmCanvas'), ctx = cv.getContext('2d'), pads = $('#pads');
+  const PENTA = ['C4', 'D4', 'E4', 'G4', 'A4', 'C5', 'D5', 'E5', 'G5', 'A5', 'C6'];
+  const PAD_NOTES = ['C4', 'D4', 'E4', 'G4', 'A4', 'C5', 'D5', 'E5', 'G5', 'A5', 'C6', 'D6'];
+  const PAD_COLS = ['#8fb8de', '#a8d5ba', '#efc9a5', '#c9b6e4', '#b3d0e3', '#d9cba6', '#a9cbc4', '#dcbcc8', '#9fc2d8', '#bcd8b0', '#e8c8b0', '#bfb3dc'];
+  let W = 0, H = 0, raf = 0, last = 0, running = false, sub = 'bubbles';
+  let bubbles = [], pops = [], nextSpawn = 0;
+
+  PAD_NOTES.forEach((n, i) => {
+    const p = document.createElement('button');
+    p.className = 'pad'; p.style.setProperty('--col', PAD_COLS[i]);
+    p.addEventListener('pointerdown', e => { e.preventDefault(); playNote(n, 0.75, 2.2); ripple(p, e); });
+    pads.appendChild(p);
+  });
+
+  function resize() { const s = fitCanvas(cv, ctx); W = s.W; H = s.H; }
+  function makeBubble(y) {
+    const r = 48 + Math.random() * 40;
+    return { x: r + Math.random() * Math.max(1, W - 2 * r), y: y != null ? y : H + r, r,
+      vy: 22 + Math.random() * 20, ph: Math.random() * 6.28, col: LANE_COL[Math.floor(Math.random() * 4)] };
+  }
+  function seed() {
+    bubbles = []; pops = [];
+    for (let i = 0; i < 6; i++) bubbles.push(makeBubble(H * (0.2 + Math.random() * 0.8)));
+  }
+  function frame(ts) {
+    if (!running) return;
+    const dt = last ? Math.min(0.05, (ts - last) / 1000) : 0;
+    last = ts;
+    const now = ts / 1000;
+    if (sub === 'bubbles') {
+      if (bubbles.length < 11 && now > nextSpawn) { bubbles.push(makeBubble()); nextSpawn = now + 1.2 + Math.random() * 1.4; }
+      bubbles.forEach(b => { b.y -= b.vy * dt; b.x += Math.sin(now * 0.6 + b.ph) * 12 * dt; });
+      bubbles = bubbles.filter(b => b.y > -b.r - 10);
+      draw(now);
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  function draw(now) {
+    ctx.clearRect(0, 0, W, H);
+    bubbles.forEach(b => {
+      const fadeTop = Math.min(1, (b.y + b.r) / (H * 0.15));     /* oben sanft ausblenden */
+      ctx.globalAlpha = 0.75 * Math.max(0, fadeTop);
+      const g = ctx.createRadialGradient(b.x - b.r * 0.3, b.y - b.r * 0.3, b.r * 0.1, b.x, b.y, b.r);
+      g.addColorStop(0, 'rgba(255,255,255,0.55)');
+      g.addColorStop(0.35, b.col);
+      g.addColorStop(1, 'rgba(255,255,255,0.12)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 2; ctx.stroke();
+    });
+    pops = pops.filter(p => now - p.t0 < 0.9);
+    pops.forEach(p => {
+      const a = (now - p.t0) / 0.9;
+      ctx.globalAlpha = 0.5 * (1 - a);
+      ctx.strokeStyle = p.col; ctx.lineWidth = 6 * (1 - a) + 1;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (1 + 0.6 * a), 0, Math.PI * 2); ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+  }
+  cv.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    if (!running || sub !== 'bubbles') return;
+    const r = cv.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    for (let i = bubbles.length - 1; i >= 0; i--) {
+      const b = bubbles[i];
+      if (Math.hypot(b.x - x, b.y - y) <= b.r + 22) {
+        bubbles.splice(i, 1);
+        pops.push({ x: b.x, y: b.y, r: b.r, col: b.col, t0: nowSec() });
+        const k = Math.round((1 - (b.r - 48) / 40) * (PENTA.length - 1));   /* grosse Blase = tiefer Ton */
+        playNote(PENTA[Math.max(0, Math.min(PENTA.length - 1, k))], 0.7, 2.2);
+        return;
+      }
+    }
+  });
+  function setSub(s) {
+    sub = s;
+    $$('#calm .tab').forEach(t => t.classList.toggle('sel', t.dataset.sub === s));
+    cv.classList.toggle('hidden', s !== 'bubbles');
+    pads.classList.toggle('show', s === 'pads');
+    if (s === 'bubbles') { resize(); if (!bubbles.length) seed(); }
+  }
+  $$('#calm .tab').forEach(t => t.addEventListener('click', () => setSub(t.dataset.sub)));
+
+  return {
+    start() { running = true; setSub(sub); resize(); seed(); last = 0; cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); },
+    stop() { running = false; cancelAnimationFrame(raf); },
+    resize() { if (running && sub === 'bubbles') resize(); }
+  };
+})();
+
+/* ================================================================
+   MODUS 5: KUTHU-TROMMELN
+   Drei weiche Trommeln. Die naechste Trommel im Rhythmus leuchtet sanft
+   und wartet - kein Zeitdruck. Das Tempo bestimmt nur, wie schnell die
+   naechste Trommel aufleuchtet, das Vorspielen und die Begleitung.
+   ================================================================ */
+const Drum = (() => {
+  const DRUMS = [
+    { k: 'D', label: 'Dumpf',  sym: '&#9679;',        col: '#d6b48f' },
+    { k: 'T', label: 'Hell',   sym: '&#9675;',        col: '#efd6a8' },
+    { k: 'K', label: 'Doppel', sym: '&#9679;&#9679;', col: '#c9c0dd' }
+  ];
+  /* Einfache Kuthu-Grundrhythmen (Takt mit 4 bzw. 8 Schlaegen) */
+  const RHYTHMS = [
+    { name: 'Ruhiger Gang',  pat: 'DTDT' },
+    { name: 'Grundschlag',   pat: 'DTKT' },
+    { name: 'Doppel-Takt',   pat: 'DTTDKTDT' },
+    { name: 'Festschritt',   pat: 'DKTDDKTT' },
+    { name: 'Tanzschritt',   pat: 'DTKDTDKT' }
+  ];
+  const grid = $('#dgrid'), stepsEl = $('#dsteps'), prog = $('#drumProg'), rhyList = $('#rhyList'), demoBtn = $('#drumDemo');
+  let running = false, busy = false, demoing = false, pos = 0, count = 0, total = 16;
+  let timers = [], hintTimer = 0, bgTimer = 0, bgNext = 0, bgStep = 0;
+
+  const later = (fn, ms) => { timers.push(setTimeout(() => { if (running) fn(); }, ms)); };
+  const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+  const beat = () => 60 / settings.bpm;
+  const rhythm = () => RHYTHMS[Math.min(settings.rhythm, RHYTHMS.length - 1)];
+  const pat = () => rhythm().pat;
+
+  const cells = DRUMS.map((d, i) => {
+    const b = document.createElement('button');
+    b.className = 'cell'; b.style.setProperty('--col', d.col);
+    b.innerHTML = '<span class="ds">' + d.sym + '</span><span class="dl">' + d.label + '</span>';
+    b.setAttribute('aria-label', d.label);
+    b.addEventListener('pointerdown', e => { e.preventDefault(); tap(i, e); });
+    grid.appendChild(b);
+    return b;
+  });
+  const idxOf = k => DRUMS.findIndex(d => d.k === k);
+
+  /* Rhythmus-Auswahl */
+  const rhyBtns = RHYTHMS.map((r, i) => {
+    const b = document.createElement('button');
+    b.className = 'rhy';
+    b.textContent = r.name + ' (' + r.pat.length + ')';
+    b.addEventListener('click', () => { settings.rhythm = i; saveSettings(); markRhythm(); if (running) reset(); });
+    rhyList.insertBefore(b, demoBtn);
+    return b;
+  });
+  function markRhythm() { rhyBtns.forEach((b, i) => b.classList.toggle('sel', i === Math.min(settings.rhythm, RHYTHMS.length - 1))); }
+
+  function buildSteps() {
+    stepsEl.innerHTML = '';
+    pat().split('').forEach((k, i) => {
+      const s = document.createElement('span');
+      s.className = 'dstep' + (k === 'D' ? ' big' : '');
+      stepsEl.appendChild(s);
+    });
+  }
+  function markSteps() {
+    $$('.dstep', stepsEl).forEach((s, i) => {
+      s.classList.toggle('done', i < pos);
+      s.classList.toggle('now', i === pos && !demoing);
+    });
+  }
+  function setGlow(n) {
+    cells.forEach(c => c.classList.remove('glow', 'hint'));
+    if (n >= 0) cells[n].classList.add('glow');
+  }
+  function updateProgress() { prog.style.width = (100 * count / total) + '%'; }
+  function reset() {
+    clearTimers(); demoing = false; busy = false;
+    pos = 0; count = 0;
+    total = 16;     /* 4er-Takt: 4 Durchgaenge, 8er-Takt: 2 Durchgaenge */
+    cells.forEach(c => c.classList.remove('on'));
+    buildSteps(); markSteps(); updateProgress();
+    setGlow(idxOf(pat()[0]));
+  }
+  function tap(i, e) {
+    if (!running) return;
+    if (demoing || busy) { playDrum(DRUMS[i].k, 0.7); ripple(cells[i], e); return; }  /* freies Mittrommeln */
+    const want = idxOf(pat()[pos]);
+    if (i === want) {
+      playDrum(DRUMS[i].k, 1);
+      ripple(cells[i], e);
+      cells[i].classList.remove('glow', 'hint');
+      count++; pos = (pos + 1) % pat().length;
+      updateProgress(); markSteps();
+      busy = true;
+      if (count >= total) {
+        later(() => showReward('Toll getrommelt!', reset), 700);
+      } else {
+        later(() => { busy = false; setGlow(idxOf(pat()[pos])); }, Math.round(beat() * 1000));
+      }
+    } else {
+      hintTone();
+      const c = cells[want];
+      c.classList.remove('hint'); void c.offsetWidth; c.classList.add('hint');
+      clearTimeout(hintTimer);
+      hintTimer = setTimeout(() => c.classList.remove('hint'), 2900);
+    }
+  }
+  /* Vorspielen: Rhythmus einmal langsam vorspielen, Trommeln leuchten weich mit */
+  function demo() {
+    if (!running || demoing) return;
+    clearTimers(); demoing = true; busy = false;
+    setGlow(-1); markSteps();
+    const p = pat(), ms = Math.round(beat() * 1000);
+    p.split('').forEach((k, j) => {
+      later(() => {
+        const n = idxOf(k);
+        playDrum(k, 0.9);
+        cells.forEach(c => c.classList.remove('on'));
+        cells[n].classList.add('on');
+      }, 400 + j * ms);
+    });
+    later(() => {
+      cells.forEach(c => c.classList.remove('on'));
+      demoing = false; markSteps(); setGlow(idxOf(p[pos]));
+    }, 400 + p.length * ms + 300);
+  }
+  demoBtn.addEventListener('click', demo);
+
+  /* Leise Begleit-Trommel im Hintergrund (abschaltbar) */
+  const BG = [['D', 0.26], ['T', 0.10], ['D', 0.16], ['T', 0.10]];
+  function bgTick() {
+    if (!running || !settings.drumBg || !actx || !master) return;
+    const now = actx.currentTime;
+    if (bgNext < now) bgNext = now + 0.1;
+    while (bgNext < now + 0.25) {
+      const [k, v] = BG[bgStep % BG.length];
+      playDrum(k, v, bgNext);
+      bgStep++; bgNext += beat();
+    }
+  }
+  function bgStart() { bgStop(); if (!settings.drumBg) return; ensureAudio(); bgStep = 0; bgNext = 0; bgTimer = setInterval(bgTick, 60); }
+  function bgStop() { clearInterval(bgTimer); bgTimer = 0; }
+  $('#drumBgBtn').addEventListener('click', () => {
+    settings.drumBg = !settings.drumBg; saveSettings(); syncUI();
+    if (running) bgStart();
+  });
+
+  markRhythm();
+  return {
+    start() { running = true; markRhythm(); reset(); bgStart(); },
+    stop() { running = false; clearTimers(); clearTimeout(hintTimer); bgStop(); setGlow(-1); cells.forEach(c => c.classList.remove('on')); }
+  };
+})();
+
+/* ---------------- Navigation: immer gleicher Ablauf ---------------- */
+const MODES = { tiles: Tiles, wait: Wait, simon: Simon, calm: Calm, drum: Drum };
+let current = 'menu';
+function show(name) {
+  if (MODES[current]) MODES[current].stop();
+  hideReward();
+  $$('.screen').forEach(s => s.classList.toggle('active', s.id === name));
+  current = name;
+  syncUI();
+  if (MODES[name]) { requestWake(); MODES[name].start(); }
+  else releaseWake();
+}
+$$('.mode').forEach(b => b.addEventListener('click', () => show(b.dataset.mode)));
+$$('.back').forEach(b => b.addEventListener('click', () => show('menu')));
+window.addEventListener('resize', () => { Tiles.resize(); Calm.resize(); });
+
+$('#fullBtn').addEventListener('click', () => {
+  try {
+    const d = document;
+    if (!d.fullscreenElement) {
+      const p = d.documentElement.requestFullscreen && d.documentElement.requestFullscreen();
+      if (p && p.catch) p.catch(() => {});
+    } else if (d.exitFullscreen) {
+      const p = d.exitFullscreen(); if (p && p.catch) p.catch(() => {});
+    }
+  } catch (e) {}
+});
+
+syncUI();
+</script>
+</body>
 </html>
