@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Krishnas Spiele - Theme @ Joschy -->
+<resources>
+    <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+    <color name="bg">#F4F1EA</color>
+    <color name="ic_bg">#8FB8A8</color>
+</resources>

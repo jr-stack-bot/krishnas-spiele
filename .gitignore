@@ -1,0 +1,6 @@
+# Krishnas Spiele @ Joschy
+.gradle/
+build/
+local.properties
+*.iml
+.idea/

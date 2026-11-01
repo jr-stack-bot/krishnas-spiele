@@ -1,0 +1,49 @@
+# Krishnas Spiele - baut die Debug-APK und veroeffentlicht sie als Release "latest" @ Joschy
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+
+      - name: Debug-APK bauen
+        run: gradle --no-daemon assembleDebug
+
+      - name: APK umbenennen
+        run: cp app/build/outputs/apk/debug/app-debug.apk krishnas-spiele.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: krishnas-spiele-apk
+          path: krishnas-spiele.apk
+
+      - name: Release "latest" aktualisieren
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git tag -f latest
+          git push -f origin refs/tags/latest
+          if gh release view latest >/dev/null 2>&1; then
+            gh release upload latest krishnas-spiele.apk --clobber
+            gh release edit latest --title "Krishnas Spiele (aktuell)" --notes "Automatisch gebaute Debug-APK, Stand ${GITHUB_SHA::7}. @ Joschy"
+          else
+            gh release create latest krishnas-spiele.apk --title "Krishnas Spiele (aktuell)" --notes "Automatisch gebaute Debug-APK, Stand ${GITHUB_SHA::7}. @ Joschy" --latest
+          fi
