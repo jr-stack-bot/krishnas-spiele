@@ -35,14 +35,14 @@ Die App startet eine lokale `index.html` im Vollbild (Querformat, Display bleibt
 
 ## Spiele
 
-Sechs Modi, alle bewusst reizarm gestaltet (ruhige Farben, sanfte Klänge, kein Zeitdruck, keine blinkenden Effekte):
+Stand: **Version 5**. Sechs Modi, alle bewusst reizarm gestaltet (ruhige Farben, sanfte Klänge, kein Zeitdruck, keine blinkenden Effekte):
 
 - **Lieder spielen** – 130 Lieder Ton für Ton nachspielen, sortiert in 8 Reitern (7 Kategorien plus „Alle“), in 3 Stufen von ganz leicht bis etwas anspruchsvoller
 - **Langsame Kacheln** – Kacheln fallen langsam herunter
 - **Warte-Modus** – eine Kachel leuchtet und wartet, bis sie angetippt wird
 - **Muster merken** – zuhören, anschauen, nachspielen
 - **Beruhigende Spiele** – Blasen und Farben, einfach tippen
-- **Kuthu-Trommeln** – weiche Trommeln, Rhythmus nachspielen
+- **Beat-Pads** – 8 Stile mit je 12 Loop-Pads zum Antippen und Kombinieren; alle Klänge werden in der App synthetisiert (kein Aufnehmen)
 
 Außerdem:
 
@@ -50,6 +50,15 @@ Außerdem:
 - **Kacheln sofort antippbar** – keine Wartezeit, bevor eine Kachel reagiert
 - **Vollbild-Knopf** – blendet die Android-Leisten ein oder aus (Standard beim Start: Vollbild)
 - **Ruhe-Modus** – in den Einstellungen (für Eltern) lässt sich die Bewegung im Menü auf „voll“, „sparsam“ oder „aus“ stellen
+
+## Eigene Lieder importieren (MIDI)
+
+Ab Version 5 lassen sich eigene `.mid`-Dateien vom Gerät auswählen. Die App wandelt sie lokal in Kachel-Lieder um und speichert sie nur auf dem Gerät (IndexedDB).
+
+- Es werden keine Dateiinhalte übertragen – die Umwandlung passiert vollständig auf dem Gerät.
+- Im Repo und in der App sind keine Songs oder Melodien aus Nutzerdateien enthalten.
+- Jeder ist selbst dafür verantwortlich, dass er die Rechte an importierten Dateien hat.
+- Hinweis zum Dateidialog: Android zeigt dort alle Dateien an; die App übernimmt aber nur gültige MIDI-Dateien.
 
 ## Quellen der Lieder
 

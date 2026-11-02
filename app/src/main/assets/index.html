@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <!--
   ================================================================
-   Krishnas Spiele  -  Version 3   @ Joschy  (130 Lieder in 7 Kategorien)
+   Krishnas Spiele  -  Version 5   @ Joschy  (130 eingebaute Lieder in 7 Kategorien)
    Ruhige Musik-Spiele fuer Krishna (Samsung Galaxy Tab S5e, Android-WebView,
    Querformat, Touch). Eine einzige Datei, keine externen Ressourcen,
    kein Netzzugriff, laeuft komplett offline.
    Modi: Lieder spielen (Kachel-Lieder, neu), Langsame Kacheln, Warte-Modus,
-         Muster merken, Beruhigende Spiele, Kuthu-Trommeln
-   Kein Lied-Editor, kein MIDI-Import (bewusst so gewuenscht).
+         Muster merken, Beruhigende Spiele, Beat-Pads
+   MIDI-Import auf dem Geraet (Kategorie 'Meine Lieder'), Beat-Pads (8 Stile,
+   12 Loop-Pads je Stil), Tempo-Regler 30-200 % in allen Spielen.
+   Kein Lied-Editor (bewusst so gewuenscht).
    Design: dunkles "Reaktor"-Thema mit Ringen (Farbwerte/Formideen aus dem
    Kreis-Konverter, kein Code uebernommen).
    Schrift: Barlow Semi Condensed (SIL Open Font License 1.1, Lizenztext
@@ -267,7 +269,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 /* ---------- Liederauswahl ---------- */
 /* einfache Karten ohne Schatten/Clip-Path, damit 130 Eintraege schnell erscheinen */
 .pick{display:flex;flex-direction:column;gap:10px;padding:12px 16px 0}
-.kat-reihe{flex:0 0 auto;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px}
+.kat-reihe{flex:0 0 auto;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:8px}
 .kat,.sf,.ueberrasch{min-height:var(--tipp);border-radius:10px;background:var(--flaeche);border:1px solid var(--rand);
   color:var(--text-dim);transition:background-color .6s ease-in-out,border-color .6s ease-in-out,color .6s ease-in-out}
 .kat{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 6px;
@@ -309,6 +311,23 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .lied-karte .schloss{position:absolute;right:8px;top:8px;width:20px;height:20px;color:var(--text-dim)}
 .lied-karte .schloss svg{width:20px;height:20px}
 .leer{grid-column:1/-1;padding:24px 4px;color:var(--text-dim);font-size:18px}
+/* Meine Lieder: Import */
+.import-box{display:none;margin-bottom:12px}
+.import-box.da{display:block}
+.import-knoepfe{display:flex;gap:12px;flex-wrap:wrap}
+.imp-btn{min-height:var(--tipp);padding:0 26px;border-radius:10px;background:var(--flaeche2);border:1px solid var(--akzent);
+  color:var(--akzent-weich);font-size:20px;font-weight:600;transition:background-color .6s ease-in-out,border-color .6s ease-in-out,color .6s ease-in-out}
+.imp-btn.loeschen{background:var(--flaeche);border-color:var(--rand);color:var(--text-dim)}
+.imp-btn.loeschen.scharf{border-color:var(--spur3);color:var(--text)}
+.imp-btn:disabled{opacity:.45}
+.import-lauf{display:none;align-items:center;gap:14px;margin-top:10px;min-height:40px}
+.import-lauf.da{display:flex}
+.import-lauf.fertig .import-balken{display:none}
+.import-balken{flex:1 1 auto;height:12px;border-radius:6px;background:var(--rand);overflow:hidden}
+.import-balken i{display:block;height:100%;width:0;background:var(--akzent);border-radius:6px;transition:width .6s linear}
+.import-hinweis{align-self:center;font-size:16px;color:var(--text-dim)}
+.import-text{flex:0 1 auto;font-size:18px;color:var(--text)}
+.meine-leer{line-height:1.6}
 
 /* ---------- Kachel-Lieder Spielfeld ---------- */
 #liedStage{background:var(--bg)}
@@ -357,25 +376,33 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .pad:active{filter:brightness(.85) saturate(.95)}
 #calmCanvas.hidden{display:none}
 
-/* ---------- Kuthu-Trommeln ---------- */
-.dwrap{position:absolute;inset:12px 18px 14px;display:flex;flex-direction:column;gap:10px}
-.drow{display:flex;align-items:center;gap:10px;flex:0 0 auto;flex-wrap:wrap}
-.drow .pille{font-size:18px;padding:0 16px 0 26px}
-.drow .pille::before{left:11px}
-.demo{margin-left:auto}
-.dsteps{display:flex;justify-content:center;gap:14px;flex:0 0 auto;min-height:32px;align-items:center}
-.dstep{width:26px;height:26px;border-radius:50%;background:var(--flaeche);box-shadow:inset 0 0 0 2px var(--rand);transition:background-color .6s ease-in-out, transform .6s ease-in-out}
-.dstep.big{width:32px;height:32px}
-.dstep.done{background:var(--rand)}
-.dstep.now{background:var(--akzent);transform:scale(1.15)}
-.dgrid{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.dgrid .cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-weight:600}
-.dgrid .cell .dl{font-size:28px;color:var(--text);transition:color 1s ease-in-out}
-.dgrid .cell .ds{font-size:50px;opacity:.8}
-.dgrid .cell.glow .dl,.dgrid .cell.glow .ds{color:var(--akzent-text)}
-.dgrid .cell.on{background:var(--col);filter:brightness(.9)}
-.dprog{height:8px;border-radius:4px;background:var(--rand);overflow:hidden;flex:0 0 auto}
-.dprog i{display:block;height:100%;width:0;background:var(--akzent);border-radius:4px;transition:width .8s ease-in-out}
+/* ---------- Beat-Pads ---------- */
+.bwrap{position:absolute;inset:12px 16px 14px;display:flex;flex-direction:column;gap:12px}
+.stil-reihe{flex:0 0 auto;display:grid;grid-template-columns:repeat(8,minmax(0,1fr)) minmax(0,1.45fr);gap:8px}
+.stil{min-height:var(--tipp);border-radius:12px;background:var(--flaeche);border:1px solid var(--rand);color:var(--text-dim);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:4px 6px;font-size:18px;font-weight:600;line-height:1.08;text-align:center;
+  transition:background-color .6s ease-in-out,border-color .6s ease-in-out,color .6s ease-in-out}
+.stil small{font-family:var(--fm);font-size:11px;font-weight:400;letter-spacing:.06em;opacity:.85}
+.stil.an{background:var(--flaeche2);border-color:var(--akzent);color:var(--akzent-weich)}
+.beat-stopp{min-height:var(--tipp);border-radius:999px;background:var(--flaeche2);border:2px solid var(--akzent);color:var(--text);
+  font-size:20px;font-weight:600;line-height:1.1;padding:0 12px;transition:background-color .6s ease-in-out,transform .6s ease-in-out}
+.beat-stopp:active{transform:scale(.97)}
+.bgrid{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:14px}
+.bpad{position:relative;overflow:hidden;min-height:100px;min-width:100px;border-radius:22px;background:var(--flaeche);
+  box-shadow:inset 0 0 0 1px var(--rand);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  transition:box-shadow .7s ease-in-out}
+.bpad::before{content:"";position:absolute;left:0;top:18%;width:6px;height:64%;border-radius:0 4px 4px 0;background:var(--col);opacity:.85}
+.bpad::after{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--col);opacity:0;pointer-events:none;transition:opacity .7s ease-in-out}
+.bpad.an{box-shadow:inset 0 0 0 4px var(--col),0 0 26px var(--glow)}
+.bpad.an::after{opacity:.26}
+[data-ruhe="voll"] .bpad.an::after{animation:padAtmen 3.6s ease-in-out infinite}
+@keyframes padAtmen{0%,100%{opacity:.22}50%{opacity:.32}}
+@media (prefers-reduced-motion: reduce){ .bpad.an::after{animation:none !important} }
+.bpad .bsym{position:relative;z-index:1;width:40px;height:40px;color:var(--col)}
+.bpad .bl{position:relative;z-index:1;font-size:24px;font-weight:600;color:var(--text);line-height:1.1;text-align:center;padding:0 10px}
+.bpad .bg{position:relative;z-index:1;font-family:var(--fm);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
+.bpad.an .bsym{color:var(--text)}
+.bpad.an .bg{color:var(--text)}
 
 /* ---------- Belohnung (ruhige Sterne) ---------- */
 #reward{position:fixed;left:0;right:0;bottom:0;top:var(--bar-h);display:none;flex-direction:column;align-items:center;justify-content:center;
@@ -416,7 +443,10 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   .sgrid{bottom:96px}
   .sbottom{height:80px}
   .status{font-size:25px}
-  .dgrid .cell .ds{font-size:40px}
+  .bpad .bl{font-size:21px}
+  .bpad .bsym{width:34px;height:34px}
+  .stil{font-size:17px}
+  .bgrid{gap:12px}
   #reward .star{width:64px;height:64px}
   #reward .again,#reward .andere{min-height:72px}
 }
@@ -425,6 +455,8 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   .karte .desc{display:none}
   .kopf h1{font-size:28px}
   .kat{font-size:15px}
+  .bpad .bg{display:none}
+  .bwrap{gap:10px}
 }
 @media (max-width:1100px){
   .bar .ctl{flex-basis:170px;min-width:120px}
@@ -433,6 +465,8 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   .lied-gitter{grid-template-columns:repeat(4,minmax(0,1fr))}
   .sf{min-width:96px}
   .kat{font-size:15px}
+  .stil{font-size:16px}
+  .beat-stopp{font-size:18px}
 }
 </style>
 </head>
@@ -476,9 +510,9 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
       <button class="karte glas" data-go="calm" style="--mark:var(--spur4)">
         <svg class="k-ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="2"/><circle cx="19" cy="27" r="8" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="30" cy="16" r="5" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="32" cy="31" r="3" fill="currentColor"/></svg>
         <span class="name">Beruhigende Spiele</span><span class="desc">Blasen, Farben und Ringe.</span></button>
-      <button class="karte glas" data-go="drum" style="--mark:var(--spur3)">
-        <svg class="k-ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="2"/><ellipse cx="24" cy="18" rx="11" ry="4.5" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M13 18v11c0 2.5 5 4.5 11 4.5s11-2 11-4.5V18" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
-        <span class="name">Kuthu-Trommeln</span><span class="desc">Weiche Trommeln, Rhythmus nachspielen.</span></button>
+      <button class="karte glas" data-go="beat" style="--mark:var(--spur3)">
+        <svg class="k-ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="2"/><rect x="13" y="13" width="9.5" height="9.5" rx="2.5" fill="currentColor"/><rect x="25.5" y="13" width="9.5" height="9.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="13" y="25.5" width="9.5" height="9.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="25.5" y="25.5" width="9.5" height="9.5" rx="2.5" fill="currentColor" fill-opacity=".6"/></svg>
+        <span class="name">Beat-Pads</span><span class="desc">Mische deinen eigenen Beat.</span></button>
       <button class="karte glas" data-go="einst" style="--mark:var(--text-dim)">
         <svg class="k-ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="2"/><path d="M14 17h20M14 24h20M14 31h20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="20" cy="17" r="3" fill="currentColor"/><circle cx="29" cy="24" r="3" fill="currentColor"/><circle cx="18" cy="31" r="3" fill="currentColor"/></svg>
         <span class="name">Einstellungen</span><span class="desc">Für Eltern: Ruhe, Begleitung, Freigabe.</span></button>
@@ -488,7 +522,8 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
     <div class="vol-box glas">
       <div class="slider-row"><span class="sym" data-ico="vol"></span><input type="range" class="vol" min="0" max="100" step="1" aria-label="Lautstärke"><span class="val vol-val"></span></div>
     </div>
-    <footer>Krishnas Spiele &middot; Version 3 &middot; gebaut @ Joschy</footer>
+    <button class="pille" id="importMenuBtn" type="button" style="--mark:var(--spur2)">Lieder importieren</button>
+    <footer>Krishnas Spiele &middot; Version 5 &middot; gebaut @ Joschy</footer>
   </div>
 </section>
 
@@ -503,6 +538,18 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
       <button class="ueberrasch" id="ueberrasch" type="button">Überrasch mich</button>
     </div>
     <div class="lied-liste" id="liedListe">
+      <div class="import-box" id="importBox">
+        <div class="import-knoepfe">
+          <button type="button" class="imp-btn" id="importBtn">Lieder importieren</button>
+          <button type="button" class="imp-btn loeschen" id="loeschBtn">Alle importierten Lieder löschen</button>
+          <span class="import-hinweis">Wähle MIDI-Dateien (.mid)</span>
+        </div>
+        <div class="import-lauf" id="importLauf" aria-live="polite">
+          <div class="import-balken"><i id="importBalken"></i></div>
+          <span class="import-text" id="importText"></span>
+        </div>
+        <input type="file" id="midiDatei" multiple accept="*/*" hidden>
+      </div>
       <div class="zuletzt" id="zuletzt"></div>
       <div class="lied-gitter" id="liedGitter"></div>
     </div>
@@ -557,15 +604,13 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   </div>
 </section>
 
-<!-- ===================== KUTHU-TROMMELN ===================== -->
-<section id="drum" class="screen">
-  <div class="bar" data-title="Kuthu-Trommeln" data-drum="1" data-tempo="drum"></div>
+<!-- ===================== BEAT-PADS ===================== -->
+<section id="beat" class="screen">
+  <div class="bar" data-title="Beat-Pads" data-tempo="beat"></div>
   <div class="stage">
-    <div class="dwrap">
-      <div class="drow" id="rhyList"><button class="pille demo" id="drumDemo">Vorspielen</button></div>
-      <div class="dsteps" id="dsteps"></div>
-      <div class="dgrid" id="dgrid"></div>
-      <div class="dprog"><i id="drumProg"></i></div>
+    <div class="bwrap">
+      <div class="stil-reihe" id="stilReihe" role="tablist" aria-label="Stil"><button class="beat-stopp" id="beatStopp" type="button">Alles stopp</button></div>
+      <div class="bgrid" id="bgrid"></div>
     </div>
   </div>
 </section>
@@ -635,7 +680,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="sternSym" viewBox="0 0 24 24"><path d="M12 2.6l2.85 5.95 6.55.8-4.8 4.5 1.25 6.5L12 17.2l-5.85 3.15 1.25-6.5-4.8-4.5 6.55-.8z" stroke-width="1.6" stroke-linejoin="round"/></symbol></svg>
 
 <script>
-/* Krishnas Spiele @ Joschy - Version 3 */
+/* Krishnas Spiele @ Joschy - Version 5 */
 'use strict';
 
 /* LIEDER-START
@@ -670,7 +715,9 @@ const TONLEITERN = {
   'Hindolam':        { name: 'Hindolam',         toene: 'C Es F As B',        pc: [0, 3, 5, 8, 10] },
   'Shivaranjani':    { name: 'Shivaranjani',     toene: 'C D Es G A',         pc: [0, 2, 3, 7, 9] },
   'Mayamalavagowla': { name: 'Mayamalavagowla',  toene: 'C Des E F G As H',   pc: [0, 1, 4, 5, 7, 8, 11] },
-  'Kalyani':         { name: 'Kalyani',          toene: 'C D E Fis G A H',    pc: [0, 2, 4, 6, 7, 9, 11] }
+  'Kalyani':         { name: 'Kalyani',          toene: 'C D E Fis G A H',    pc: [0, 2, 4, 6, 7, 9, 11] },
+  /* fuer importierte MIDI-Lieder: echte Tonhoehen, alle 12 Toene erlaubt */
+  'Chromatisch':     { name: 'Alle Töne',        toene: 'C Cis D Dis E F Fis G Gis A Ais H', pc: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] }
 };
 
 const LIEDER = [
@@ -1226,6 +1273,323 @@ LIEDER.forEach(liedVorbereiten);
 
 LIEDER.forEach(l => { const p = liedPruefen(l); if (p.length) console.warn('Lied "' + l.titel + '":', p.join('; ')); });
 
+/* MIDI-IMPORT-START
+   ================================================================
+   EIGENE LIEDER AUS MIDI-DATEIEN  @ Joschy
+   Alles passiert nur auf dem Geraet: Datei lesen, Melodie suchen,
+   in Kacheln umwandeln. Nichts wird gesendet. Keine Bibliothek.
+   - midiLesen(bytes): Standard MIDI File Format 0/1 (2 wie 1), Running
+     Status, Meta (Tempo, Taktart, Spurname), SysEx wird uebersprungen,
+     Note-On mit Velocity 0 = Note-Off, Kanal 10 (Schlagzeug) ignoriert,
+     SMPTE-Zeitbasis: als 120 bpm gerechnet. Kaputte Dateien: Fehler.
+   - midiZuLied(bytes, dateiname): waehlt die Melodie-Spur, nimmt die
+     oberste Stimme (Skyline), Raster 1/2 Schlag, duennt zu schnelle
+     Stellen aus, legt Stufe/Tempo/Takte/Begleitung fest. Ergebnis ist
+     ein kompakter Datensatz (Speicherformat) oder null.
+   - meinLiedAusDaten(rec): macht daraus ein normales App-Lied (Plan-
+     Format noten:[[Schlag, 'Ton', Laenge, 'lang']]), Tonleiter
+     'Chromatisch' (echte Tonhoehen, z. B. 'F#4'), Kategorie 'Meine Lieder'.
+   - importPruefen(l): App-Regeln (liedPruefen) mit einer bewusst
+     gelockerten Regel: die Laenge darf 8 Takte bis 150 s betragen
+     (statt der festen Sekunden-Spanne je Stufe). Dazu: Takte voll,
+     Mindestabstand zwischen zwei Kacheln je Stufe.
+   ================================================================ */
+const MIDI_MAX_BYTES = 1024 * 1024;
+const MEINE_KAT = 'Meine Lieder';
+const IMPORT_GRENZEN = { minTakte: 8, maxTakte: 48, maxSek: 150, bpm: { 1: [50, 60], 2: [60, 70], 3: [70, 76] }, abstand: { 1: 1, 2: 0.5, 3: 0.5 } };
+
+function midiLesen(bytes) {
+  const u = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  const N = u.length;
+  const tag = o => o + 4 <= N ? String.fromCharCode(u[o], u[o + 1], u[o + 2], u[o + 3]) : '';
+  const u32 = o => o + 4 <= N ? ((u[o] << 24) >>> 0) + (u[o + 1] << 16) + (u[o + 2] << 8) + u[o + 3] : 0;
+  const u16 = o => o + 2 <= N ? (u[o] << 8) | u[o + 1] : 0;
+  let p = 0;
+  if (tag(0) === 'RIFF') {   /* RMID-Huelle: MThd darin suchen */
+    p = -1;
+    for (let i = 12; i + 4 <= Math.min(N, 4096); i++) if (tag(i) === 'MThd') { p = i; break; }
+    if (p < 0) throw new Error('kein MThd');
+  }
+  if (tag(p) !== 'MThd') throw new Error('kein MThd');
+  const hl = u32(p + 4), fmt = u16(p + 8), ntr = u16(p + 10), div = u16(p + 12);
+  if (hl < 6 || fmt > 2 || !ntr) throw new Error('Kopf ungueltig');
+  let ppq = div, smpte = false;
+  if (div & 0x8000) {   /* SMPTE: Ticks pro Sekunde, als 120 bpm (2 Schlaege/s) rechnen */
+    const fps = 256 - (div >> 8), tpf = div & 0xff;
+    ppq = fps * tpf / 2; smpte = true;
+  }
+  if (!(ppq > 0)) throw new Error('Zeitbasis ungueltig');
+  p += 8 + hl;
+  const noten = [], tempi = [], taktarten = [], namen = {}, programme = {};
+  let tr = 0, sicher = 0;
+  while (tr < ntr && p + 8 <= N && sicher++ < 1000) {
+    const id = tag(p), len = u32(p + 4);
+    const q0 = p + 8, end = Math.min(N, q0 + len);
+    p = q0 + len;
+    if (id !== 'MTrk') { if (len > N) break; continue; }   /* unbekannter Block: ueberspringen */
+    let q = q0, t = 0, rs = 0;
+    const offen = new Map();
+    const vl = () => { let v = 0; for (let k = 0; k < 4; k++) { if (q >= end) return -1; const b = u[q++]; v = v * 128 + (b & 0x7f); if (!(b & 0x80)) return v; } return v; };
+    const zu = (ch, m) => {
+      const s = offen.get(ch * 128 + m);
+      if (!s || !s.length) return;
+      const a = s.shift();
+      if (t > a.t) noten.push({ t: a.t, d: t - a.t, m, v: a.v, ch, tr });
+    };
+    while (q < end) {
+      const d = vl(); if (d < 0) break;
+      t += d;
+      if (q >= end) break;
+      let st = u[q];
+      if (st & 0x80) q++;
+      else if (rs) st = rs;
+      else break;   /* Datenbyte ohne Status: Spur kaputt */
+      if (st === 0xff) {
+        if (q >= end) break;
+        const typ = u[q++], l = vl();
+        if (l < 0 || q + l > end) break;
+        if (typ === 0x51 && l >= 3 && !smpte) { const us = (u[q] << 16) | (u[q + 1] << 8) | u[q + 2]; if (us > 0) tempi.push({ t, us }); }
+        else if (typ === 0x58 && l >= 2) taktarten.push({ t, z: u[q], n: Math.pow(2, u[q + 1]) });
+        else if ((typ === 0x03 || typ === 0x04) && l > 0 && namen[tr] == null) {
+          let s = ''; for (let i = 0; i < Math.min(l, 64); i++) s += String.fromCharCode(u[q + i]);
+          namen[tr] = s;
+        }
+        else if (typ === 0x2f) { q += l; break; }
+        q += l;
+      } else if (st === 0xf0 || st === 0xf7) {
+        const l = vl(); if (l < 0 || q + l > end) break; q += l;
+      } else if (st >= 0xf8) { /* Echtzeit-Byte: nichts */ }
+      else if (st >= 0xf1) { q += (st === 0xf2 ? 2 : st === 0xf1 || st === 0xf3 ? 1 : 0); }
+      else {
+        rs = st;
+        const typ = st & 0xf0, ch = st & 15, zwei = typ !== 0xc0 && typ !== 0xd0;
+        if (q + (zwei ? 2 : 1) > end) break;
+        const a = u[q++] & 0x7f, b = zwei ? u[q++] & 0x7f : 0;
+        if (ch === 9) continue;   /* Kanal 10: Schlagzeug */
+        if (typ === 0x90 && b > 0) {
+          const k = ch * 128 + a;
+          if (!offen.has(k)) offen.set(k, []);
+          offen.get(k).push({ t, v: b });
+        } else if (typ === 0x80 || typ === 0x90) zu(ch, a);
+        else if (typ === 0xc0 && programme[tr * 16 + ch] == null) programme[tr * 16 + ch] = a;
+      }
+    }
+    offen.forEach((s, k) => { while (s.length) zu(Math.floor(k / 128), k % 128); });   /* nie beendete Noten: bis Spurende */
+    tr++;
+  }
+  return { format: fmt, ppq, noten, tempi, taktarten, namen, programme };
+}
+
+const PC_NAMEN = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'H'];
+const AKK_NAMEN = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'H'];
+const midiName = m => PC_NAMEN[m % 12] + (Math.floor(m / 12) - 1);
+
+function titelAusDatei(name) {
+  let t = String(name || '').replace(/^.*[\\/]/, '').replace(/\.(midi?|kar|rmi)$/i, '');
+  t = t.replace(/_+/g, ' ').replace(/%20/g, ' ');
+  t = t.replace(/\[[^\]]*\]/g, ' ').replace(/\{[^}]*\}/g, ' ');
+  const tagWort = /(\.com|\.net|\.org|\.de|\.co\.uk|midi|piano|hands|advanced|easy|intermediate|beginner|version|arr\.?|arrangement|edit|remix|solo|duet|cover|karaoke|instrumental|sheet|tutorial|level|leicht|einfach)/i;
+  t = t.replace(/\(([^()]*)\)/g, (a, inner) => tagWort.test(inner) ? ' ' : a);
+  t = t.replace(/\bfull\s+midi\b\s*[-–:]?/gi, ' ').replace(/\bmidi\s+file\b\s*[-–:]?/gi, ' ');
+  t = t.replace(/\batlantic\s+lights\s+arrangement\b.*$/i, ' ');
+  t = t.replace(/\b(?:www\.)?[a-z0-9-]+\.(?:com|net|org|de|co\.uk)\b/gi, ' ');
+  t = t.replace(/(^|\s)[-–]\s*piano(\s+(solo|version|cover|arrangement))?\s*$/i, ' ').replace(/^\s*piano\s*[-–:]\s*/i, ' ').replace(/\s+piano\s*$/i, ' ');
+  t = t.replace(/\bmidi\b/gi, ' ');
+  t = t.replace(/\(\s*\)/g, ' ').replace(/\s+/g, ' ').trim();
+  t = t.replace(/^[\s\-–_.,:;|~+]+|[\s\-–_.,:;|~+]+$/g, '').trim();
+  if (!t) t = 'Mein Lied';
+  if (t.length > 48) { t = t.slice(0, 48); const i = t.lastIndexOf(' '); if (i > 24) t = t.slice(0, i); t = t.replace(/[\s\-–_.,:;]+$/, '') + '…'; }
+  return t;
+}
+function titelSchluessel(t) {
+  return String(t).toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss').replace(/[^a-z0-9]+/g, '');
+}
+function meineId(titel) {
+  const k = titelSchluessel(titel) || 'lied';
+  let h = 0x811c9dc5;
+  for (let i = 0; i < k.length; i++) { h ^= k.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  return 'm-' + k.slice(0, 24) + '-' + h.toString(36);
+}
+
+/* Bewertung einer Notengruppe (Spur+Kanal) als Melodie */
+function melodieWert(g, name, prog, spanne) {
+  const n = g.length;
+  let summe = 0; g.forEach(x => { summe += x.m; });
+  const mittel = summe / n;
+  const einsaetze = new Set(g.map(x => Math.round(x.b * 4))).size;
+  const einstimmig = einsaetze / n;
+  let a = Infinity, z = -Infinity; g.forEach(x => { a = Math.min(a, x.b); z = Math.max(z, x.b + x.l); });
+  const abdeckung = spanne > 0 ? Math.min(1, (z - a) / spanne) : 1;
+  let w = Math.log(n + 1) * 1.2 + clampZ((mittel - 60) / 12, -2, 1.5) * 1.6 + einstimmig * 2.2 + abdeckung * 1.5;
+  const nm = String(name || '');
+  if (/melod|lead|vocal|voice|sing|solo|stimme|right|rechts|treble|\brh\b|melody|main|tune|flute|fl[oö]te/i.test(nm)) w += 2;
+  if (/bass|drum|perc|chord|pad|accomp|begleit|left|links|\blh\b|string|harmon|rhythm/i.test(nm)) w -= 2;
+  if (prog != null && prog >= 32 && prog <= 39) w -= 3;   /* Bass-Instrumente */
+  if (mittel < 48) w -= 2;
+  return w;
+}
+const clampZ = (v, a, b) => Math.max(a, Math.min(b, v));
+
+/* MIDI-Bytes -> kompakter Datensatz { v, id, titel, stufe, bpm, laenge, n:[b2,midi,l2,lang,...], a:'C Am ...', z } oder null */
+function midiZuLied(bytes, dateiname) {
+  const M = midiLesen(bytes);
+  const ppq = M.ppq;
+  /* Schlaege (Viertel) und Gruppen je Spur+Kanal; sehr kurze Noten verwerfen */
+  const gruppen = new Map();
+  const alle = [];
+  M.noten.forEach(x => {
+    const b = x.t / ppq, l = x.d / ppq;
+    if (!(l >= 0.08)) return;
+    const o = { b, l, m: x.m };
+    alle.push(o);
+    const k = x.tr * 16 + x.ch;
+    if (!gruppen.has(k)) gruppen.set(k, []);
+    gruppen.get(k).push(o);
+  });
+  if (alle.length < 8) return null;
+  let a0 = Infinity, z0 = -Infinity; alle.forEach(x => { a0 = Math.min(a0, x.b); z0 = Math.max(z0, x.b + x.l); });
+  const spanne = z0 - a0;
+  /* Melodie-Spur waehlen */
+  let beste = null, besterWert = -Infinity;
+  gruppen.forEach((g, k) => {
+    if (g.length < 8) return;
+    const w = melodieWert(g, M.namen[Math.floor(k / 16)], M.programme[k], spanne);
+    if (w > besterWert) { besterWert = w; beste = g; }
+  });
+  if (!beste) beste = alle;
+  let quelle = beste;
+  {   /* deckt die Spur weniger als die Haelfte ab: Skyline ueber alle mittleren/hohen Spuren */
+    let a = Infinity, z = -Infinity; beste.forEach(x => { a = Math.min(a, x.b); z = Math.max(z, x.b + x.l); });
+    if (spanne > 0 && (z - a) / spanne < 0.5) {
+      quelle = [];
+      gruppen.forEach(g => { let s = 0; g.forEach(x => { s += x.m; }); if (s / g.length >= 55) quelle = quelle.concat(g); });
+      if (quelle.length < 8) quelle = beste;
+    }
+  }
+  /* Skyline auf Raster 1/2 Schlag: je Zeitpunkt der hoechste Ton */
+  const raster = new Map();
+  quelle.forEach(x => {
+    const r = Math.round(x.b * 2);
+    const alt = raster.get(r);
+    if (!alt || x.m > alt.m || (x.m === alt.m && x.l > alt.l)) raster.set(r, { r, m: x.m, l: x.l });
+  });
+  let folge = Array.from(raster.values()).sort((a, b) => a.r - b.r);
+  if (folge.length < 8) return null;
+  /* Tempo: das am laengsten geltende Tempo (in Schlaegen) */
+  let bpmMidi = 120;
+  if (M.tempi.length) {
+    const ts = M.tempi.slice().sort((a, b) => a.t - b.t), dauer = new Map();
+    const ende = Math.max(z0 * ppq, ts[ts.length - 1].t + 1);
+    ts.forEach((x, i) => { const bis = i + 1 < ts.length ? ts[i + 1].t : ende; dauer.set(x.us, (dauer.get(x.us) || 0) + Math.max(0, bis - x.t)); });
+    let best = 0; dauer.forEach((d, us) => { if (d >= best) { best = d; bpmMidi = 60e6 / us; } });
+    if (!(bpmMidi > 5 && bpmMidi < 1000)) bpmMidi = 120;
+  }
+  /* Notendichte (Noten pro Schlag) im belegten Bereich -> Stufe */
+  const start2 = folge[0].r;
+  const spanne2 = Math.max(1, folge[folge.length - 1].r - start2 + 2);
+  const dichte = folge.length / (spanne2 / 2);
+  const stufe = dichte <= 0.75 ? 1 : dichte <= 1.15 ? 2 : 3;
+  /* Ausduennen: Mindestabstand je Stufe; auf dem Schlag gewinnt gegen dazwischen */
+  const abst2 = IMPORT_GRENZEN.abstand[stufe] * 2;
+  if (abst2 > 1) {
+    const raus = [];
+    let letzt = -Infinity;
+    for (let i = 0; i < folge.length; i++) {
+      const x = folge[i], nx = folge[i + 1];
+      if (x.r - letzt < abst2) continue;
+      if ((x.r - start2) % 2 !== 0 && nx && nx.r - x.r < abst2 && (nx.r - start2) % 2 === 0) continue;
+      raus.push(x); letzt = x.r;
+    }
+    folge = raus;
+  }
+  /* Tempo in den langsamen Einstiegsbereich bringen (Verdopplung/Halbierung), dann an die Stufe anpassen */
+  let bpm = bpmMidi;
+  while (bpm >= 100) bpm /= 2;
+  while (bpm < 50) bpm *= 2;
+  const bg = IMPORT_GRENZEN.bpm[stufe];
+  bpm = Math.round(clampZ(bpm, bg[0], bg[1]));
+  /* Lage: Median auf die Mitte (D4) schieben, Ausreisser in C3..E5 falten */
+  const ms = folge.map(x => x.m).sort((a, b) => a - b);
+  const median = ms[Math.floor(ms.length / 2)];
+  const versatz = 12 * Math.round((62 - median) / 12);
+  folge.forEach(x => { let m = x.m + versatz; while (m < 48) m += 12; while (m > 76) m -= 12; x.m = m; });
+  /* Zeit: erste Note auf Schlag 0, Laenge begrenzen (am Taktende abschneiden) */
+  const maxTakte = Math.min(IMPORT_GRENZEN.maxTakte, Math.floor(IMPORT_GRENZEN.maxSek * bpm / 60 / 4));
+  const max2 = maxTakte * 8;
+  const noten2 = [];
+  for (let i = 0; i < folge.length; i++) {
+    const b2 = folge[i].r - start2;
+    if (b2 >= max2) break;
+    const naechst = i + 1 < folge.length ? folge[i + 1].r - start2 : Infinity;
+    let l2 = Math.max(1, Math.round(folge[i].l * 2));
+    l2 = Math.min(l2, naechst - b2, max2 - b2, 8);
+    noten2.push([b2, folge[i].m, l2, stufe >= 2 && l2 >= 4 ? 1 : 0]);
+  }
+  if (noten2.length < 8) return null;
+  const letzte = noten2[noten2.length - 1];
+  const laenge = Math.min(maxTakte * 4, Math.ceil((letzte[0] + letzte[2]) / 2 / 4) * 4);
+  if (laenge < IMPORT_GRENZEN.minTakte * 4) return null;
+  /* Begleitung: je Takt der passendste Dur-/Moll-Dreiklang aus allen Noten (ohne Schlagzeug) */
+  const takte = laenge / 4, startB = start2 / 2, akk = [];
+  const gew = Array.from({ length: takte }, () => new Float64Array(12));
+  alle.forEach(x => {
+    const s = x.b - startB, e = s + x.l;
+    if (e <= 0 || s >= laenge) return;
+    for (let t = Math.max(0, Math.floor(s / 4)); t < takte && t * 4 < e; t++) {
+      const ov = Math.min(e, t * 4 + 4) - Math.max(s, t * 4);
+      if (ov > 0) gew[t][x.m % 12] += ov * (x.m < 55 ? 1.6 : 1);
+    }
+  });
+  let vorher = null;
+  for (let t = 0; t < takte; t++) {
+    const w = gew[t];
+    let best = -1, name = null;
+    for (let r = 0; r < 12; r++) {
+      const dur = w[r] * 1.2 + w[(r + 4) % 12] + w[(r + 7) % 12] - 0.5 * w[(r + 3) % 12];
+      const mol = w[r] * 1.2 + w[(r + 3) % 12] + w[(r + 7) % 12] - 0.5 * w[(r + 4) % 12];
+      if (dur > best) { best = dur; name = AKK_NAMEN[r]; }
+      if (mol > best) { best = mol; name = AKK_NAMEN[r] + 'm'; }
+    }
+    if (!(best > 0.05)) name = vorher || (AKK_NAMEN[noten2[0][1] % 12] + '5');
+    akk.push(name); vorher = name;
+  }
+  const titel = titelAusDatei(dateiname);
+  const n = [];
+  noten2.forEach(x => n.push(x[0], x[1], x[2], x[3]));
+  return { v: 1, id: meineId(titel), titel, stufe, bpm, laenge, n, a: akk.join(' '), z: noten2.length };
+}
+
+/* Datensatz -> spielbares App-Lied */
+function meinLiedAusDaten(rec) {
+  const noten = [];
+  for (let i = 0; i + 3 < rec.n.length; i += 4) {
+    const nt = [rec.n[i] / 2, midiName(rec.n[i + 1]), rec.n[i + 2] / 2];
+    if (rec.n[i + 3]) nt.push('lang');
+    noten.push(nt);
+  }
+  const l = { id: rec.id, titel: rec.titel, stufe: rec.stufe, kategorie: MEINE_KAT, tonleiter: 'Chromatisch', bpm: rec.bpm,
+    herkunft: 'eigene Datei (nur auf diesem Gerät)', noten, laenge: rec.laenge, meins: true,
+    begleitung: { akkorde: String(rec.a || 'C5').split(' ').filter(Boolean), trommel: 'ruhig' } };
+  liedVorbereiten(l);
+  return l;
+}
+
+function importPruefen(l) {
+  const p = liedPruefen(l).filter(x => !/^Länge /.test(x));   /* gelockert: Laenge siehe unten */
+  if (l.laenge % 4) p.push('Takte nicht voll (' + l.laenge + ' Schläge)');
+  if (l.laenge < IMPORT_GRENZEN.minTakte * 4) p.push('kürzer als 8 Takte');
+  if (l.sekunden > IMPORT_GRENZEN.maxSek + 0.5) p.push('länger als 150 s');
+  const ab = IMPORT_GRENZEN.abstand[l.stufe] || 0.5;
+  const ks = l.kacheln.filter(k => k.art !== 'ruhe');
+  for (let i = 1; i < ks.length; i++) {
+    if (ks[i].beat - ks[i - 1].beat < ab - 1e-6) { p.push('zu dicht bei Schlag ' + ks[i].beat); break; }
+    if (ks[i - 1].beat + ks[i - 1].len > ks[i].beat + 1e-6) { p.push('Kacheln überlappen bei Schlag ' + ks[i].beat); break; }
+  }
+  if (ks.length && ks[ks.length - 1].beat + ks[ks.length - 1].len > l.laenge + 1e-6) p.push('letzte Kachel ragt über das Ende');
+  return p;
+}
+/* MIDI-IMPORT-ENDE */
+
 /* ---------------- Hilfsfunktionen ---------------- */
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
@@ -1246,11 +1610,10 @@ $$('[data-ico]').forEach(el => { el.innerHTML = ICON[el.dataset.ico] || ''; });
 
 /* ---------------- Einstellungen und Fortschritt (localStorage) ---------------- */
 const STORE_KEY = 'krishnaSpiele.v2', STORE_V1 = 'krishnaSpiele.v1';
-const BPM_MIN = 30, BPM_MAX = 120;
 /* Tempo in Prozent: 100 % = Normaltempo, 200 % = doppelt so schnell.
-   Unter 100 % bleibt der langsame Einstieg (ab 30 %, Trommeln ab 50 % = 30 bpm). */
-const TEMPO_MIN = 30, TEMPO_MAX = 200, TEMPO_STEP = 5, TEMPO_MODI = ['lied', 'tiles', 'wait', 'simon', 'calm'];
-const DEFAULTS = { tempi: { lied: 70, tiles: 70, wait: 100, simon: 100, calm: 100 }, volume: 60, liedId: 'entchen', bpm: 48, drumBg: false, rhythm: 0,
+   Unter 100 % bleibt der langsame Einstieg (ab 30 %). Beat-Pads: 100 % = Grundtempo des Stils. */
+const TEMPO_MIN = 30, TEMPO_MAX = 200, TEMPO_STEP = 5, TEMPO_MODI = ['lied', 'tiles', 'wait', 'simon', 'calm', 'beat'];
+const DEFAULTS = { tempi: { lied: 70, tiles: 70, wait: 100, simon: 100, calm: 100, beat: 100 }, volume: 60, liedId: 'entchen', beatStil: 0,
   begleitung: true, beglVol: 100, warten: { 1: true, 2: false, 3: false }, ruhe: 'voll', thema: 'reaktor',
   ausgleich: 0, alleFrei: true, sterne: {}, calmSub: 'bubbles' };
 const V1_NAMEN = ['Alle meine Entchen', 'Hänschen klein', 'Bruder Jakob', 'Ode an die Freude', 'Trommelfest', 'Tanzlied', 'Sonnenaufgang', 'Festtag'];
@@ -1272,14 +1635,11 @@ function loadSettings() {
     s.tempi.lied = s.tempi.tiles = clamp(p, TEMPO_MIN, TEMPO_MAX);
   }
   if (num(o, 'volume', 0, 100)) s.volume = o.volume;
-  if (num(o, 'bpm', BPM_MIN, BPM_MAX)) s.bpm = o.bpm;
-  if (typeof o.drumBg === 'boolean') s.drumBg = o.drumBg;
-  if (num(o, 'rhythm', 0, 20)) s.rhythm = Math.floor(o.rhythm);
   if (v1) {   /* Uebernahme aus Version 1 */
     if (num(o, 'song', 0, 20)) { const l = LIEDER.find(x => x.titel === V1_NAMEN[Math.floor(o.song)]); if (l) s.liedId = l.id; }
     return s;
   }
-  if (typeof o.liedId === 'string' && LIEDER.some(l => l.id === o.liedId)) s.liedId = o.liedId;
+  if (typeof o.liedId === 'string' && (LIEDER.some(l => l.id === o.liedId) || /^m-[a-z0-9-]{1,40}$/.test(o.liedId))) s.liedId = o.liedId;   /* m-...: eigenes Lied, wird spaeter geladen */
   if (typeof o.begleitung === 'boolean') s.begleitung = o.begleitung;
   if (num(o, 'beglVol', 0, 100)) s.beglVol = o.beglVol;
   if (o.warten && typeof o.warten === 'object') [1, 2, 3].forEach(k => { if (typeof o.warten[k] === 'boolean') s.warten[k] = o.warten[k]; });
@@ -1288,17 +1648,21 @@ function loadSettings() {
   if (num(o, 'ausgleich', -150, 150)) s.ausgleich = o.ausgleich;
   if (typeof o.alleFrei === 'boolean') s.alleFrei = o.alleFrei;
   if (['bubbles', 'pads', 'ringe'].indexOf(o.calmSub) >= 0) s.calmSub = o.calmSub;
+  if (num(o, 'beatStil', 0, 7)) s.beatStil = Math.floor(o.beatStil);
   if (o.sterne && typeof o.sterne === 'object') Object.keys(o.sterne).forEach(k => { if (num(o.sterne, k, 0, 3)) s.sterne[k] = Math.floor(o.sterne[k]); });
   return s;
 }
 function saveSettings() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(settings)); } catch (e) { /* Speicher nicht verfuegbar - ignorieren */ }
 }
-const aktLied = () => LIEDER.find(l => l.id === settings.liedId) || LIEDER[0];
+/* importierte Lieder (Kategorie 'Meine Lieder'), werden asynchron aus IndexedDB geladen */
+let MEINE = [];
+const liedVonId = id => LIEDER.find(l => l.id === id) || MEINE.find(l => l.id === id);
+const aktLied = () => liedVonId(settings.liedId) || LIEDER[0];
 /* Melodie als einfache Tonliste (fuer Langsame Kacheln, Warte-Modus, Muster merken) */
 const liedToene = l => l.kacheln.filter(k => k.art !== 'ruhe' && !k.zweit).map(k => k.ton);
-/* Tempo je Modus in Prozent; Trommeln: 100 % = 60 bpm */
-const tempoProz = m => m === 'drum' ? Math.round(settings.bpm / 0.6) : (settings.tempi[m] || 100);
+/* Tempo je Modus in Prozent */
+const tempoProz = m => settings.tempi[m] || 100;
 const tempoF = m => tempoProz(m) / 100;
 const tempoFaktor = () => tempoF('lied');
 const sterneVon = id => settings.sterne[id] || 0;
@@ -1338,20 +1702,25 @@ function ensureAudio() {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return null;
       actx = new AC();
-      const lp = actx.createBiquadFilter();
-      lp.type = 'lowpass'; lp.frequency.value = 3200; lp.Q.value = 0.4;
-      const comp = actx.createDynamicsCompressor();
-      comp.threshold.value = -20; comp.knee.value = 14; comp.ratio.value = 4;
-      comp.attack.value = 0.004; comp.release.value = 0.25;
-      master = actx.createGain(); master.gain.value = volGain();
-      melBus = actx.createGain(); melBus.gain.value = 1;
-      accBus = actx.createGain(); accBus.gain.value = accGain();
-      melBus.connect(master); accBus.connect(master);
-      master.connect(lp); lp.connect(comp); comp.connect(actx.destination);
+      ({ master, melBus, accBus } = liedKette(actx));
     }
     if (actx.state === 'suspended') actx.resume().catch(() => {});
   } catch (e) { return null; }
   return actx;
+}
+/* Master-Kette der Lieder (auch mit OfflineAudioContext nutzbar, fuer Pegel-Tests) */
+function liedKette(c, ziel) {
+  const lp = c.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 3200; lp.Q.value = 0.4;
+  const comp = c.createDynamicsCompressor();
+  comp.threshold.value = -20; comp.knee.value = 14; comp.ratio.value = 4;
+  comp.attack.value = 0.004; comp.release.value = 0.25;
+  const m = c.createGain(); m.gain.value = volGain();
+  const mb = c.createGain(); mb.gain.value = 1;
+  const ab = c.createGain(); ab.gain.value = accGain();
+  mb.connect(m); ab.connect(m);
+  m.connect(lp); lp.connect(comp); comp.connect(ziel || c.destination);
+  return { master: m, melBus: mb, accBus: ab };
 }
 function volGain() { const v = settings.volume / 100; return v * v * 0.55; }
 function accGain() { return settings.begleitung ? 0.4 * settings.beglVol / 100 : 0; }
@@ -1361,6 +1730,7 @@ function applyVolume() {
       master.gain.setTargetAtTime(volGain(), actx.currentTime, 0.08);
       accBus.gain.setTargetAtTime(accGain(), actx.currentTime, 0.15);
     }
+    if (typeof BeatPads !== 'undefined') BeatPads.lautstaerke();
   } catch (e) {}
 }
 /* Weicher Klavier-/Xylophon-artiger Ton: sanfter Anschlag, langer, leiser Ausklang */
@@ -1584,11 +1954,8 @@ $$('.bar').forEach(bar => {
   if (d.tabs) html += '<button class="pille tab" data-sub="bubbles">Blasen</button><button class="pille tab" data-sub="pads">Farben</button><button class="pille tab" data-sub="ringe">Ringe</button>';
   if (d.warten) html += '<button class="pille tgl-warten"></button>';
   if (d.begl) html += '<button class="pille tgl-begl"></button>';
-  if (d.drum) {
-    html += '<button class="pille bg-toggle" id="drumBgBtn"></button>';
-  }
   if (d.tempo) {
-    const min = d.tempo === 'drum' ? 50 : TEMPO_MIN, f = (100 - min) / (TEMPO_MAX - min);
+    const min = TEMPO_MIN, f = (100 - min) / (TEMPO_MAX - min);
     html += '<div class="ctl tempo-ctl slider-row"><span class="sym">' + ICON.tempo + '</span><span class="tempo-spur" style="--f:' + f.toFixed(4) + '">' +
       '<input type="range" class="tempo" data-m="' + d.tempo + '" min="' + min + '" max="' + TEMPO_MAX + '" step="' + TEMPO_STEP + '" aria-label="Tempo">' +
       '<i class="m100" title="100 %"></i></span><span class="val tempo-val"><span class="tl">TEMPO</span><span class="tz"></span></span></div>';
@@ -1613,7 +1980,6 @@ function syncUI() {
   $$('input.ausgleich').forEach(el => { if (+el.value !== settings.ausgleich) el.value = settings.ausgleich; });
   $$('.ausgleich-val').forEach(el => { el.textContent = (settings.ausgleich > 0 ? '+' : '') + settings.ausgleich + ' ms'; });
   $$('.song-name').forEach(el => { el.textContent = aktLied().titel; });
-  $$('.bg-toggle').forEach(el => { el.classList.toggle('on', settings.drumBg); el.innerHTML = zweiZeilen('Begleitung', settings.drumBg); });
   $$('.tgl-begl').forEach(el => { el.classList.toggle('on', settings.begleitung); el.innerHTML = zweiZeilen('Begleitung', settings.begleitung); });
   const w = !!settings.warten[aktLied().stufe];
   $$('.tgl-warten').forEach(el => { el.classList.toggle('on', w); el.innerHTML = zweiZeilen('Warten', w); });
@@ -1632,9 +1998,8 @@ function bindRange(cls, fn) {
 bindRange('vol', v => { settings.volume = v; applyVolume(); });
 document.addEventListener('input', e => {
   const el = e.target; if (!el.classList || !el.classList.contains('tempo')) return;
-  const m = el.dataset.m === 'pick' ? pickZiel : el.dataset.m, p = clamp(Math.round(+el.value / TEMPO_STEP) * TEMPO_STEP, m === 'drum' ? 50 : TEMPO_MIN, TEMPO_MAX);
-  if (m === 'drum') settings.bpm = clamp(Math.round(p * 0.6), BPM_MIN, BPM_MAX);
-  else settings.tempi[m] = clamp(p, TEMPO_MIN, TEMPO_MAX);
+  const m = el.dataset.m === 'pick' ? pickZiel : el.dataset.m, p = clamp(Math.round(+el.value / TEMPO_STEP) * TEMPO_STEP, TEMPO_MIN, TEMPO_MAX);
+  settings.tempi[m] = p;
   syncUI(); saveSettings();
 });
 bindRange('beglvol', v => { settings.beglVol = v; applyVolume(); });
@@ -1715,15 +2080,17 @@ const cssVar = n => { try { return getComputedStyle(document.documentElement).ge
    ================================================================ */
 var pickZiel = 'lied';   /* var: syncUI liest es schon vor dieser Zeile */
 const STUFEN_INFO = { 1: '3 Spuren · kurze Kacheln', 2: '4 Spuren · lange Kacheln, Ruhe', 3: '4 Spuren · Doppel-Kacheln' };
-const KATEGORIEN = ['Alle', 'Kinderlieder', 'Volks- und Winterlieder', 'Klassik', 'Kuthu-Stil', 'Pop und Ruhiges', 'Tamilische Lieder', 'Übungen'];
+const KATEGORIEN = ['Alle', 'Kinderlieder', 'Volks- und Winterlieder', 'Klassik', 'Kuthu-Stil', 'Pop und Ruhiges', 'Tamilische Lieder', 'Übungen', MEINE_KAT];
 const ZULETZT_KEY = 'krishnaSpiele.zuletzt';
 let pickKat = 'Alle', pickStufe = 0;   /* 0 = alle Stufen */
-const LIEDER_SORTIERT = LIEDER.slice().sort((a, b) => a.stufe - b.stufe || a.titel.localeCompare(b.titel, 'de'));
+const liedSort = (a, b) => a.stufe - b.stufe || a.titel.localeCompare(b.titel, 'de');
+let LIEDER_SORTIERT = LIEDER.slice().sort(liedSort);
+function sortierungNeu() { LIEDER_SORTIERT = LIEDER.concat(MEINE).sort(liedSort); }
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 function zuletztLesen() {
   try {
     const a = JSON.parse(localStorage.getItem(ZULETZT_KEY) || '[]');
-    return Array.isArray(a) ? a.filter(id => typeof id === 'string' && LIEDER.some(l => l.id === id)).slice(0, 6) : [];
+    return Array.isArray(a) ? a.filter(id => typeof id === 'string' && liedVonId(id)).slice(0, 6) : [];
   } catch (e) { return []; }
 }
 function zuletztMerken(id) {
@@ -1753,8 +2120,13 @@ function pickerListe() {
     }
     h += karteHtml(l, mitKat);
   });
-  if (!liste.length) h = '<div class="leer">In dieser Auswahl gibt es keine Lieder. Wähle eine andere Stufe.</div>';
+  const meineAn = pickKat === MEINE_KAT;
+  $('#importBox').classList.toggle('da', meineAn);
+  if (!liste.length) h = meineAn && !MEINE.length
+    ? '<div class="leer meine-leer">Hier erscheinen deine eigenen Lieder.<br>Tippe auf „Lieder importieren“ und wähle Lied-Dateien (.mid) aus.<br>Die Lieder bleiben nur auf diesem Tablet.</div>'
+    : '<div class="leer">In dieser Auswahl gibt es keine Lieder. Wähle eine andere Stufe.</div>';
   $('#liedGitter').innerHTML = h;
+  katZahlen();
   $('#pickZahl').textContent = liste.length + (liste.length === 1 ? ' Lied' : ' Lieder');
   $$('#katReihe .kat').forEach(b => { const an = b.dataset.kat === pickKat; b.classList.toggle('an', an); b.setAttribute('aria-selected', an ? 'true' : 'false'); });
   $$('#stufenFilter .sf').forEach(b => { const an = +b.dataset.st === pickStufe; b.classList.toggle('an', an); b.setAttribute('aria-pressed', an ? 'true' : 'false'); });
@@ -1764,10 +2136,7 @@ function pickerRender() {
   $('#lieder .t-name').textContent = titel;
   $('#lieder .bar-hud').textContent = '[ LIED WÄHLEN ]';
   $$('#lieder .tgl-begl').forEach(b => { b.style.display = pickZiel === 'lied' ? '' : 'none'; });
-  const zl = zuletztLesen().map(id => LIEDER.find(l => l.id === id)).filter(Boolean);
-  const zb = $('#zuletzt');
-  zb.classList.toggle('da', zl.length > 0);
-  zb.innerHTML = zl.length ? '<div class="zk">Zuletzt gespielt</div><div class="zr">' + zl.map(l => karteHtml(l, false)).join('') + '</div>' : '';
+  pickerZuletzt();
   pickerListe();
   $('#liedListe').scrollTop = 0;
 }
@@ -1782,17 +2151,15 @@ function liedWaehlen(l) {
 }
 (function pickerAufbauen() {
   const kr = $('#katReihe');
-  kr.innerHTML = KATEGORIEN.map(k => {
-    const n = k === 'Alle' ? LIEDER.length : LIEDER.filter(l => l.kategorie === k).length;
-    return '<button type="button" class="kat" role="tab" data-kat="' + esc(k) + '">' + esc(k === 'Alle' ? 'Alle Lieder' : k) + '<small>' + n + '</small></button>';
-  }).join('');
+  kr.innerHTML = KATEGORIEN.map(k => '<button type="button" class="kat" role="tab" data-kat="' + esc(k) + '">' + esc(k === 'Alle' ? 'Alle Lieder' : k) + '<small></small></button>').join('');
+  katZahlen();
   kr.addEventListener('click', e => { const b = e.target.closest('.kat'); if (!b) return; pickKat = b.dataset.kat; pickerListe(); $('#liedListe').scrollTop = 0; });
   const sf = $('#stufenFilter');
   sf.innerHTML = [0, 1, 2, 3].map(st => '<button type="button" class="sf" data-st="' + st + '"' + (st ? ' style="--mark:var(--spur' + st + ')"><i></i>Stufe ' + st : '>Alle Stufen') + '</button>').join('');
   sf.addEventListener('click', e => { const b = e.target.closest('.sf'); if (!b) return; pickStufe = +b.dataset.st; pickerListe(); $('#liedListe').scrollTop = 0; });
   $('#liedListe').addEventListener('click', e => {
     const b = e.target.closest('.lied-karte'); if (!b) return;
-    const l = LIEDER.find(x => x.id === b.dataset.id); if (l) liedWaehlen(l);
+    const l = liedVonId(b.dataset.id); if (l) liedWaehlen(l);
   });
   $('#ueberrasch').addEventListener('click', () => {
     const frei = pickSichtbar().filter(liedFrei);
@@ -1800,7 +2167,170 @@ function liedWaehlen(l) {
     liedWaehlen(frei[Math.floor(Math.random() * frei.length)]);
   });
 })();
-function openPicker(ziel) { pickZiel = ziel; show('lieder'); }
+function katZahlen() {
+  $$('#katReihe .kat').forEach(b => {
+    const k = b.dataset.kat;
+    const n = k === 'Alle' ? LIEDER.length + MEINE.length : k === MEINE_KAT ? MEINE.length : LIEDER.filter(l => l.kategorie === k).length;
+    const sm = b.querySelector('small'); if (sm.textContent !== String(n)) sm.textContent = n;
+  });
+}
+function openPicker(ziel) { pickZiel = ziel; show('lieder'); meineLaden(); }
+
+/* ---------------- Meine Lieder: Speicher (IndexedDB, nur auf dem Geraet) und Import ----------------
+   Datenbank 'krishnaSpiele.meineLieder', Speicher 'lieder', Schluessel = Lied-ID.
+   Faellt IndexedDB aus, bleiben die Lieder nur fuer diese Sitzung (ruhiger Hinweis). */
+const MEINE_DB = 'krishnaSpiele.meineLieder', MEINE_STORE = 'lieder';
+let meineDbP = null, meineNurSitzung = false, meineGeladen = false, meineLadenP = null, importLaeuft = false;
+function meineDb() {
+  if (meineDbP) return meineDbP;
+  meineDbP = new Promise((res, rej) => {
+    let fertig = false;
+    const aus = setTimeout(() => { if (!fertig) { fertig = true; rej(new Error('Zeit')); } }, 5000);
+    try {
+      const r = indexedDB.open(MEINE_DB, 1);
+      r.onupgradeneeded = () => { try { if (!r.result.objectStoreNames.contains(MEINE_STORE)) r.result.createObjectStore(MEINE_STORE, { keyPath: 'id' }); } catch (e) {} };
+      r.onsuccess = () => { clearTimeout(aus); if (fertig) return; fertig = true; res(r.result); };
+      r.onerror = () => { clearTimeout(aus); if (fertig) return; fertig = true; rej(r.error || new Error('db')); };
+      r.onblocked = () => { clearTimeout(aus); if (fertig) return; fertig = true; rej(new Error('blockiert')); };
+    } catch (e) { clearTimeout(aus); fertig = true; rej(e); }
+  });
+  meineDbP.catch(() => { meineNurSitzung = true; });
+  return meineDbP;
+}
+function dbAktion(modus, fn) {
+  return meineDb().then(db => new Promise((res, rej) => {
+    try {
+      const tx = db.transaction(MEINE_STORE, modus), st = tx.objectStore(MEINE_STORE);
+      let ergebnis;
+      fn(st, v => { ergebnis = v; });
+      tx.oncomplete = () => res(ergebnis);
+      tx.onerror = () => rej(tx.error || new Error('tx'));
+      tx.onabort = () => rej(tx.error || new Error('abgebrochen'));
+    } catch (e) { rej(e); }
+  }));
+}
+const dbAlleLesen = () => dbAktion('readonly', (st, set) => { const r = st.getAll(); r.onsuccess = () => set(r.result || []); });
+const dbSpeichern = recs => dbAktion('readwrite', st => { recs.forEach(r => st.put(r)); });
+const dbLeeren = () => dbAktion('readwrite', st => { st.clear(); });
+function sitzungsHinweis() { toast('Die Lieder bleiben nur, bis die App geschlossen wird.'); }
+
+function meineSetzen(recs) {
+  const neu = [];
+  recs.forEach(r => {
+    try { if (r && r.v === 1 && typeof r.id === 'string' && Array.isArray(r.n)) neu.push(Object.assign(meinLiedAusDaten(r), { _rec: r })); }
+    catch (e) { /* defekter Eintrag: auslassen */ }
+  });
+  MEINE = neu;
+  sortierungNeu();
+  katZahlen();
+  if (current === 'lieder') { pickerListe(); pickerZuletzt(); }
+}
+function meineLaden() {
+  if (meineLadenP) return meineLadenP;
+  let ok = true;
+  try { if (!window.indexedDB) ok = false; } catch (e) { ok = false; }
+  if (!ok) { meineNurSitzung = true; meineGeladen = true; meineLadenP = Promise.resolve(); return meineLadenP; }
+  meineLadenP = dbAlleLesen().then(recs => { meineSetzen(recs); }).catch(() => { meineNurSitzung = true; })
+    .then(() => { meineGeladen = true; });
+  return meineLadenP;
+}
+function pickerZuletzt() {
+  const zl = zuletztLesen().map(liedVonId).filter(Boolean);
+  const zb = $('#zuletzt');
+  zb.classList.toggle('da', zl.length > 0);
+  zb.innerHTML = zl.length ? '<div class="zk">Zuletzt gespielt</div><div class="zr">' + zl.map(l => karteHtml(l, false)).join('') + '</div>' : '';
+}
+
+/* Datei lesen (arrayBuffer, sonst FileReader) */
+function dateiBytes(f) {
+  if (f && typeof f.arrayBuffer === 'function') return f.arrayBuffer().then(b => new Uint8Array(b));
+  return new Promise((res, rej) => {
+    try { const r = new FileReader(); r.onload = () => res(new Uint8Array(r.result)); r.onerror = () => rej(r.error); r.readAsArrayBuffer(f); }
+    catch (e) { rej(e); }
+  });
+}
+const luft = () => new Promise(r => setTimeout(r, 0));
+function importAnzeige(an, anteil, text, fertig) {
+  const lauf = $('#importLauf');
+  lauf.classList.toggle('da', an); lauf.classList.toggle('fertig', !!fertig);
+  $('#importBalken').style.width = Math.round(100 * clamp(anteil, 0, 1)) + '%';
+  $('#importText').textContent = text;
+  $('#importBtn').disabled = importLaeuft; $('#loeschBtn').disabled = importLaeuft;
+}
+async function importStarten(liste) {
+  const files = Array.from(liste || []);
+  if (!files.length || importLaeuft) return;
+  importLaeuft = true; loeschEntschaerfen();
+  const gesamt = files.length;
+  importAnzeige(true, 0, 'Datei 0 von ' + gesamt);
+  await meineLaden();
+  const neu = new Map();
+  let ueber = 0;
+  for (let i = 0; i < gesamt; i++) {
+    if (i % 8 === 0) { importAnzeige(true, i / gesamt, 'Datei ' + (i + 1) + ' von ' + gesamt); await luft(); }
+    const f = files[i];
+    try {
+      if (!f || !(f.size > 13) || f.size > MIDI_MAX_BYTES) { ueber++; continue; }
+      const rec = midiZuLied(await dateiBytes(f), f.name);
+      if (!rec) { ueber++; continue; }
+      const l = meinLiedAusDaten(rec);   /* nur Lieder, die die Regeln erfuellen */
+      if (importPruefen(l).length) { ueber++; continue; }
+      const alt = neu.get(rec.id);
+      if (alt) { ueber++; if (rec.z > alt.z) neu.set(rec.id, rec); }
+      else neu.set(rec.id, rec);
+    } catch (e) { ueber++; }
+  }
+  importAnzeige(true, 1, 'Datei ' + gesamt + ' von ' + gesamt);
+  await luft();
+  let schonDa = 0;
+  const speichern = [];
+  neu.forEach(rec => {
+    const da = MEINE.find(l => l.id === rec.id);
+    if (da && da._rec && da._rec.z >= rec.z) schonDa++; else speichern.push(rec);
+  });
+  if (speichern.length && !meineNurSitzung) {
+    try { await dbSpeichern(speichern); } catch (e) { meineNurSitzung = true; }
+  }
+  const map = new Map(MEINE.map(l => [l.id, l._rec]));
+  speichern.forEach(r => map.set(r.id, r));
+  meineSetzen(Array.from(map.values()));
+  importLaeuft = false;
+  const n = speichern.length;
+  let msg = (n === 1 ? '1 Lied importiert' : n + ' Lieder importiert') + ', ' + ueber + ' übersprungen';
+  if (schonDa) msg += ' · ' + schonDa + (schonDa === 1 ? ' war schon da' : ' waren schon da');
+  importAnzeige(true, 1, msg, true);
+  if (meineNurSitzung && n) sitzungsHinweis();
+}
+/* Loeschen in zwei Schritten, ohne Dialog */
+let loeschScharf = false, loeschTimer = 0;
+function loeschEntschaerfen() {
+  loeschScharf = false; clearTimeout(loeschTimer);
+  const b = $('#loeschBtn'); b.classList.remove('scharf'); b.textContent = 'Alle importierten Lieder löschen';
+}
+async function alleMeineLoeschen() {
+  loeschEntschaerfen();
+  if (!meineNurSitzung) { try { await dbLeeren(); } catch (e) { meineNurSitzung = true; } }
+  meineSetzen([]);
+  importAnzeige(true, 1, 'Alle importierten Lieder sind gelöscht.', true);
+}
+(function importAufbauen() {
+  const inp = $('#midiDatei');
+  $('#importBtn').addEventListener('click', () => { if (importLaeuft) return; loeschEntschaerfen(); try { inp.value = ''; } catch (e) {} inp.click(); });
+  inp.addEventListener('change', () => { const f = inp.files; if (f && f.length) importStarten(f); });
+  $('#loeschBtn').addEventListener('click', () => {
+    if (importLaeuft) return;
+    if (!loeschScharf) {
+      if (!MEINE.length) { toast('Es gibt noch keine importierten Lieder.'); return; }
+      loeschScharf = true;
+      const b = $('#loeschBtn'); b.classList.add('scharf'); b.textContent = 'Wirklich löschen? Nochmal tippen';
+      clearTimeout(loeschTimer); loeschTimer = setTimeout(loeschEntschaerfen, 5000);
+      return;
+    }
+    alleMeineLoeschen();
+  });
+  $('#importMenuBtn').addEventListener('click', () => { pickKat = MEINE_KAT; pickStufe = 0; openPicker('lied'); });
+})();
+meineLaden();
 
 /* ================================================================
    MODUS 1 (NEU): LIEDER SPIELEN - Kachel-Lieder
@@ -2499,146 +3029,644 @@ const Calm = (() => {
 })();
 
 /* ================================================================
-   MODUS 6: KUTHU-TROMMELN
-   Drei weiche Trommeln. Die naechste Trommel im Rhythmus leuchtet sanft
-   und wartet - kein Zeitdruck. 8 Grundrhythmen.
+   MODUS 6: BEAT-PADS   (@ Joschy)
+   8 Stile mit je 12 Loop-Pads. Es gibt EINEN globalen Takt
+   (16 Schritte je Takt, Loops 1 bis 4 Takte). Alle Loops laufen
+   rechnerisch immer auf diesem Takt. Tipp = Loop an (sofort, weich
+   eingeblendet an der aktuellen Taktstelle), zweiter Tipp = weich aus.
+   Alle Klaenge werden hier per Web Audio erzeugt (keine Samples).
+   Alle Motive sind Eigenkompositionen.
+   Die Klang-Bausteine laufen mit jedem AudioContext/OfflineAudioContext.
    ================================================================ */
-const Drum = (() => {
-  const DRUMS = [
-    { k: 'D', label: 'Dumpf',  sym: '&#9679;',        col: 'var(--spur3)' },
-    { k: 'T', label: 'Hell',   sym: '&#9675;',        col: 'var(--spur1)' },
-    { k: 'K', label: 'Doppel', sym: '&#9679;&#9679;', col: 'var(--spur2)' }
-  ];
-  const RHYTHMS = [
-    { name: 'Ruhiger Gang',  pat: 'DTDT' },
-    { name: 'Marsch',        pat: 'DDTT' },
-    { name: 'Grundschlag',   pat: 'DTKT' },
-    { name: 'Doppel-Takt',   pat: 'DTTDKTDT' },
-    { name: 'Festschritt',   pat: 'DKTDDKTT' },
-    { name: 'Tanzschritt',   pat: 'DTKDTDKT' },
-    { name: 'Kuthu-Schritt', pat: 'DKDTDKDT' },
-    { name: 'Hüpfer',        pat: 'DTKTDTDK' }
-  ];
-  const grid = $('#dgrid'), stepsEl = $('#dsteps'), prog = $('#drumProg'), rhyList = $('#rhyList'), demoBtn = $('#drumDemo');
-  let running = false, busy = false, demoing = false, pos = 0, count = 0, total = 16;
-  let timers = [], hintTimer = 0, bgTimer = 0, bgNext = 0, bgStep = 0;
-  const later = (fn, ms) => { timers.push(setTimeout(() => { if (running) fn(); }, ms)); };
-  const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
-  const beat = () => 60 / settings.bpm;
-  const rhythm = () => RHYTHMS[Math.min(settings.rhythm, RHYTHMS.length - 1)];
-  const pat = () => rhythm().pat;
-  const cells = DRUMS.map((d, i) => {
+const BEAT_ATT = 0.015;          /* weichster Einsatz einer Note (s) */
+const BEAT_MAX_STIMMEN = 24;     /* Obergrenze gleichzeitiger Stimmen */
+const BEAT_EIN = 0.03;           /* Einblenden beim Antippen (s) */
+const BEAT_AUS = 0.04;           /* Ausblenden beim zweiten Tipp (s) */
+const BEAT_VORLAUF = 0.1;        /* Look-ahead des Schedulers (s) */
+const BEAT_TAKT_MS = 25;         /* Scheduler-Intervall (ms) */
+
+/* Rauschen, fest geseedet (gleiches Ergebnis bei jedem Start) */
+const beatRauschPuffer = new WeakMap();
+function beatRauschen(c) {
+  let b = beatRauschPuffer.get(c);
+  if (!b) {
+    b = c.createBuffer(1, Math.floor(c.sampleRate * 1.3), c.sampleRate);
+    const d = b.getChannelData(0); let x = 2463534242;
+    for (let i = 0; i < d.length; i++) { x ^= x << 13; x >>>= 0; x ^= x >>> 17; x ^= x << 5; x >>>= 0; d[i] = x / 2147483648 - 1; }
+    beatRauschPuffer.set(c, b);
+  }
+  return b;
+}
+/* Weicher Begrenzer am Ende der Kette: linear bis 0,5, darueber sanft bis hoechstens 0,68 (-3,35 dBFS) */
+let beatKurve = null;
+function beatBegrenzerKurve() {
+  if (beatKurve) return beatKurve;
+  const n = 4097, k = new Float32Array(n), knie = 0.5, rest = 0.18;
+  for (let i = 0; i < n; i++) {
+    const x = i / (n - 1) * 2 - 1, a = Math.abs(x);
+    k[i] = Math.sign(x) * (a <= knie ? a : knie + rest * Math.tanh((a - knie) / rest));
+  }
+  return (beatKurve = k);
+}
+/* Master-Kette: Summe -> Lautstaerke -> Hochpass (gegen Gleichanteil) -> Tiefpass -> Kompressor -> Limiter -> weicher Begrenzer */
+/* Pegel der Kette: trim = Summe vor dem Kompressor, nach = Ausgleich der automatischen
+   Aufholverstaerkung der Kompressoren (Chromium), damit Beat-Pads nicht lauter als die Lieder sind */
+const BEAT_MIX = { trim: 0.28, nach: 0.4 };
+function beatKette(c, ziel) {
+  const ein = c.createGain(); ein.gain.value = BEAT_MIX.trim;
+  const vol = c.createGain(); vol.gain.value = volGain();
+  const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 30; hp.Q.value = 0.5;
+  const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5200; lp.Q.value = 0.5;
+  const comp = c.createDynamicsCompressor();
+  comp.threshold.value = -20; comp.knee.value = 12; comp.ratio.value = 4; comp.attack.value = 0.005; comp.release.value = 0.25;
+  const lim = c.createDynamicsCompressor();
+  lim.threshold.value = -10; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.001; lim.release.value = 0.12;
+  const nach = c.createGain(); nach.gain.value = BEAT_MIX.nach;
+  const clip = c.createWaveShaper(); clip.curve = beatBegrenzerKurve(); clip.oversample = 'none';
+  ein.connect(vol); vol.connect(hp); hp.connect(lp); lp.connect(comp); comp.connect(lim); lim.connect(nach); nach.connect(clip); clip.connect(ziel || c.destination);
+  return { ein, vol, ende: clip, trennen() { [ein, vol, hp, lp, comp, lim, nach, clip].forEach(n => { try { n.disconnect(); } catch (e) {} }); } };
+}
+
+/* ---------- eine Stimme: sammelt ihre Knoten und raeumt sie am Ende selbst auf ---------- */
+function beatStimme(eng, t, dauer) {
+  const c = eng.ctx, nodes = [], srcs = [], tEnd = t + Math.max(0.05, dauer);
+  const v = {
+    c, t, tEnd,
+    osc(type, f) { const o = c.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, t); nodes.push(o); srcs.push(o); return o; },
+    rausch() { const n = c.createBufferSource(); n.buffer = beatRauschen(c); n.loop = true; nodes.push(n); srcs.push(n); return n; },
+    gain(g) { const x = c.createGain(); x.gain.value = g; nodes.push(x); return x; },
+    filt(type, f, q) { const x = c.createBiquadFilter(); x.type = type; x.frequency.setValueAtTime(f, t); x.Q.value = q == null ? 0.7 : q; nodes.push(x); return x; },
+    /* perkussiv: weicher Einsatz, dann exponentiell bis tEnd, am Ende sicher 0 */
+    perk(g, peak, att, tE) {
+      const a = Math.max(BEAT_ATT, att || 0), e = Math.min(tEnd, tE || tEnd);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + a);
+      g.gain.exponentialRampToValueAtTime(Math.max(1e-5, peak * 0.0015), Math.max(t + a + 0.005, e - 0.004));
+      g.gain.linearRampToValueAtTime(0, e);
+      return g;
+    },
+    /* gehalten: Einsatz, lineares Absinken auf sus, Ausklang rel bis tEnd */
+    halt(g, peak, att, rel, sus) {
+      const a = Math.max(BEAT_ATT, att || 0), r = Math.min(Math.max(0.02, rel || 0.08), (tEnd - t) * 0.6);
+      const tr = Math.max(t + a, tEnd - r);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, Math.min(t + a, tr));
+      g.gain.linearRampToValueAtTime(peak * (sus == null ? 1 : sus), tr);
+      g.gain.linearRampToValueAtTime(0, tEnd);
+      return g;
+    },
+    /* langsames Vibrato auf einen Oszillator */
+    vibrato(o, f, rate, tiefe, verz) {
+      const l = v.osc('sine', rate), lg = v.gain(0);
+      lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(f * tiefe, t + (verz || 0.2));
+      l.connect(lg); lg.connect(o.frequency);
+    },
+    los(aus, ziel) {
+      aus.connect(ziel);
+      eng.knoten += nodes.length; eng.stimmen++;
+      let fertig = false;
+      const aufraeumen = () => {
+        if (fertig) return; fertig = true;
+        nodes.forEach(n => { try { n.disconnect(); } catch (e) {} });
+        eng.knoten -= nodes.length; eng.stimmen--;
+      };
+      srcs.forEach(s => { s.start(t); s.stop(tEnd + 0.01); });
+      if (srcs.length) srcs[0].onended = aufraeumen; else aufraeumen();
+    }
+  };
+  return v;
+}
+
+/* ---------- Klangfarben. dauer(lenS) liefert die Stimmenlaenge, bau(v, freqs, vel) den Ausgang ---------- */
+const mehr = (fs, fn) => fs.forEach(fn);
+const BEAT_KLANG = {
+  /* -- Rhythmus -- */
+  kick:   { dauer: () => 0.34, bau(v, fs, vel, P) {
+    const o = v.osc('sine', (P && P.f0) || 125); o.frequency.exponentialRampToValueAtTime((P && P.f1) || 50, v.t + 0.11);
+    const g = v.perk(v.gain(0), 0.75 * vel); o.connect(g); return g; } },
+  tom:    { dauer: (l, P) => (P && P.dec) || 0.4, bau(v, fs, vel, P) {
+    const f0 = P.f0, f1 = P.f1, out = v.gain(1);
+    const o = v.osc('sine', f0); o.frequency.exponentialRampToValueAtTime(f1, v.t + (P.dec || 0.4) * 0.45);
+    const g = v.perk(v.gain(0), 0.55 * vel); o.connect(g); g.connect(out);
+    const n = v.rausch(), bp = v.filt('bandpass', P.nf || 600, 0.9), ng = v.perk(v.gain(0), (P.na || 0.12) * vel, BEAT_ATT, v.t + 0.12);
+    n.connect(bp); bp.connect(ng); ng.connect(out); return out; } },
+  snare:  { dauer: () => 0.22, bau(v, fs, vel) {
+    const out = v.gain(1), o = v.osc('triangle', 190); o.frequency.exponentialRampToValueAtTime(150, v.t + 0.08);
+    const g = v.perk(v.gain(0), 0.7 * vel, BEAT_ATT, v.t + 0.12); o.connect(g); g.connect(out);
+    const n = v.rausch(), bp = v.filt('bandpass', 1900, 0.8), ng = v.perk(v.gain(0), 1.3 * vel);
+    n.connect(bp); bp.connect(ng); ng.connect(out); return out; } },
+  clap:   { dauer: () => 0.2, bau(v, fs, vel) {
+    const n = v.rausch(), bp = v.filt('bandpass', 1350, 1.3), g = v.perk(v.gain(0), 1.8 * vel);
+    n.connect(bp); bp.connect(g); return g; } },
+  hat:    { dauer: (l, P) => (P && P.offen) ? 0.26 : 0.07, bau(v, fs, vel) {
+    const n = v.rausch(), hp = v.filt('highpass', 2600, 0.6), bp = v.filt('bandpass', 4300, 1.1), g = v.perk(v.gain(0), 1.7 * vel);
+    n.connect(hp); hp.connect(bp); bp.connect(g); return g; } },
+  shaker: { dauer: () => 0.1, bau(v, fs, vel) {
+    const n = v.rausch(), bp = v.filt('bandpass', 3300, 1.6), g = v.perk(v.gain(0), 1.3 * vel, 0.022);
+    n.connect(bp); bp.connect(g); return g; } },
+  holz:   { dauer: () => 0.09, bau(v, fs, vel, P) {
+    const f = (P && P.f) || 1050, o = v.osc('sine', f), o2 = v.osc('triangle', f * 1.48), g = v.perk(v.gain(0), 0.9 * vel), g2 = v.gain(0.25);
+    o.connect(g); o2.connect(g2); g2.connect(g); return g; } },
+  becken: { dauer: () => 0.5, bau(v, fs, vel) {
+    const out = v.gain(1), n = v.rausch(), bp = v.filt('bandpass', 4800, 2.5), g = v.perk(v.gain(0), 1.1 * vel);
+    n.connect(bp); bp.connect(g); g.connect(out);
+    [3150, 4420].forEach(f => { const o = v.osc('sine', f), og = v.perk(v.gain(0), 0.025 * vel); o.connect(og); og.connect(out); });
+    return out; } },
+  schellen: { dauer: () => 0.16, bau(v, fs, vel) {
+    const out = v.gain(1), n = v.rausch(), bp = v.filt('bandpass', 5000, 3.5), g = v.perk(v.gain(0), 1.8 * vel);
+    n.connect(bp); bp.connect(g); g.connect(out);
+    const o = v.osc('sine', 4180), og = v.perk(v.gain(0), 0.03 * vel); o.connect(og); og.connect(out); return out; } },
+  /* -- Bass -- */
+  sub:    { rel: 0.08, bau(v, fs, vel) {
+    const g = v.halt(v.gain(0), 0.3 * vel, 0.02, 0.08, 0.85);
+    mehr(fs, f => { const o = v.osc('sine', f), o2 = v.osc('sine', f * 2), g2 = v.gain(0.22); o.connect(g); o2.connect(g2); g2.connect(g); });
+    return g; } },
+  sagebass: { rel: 0.06, bau(v, fs, vel) {
+    const lp = v.filt('lowpass', 1300, 1.2); lp.frequency.exponentialRampToValueAtTime(420, v.t + 0.22);
+    const g = v.halt(v.gain(0), 0.24 * vel, BEAT_ATT, 0.06, 0.7);
+    mehr(fs, f => { const a = v.osc('sawtooth', f), b = v.osc('sawtooth', f * 1.006); a.connect(lp); b.connect(lp); });
+    lp.connect(g); return g; } },
+  zupfbass: { rel: 0.2, dauer: l => Math.min(l, 0.6) + 0.2, bau(v, fs, vel) {
+    const g = v.perk(v.gain(0), 0.6 * vel);
+    mehr(fs, f => { const o = v.osc('triangle', f), o2 = v.osc('sine', f * 2), g2 = v.gain(0.3); o.connect(g); o2.connect(g2); g2.connect(g); });
+    return g; } },
+  /* -- Akkorde / Flaechen -- */
+  keys:   { rel: 0.3, dauer: l => l + 0.35, bau(v, fs, vel) {
+    const g = v.perk(v.gain(0), 0.26 * vel, 0.016);
+    mehr(fs, f => { [[1, 1], [2, 0.22], [3, 0.05]].forEach(([m, a]) => { const o = v.osc('sine', f * m), og = v.gain(a); o.connect(og); og.connect(g); }); });
+    return g; } },
+  flaeche: { rel: 0.4, bau(v, fs, vel) {
+    const lp = v.filt('lowpass', 1050, 0.3), g = v.halt(v.gain(0), 0.08 * vel, 0.3, 0.4, 0.9);
+    mehr(fs, f => { [0.996, 1.004].forEach(d => { const o = v.osc('sawtooth', f * d); o.connect(lp); }); });
+    lp.connect(g); return g; } },
+  streicher: { rel: 0.5, bau(v, fs, vel) {
+    const lp = v.filt('lowpass', 1700, 0.4), g = v.halt(v.gain(0), 0.11 * vel, 0.32, 0.5, 0.95);
+    mehr(fs, f => { [0.995, 1, 1.005].forEach(d => { const o = v.osc('sawtooth', f * d); v.vibrato(o, f * d, 5, 0.004, 0.4); o.connect(lp); }); });
+    lp.connect(g); return g; } },
+  orgel:  { rel: 0.08, bau(v, fs, vel) {
+    const g = v.halt(v.gain(0), 0.17 * vel, 0.03, 0.08, 0.95);
+    mehr(fs, f => { [[1, 1], [2, 0.45], [3, 0.18], [4, 0.08]].forEach(([m, a]) => { const o = v.osc('sine', f * m), og = v.gain(a); o.connect(og); og.connect(g); }); });
+    return g; } },
+  stich:  { rel: 0.12, dauer: l => Math.min(l, 0.4) + 0.12, bau(v, fs, vel) {
+    const lp = v.filt('lowpass', 2300, 0.8); lp.frequency.exponentialRampToValueAtTime(650, v.t + 0.2);
+    const g = v.perk(v.gain(0), 0.2 * vel);
+    mehr(fs, f => { const o = v.osc('sawtooth', f); o.connect(lp); });
+    lp.connect(g); return g; } },
+  power:  { rel: 0.08, bau(v, fs, vel) {
+    const lp = v.filt('lowpass', 1500, 0.8), g = v.halt(v.gain(0), 0.12 * vel, 0.02, 0.08, 0.6);
+    mehr(fs, f => { const a = v.osc('sawtooth', f), b = v.osc('square', f * 1.003), bg = v.gain(0.5); a.connect(lp); b.connect(bg); bg.connect(lp); });
+    lp.connect(g); return g; } },
+  harmonium: { rel: 0.1, bau(v, fs, vel) {
+    const bp = v.filt('lowpass', 1600, 0.5), g = v.halt(v.gain(0), 0.13 * vel, 0.04, 0.1, 0.9);
+    mehr(fs, f => { const a = v.osc('sawtooth', f), b = v.osc('square', f * 0.5 * 1.002), bg = v.gain(0.4); a.connect(bp); b.connect(bg); bg.connect(bp); });
+    bp.connect(g); return g; } },
+  /* -- Melodie -- */
+  floete: { rel: 0.12, bau(v, fs, vel) {
+    const out = v.halt(v.gain(0), 0.16 * vel, 0.06, 0.12, 0.85);
+    mehr(fs, f => {
+      const o = v.osc('sine', f), t2 = v.osc('triangle', f), tg = v.gain(0.12); v.vibrato(o, f, 5, 0.006, 0.3);
+      o.connect(out); t2.connect(tg); tg.connect(out);
+      const n = v.rausch(), bp = v.filt('bandpass', f * 2, 2.5), ng = v.gain(0.05); n.connect(bp); bp.connect(ng); ng.connect(out);
+    });
+    return out; } },
+  nadaswaram: { rel: 0.1, bau(v, fs, vel) {
+    const bp = v.filt('bandpass', 1150, 0.9), lp = v.filt('lowpass', 2500, 0.5), g = v.halt(v.gain(0), 0.42 * vel, 0.05, 0.1, 0.85);
+    mehr(fs, f => {
+      const o = v.osc('sawtooth', f * 0.975); o.frequency.exponentialRampToValueAtTime(f, v.t + 0.07);
+      v.vibrato(o, f, 5.5, 0.007, 0.25); o.connect(bp);
+    });
+    bp.connect(lp); lp.connect(g); return g; } },
+  zupf:   { rel: 0.2, dauer: l => Math.min(l, 0.5) + 0.25, bau(v, fs, vel) {
+    const lp = v.filt('lowpass', 2400, 0.6); lp.frequency.exponentialRampToValueAtTime(800, v.t + 0.25);
+    const g = v.perk(v.gain(0), 0.34 * vel);
+    mehr(fs, f => { const a = v.osc('triangle', f), b = v.osc('sawtooth', f), bg = v.gain(0.25); a.connect(lp); b.connect(bg); bg.connect(lp); });
+    lp.connect(g); return g; } },
+  quadrat: { rel: 0.08, bau(v, fs, vel) {
+    const lp = v.filt('lowpass', 1400, 0.5), g = v.halt(v.gain(0), 0.16 * vel, 0.02, 0.08, 0.8);
+    mehr(fs, f => { const o = v.osc('square', f); v.vibrato(o, f, 5, 0.004, 0.3); o.connect(lp); });
+    lp.connect(g); return g; } },
+  marimba: { dauer: () => 0.5, bau(v, fs, vel) {
+    const g = v.perk(v.gain(0), 0.42 * vel, 0.015);
+    mehr(fs, f => { const o = v.osc('sine', f), o2 = v.osc('sine', f * 4), g2 = v.perk(v.gain(0), 0.1, BEAT_ATT, v.t + 0.12); o.connect(g); o2.connect(g2); g2.connect(g); });
+    return g; } },
+  steel:  { dauer: () => 0.6, bau(v, fs, vel) {
+    const g = v.perk(v.gain(0), 0.34 * vel);
+    mehr(fs, f => { [[1, 1], [2, 0.35], [3.01, 0.14]].forEach(([m, a]) => { const o = v.osc('sine', f * m), og = v.gain(a); o.connect(og); og.connect(g); }); });
+    return g; } },
+  vibes:  { dauer: () => 1.2, bau(v, fs, vel) {
+    const g = v.perk(v.gain(0), 0.3 * vel), trem = v.gain(1), l = v.osc('sine', 4.5), lg = v.gain(0.15);
+    l.connect(lg); lg.connect(trem.gain);
+    mehr(fs, f => { const o = v.osc('sine', f), o2 = v.osc('sine', f * 4), g2 = v.gain(0.06); o.connect(trem); o2.connect(g2); g2.connect(trem); });
+    trem.connect(g); return g; } },
+  glocke: { dauer: () => 1.1, bau(v, fs, vel) {
+    const g = v.perk(v.gain(0), 0.22 * vel);
+    mehr(fs, f => { [[1, 1], [2.76, 0.28], [5.4, 0.1]].forEach(([m, a]) => { const o = v.osc('sine', f * m), og = v.gain(a); o.connect(og); og.connect(g); }); });
+    return g; } },
+  pfeife: { rel: 0.1, bau(v, fs, vel) {
+    const g = v.halt(v.gain(0), 0.2 * vel, 0.05, 0.1, 0.85);
+    mehr(fs, f => { const o = v.osc('sine', f); v.vibrato(o, f, 5.5, 0.008, 0.25); o.connect(g); });
+    return g; } },
+  horn:   { rel: 0.2, bau(v, fs, vel) {
+    const lp = v.filt('lowpass', 520, 0.6); lp.frequency.linearRampToValueAtTime(1250, v.t + 0.35);
+    const g = v.halt(v.gain(0), 0.3 * vel, 0.08, 0.2, 0.85);
+    mehr(fs, f => { [1, 1.003].forEach(d => { const o = v.osc('sawtooth', f * d); o.connect(lp); }); });
+    lp.connect(g); return g; } },
+  harfe:  { dauer: () => 0.9, bau(v, fs, vel) {
+    const g = v.perk(v.gain(0), 0.36 * vel);
+    mehr(fs, f => { const o = v.osc('triangle', f), o2 = v.osc('sine', f * 2), g2 = v.gain(0.2); o.connect(g); o2.connect(g2); g2.connect(g); });
+    return g; } },
+  gitarre: { rel: 0.1, bau(v, fs, vel) {
+    const lp = v.filt('lowpass', 1700, 1.4), g = v.halt(v.gain(0), 0.17 * vel, 0.02, 0.1, 0.7);
+    mehr(fs, f => { [1, 1.004].forEach(d => { const o = v.osc('sawtooth', f * d); v.vibrato(o, f, 5.5, 0.004, 0.35); o.connect(lp); }); });
+    lp.connect(g); return g; } },
+  /* -- Effekte / Texturen (leise) -- */
+  welle:  { rel: 0, bau(v, fs, vel) {
+    const d = v.tEnd - v.t, n = v.rausch(), bp = v.filt('bandpass', 450, 1.4);
+    bp.frequency.linearRampToValueAtTime(1600, v.t + d * 0.5); bp.frequency.linearRampToValueAtTime(450, v.tEnd);
+    const g = v.halt(v.gain(0), 0.8 * vel, d * 0.45, d * 0.45, 1); n.connect(bp); bp.connect(g); return g; } },
+  wind:   { rel: 0, bau(v, fs, vel) {
+    const d = v.tEnd - v.t, n = v.rausch(), lp = v.filt('lowpass', 650, 2.5), l = v.osc('sine', 0.23), lg = v.gain(260);
+    l.connect(lg); lg.connect(lp.frequency);
+    const g = v.halt(v.gain(0), 0.8 * vel, d * 0.35, d * 0.35, 1); n.connect(lp); lp.connect(g); return g; } },
+  regen:  { rel: 0, bau(v, fs, vel) {
+    const d = v.tEnd - v.t, n = v.rausch(), hp = v.filt('highpass', 900, 0.5), bp = v.filt('bandpass', 2600, 0.6);
+    const g = v.halt(v.gain(0), 0.6 * vel, d * 0.3, d * 0.3, 1); n.connect(hp); hp.connect(bp); bp.connect(g); return g; } }
+};
+
+/* ---------- Gruppen: Farbe, Symbol ---------- */
+const BEAT_GRUPPEN = {
+  rhythmus: { name: 'Rhythmus', col: 'var(--spur3)', sym: '<svg viewBox="0 0 40 40" class="bsym" aria-hidden="true"><ellipse cx="20" cy="14" rx="12" ry="5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M8 14v11c0 2.8 5.4 5 12 5s12-2.2 12-5V14" fill="none" stroke="currentColor" stroke-width="2.6"/></svg>' },
+  bass:     { name: 'Bass', col: 'var(--spur2)', sym: '<svg viewBox="0 0 40 40" class="bsym" aria-hidden="true"><path d="M4 22c4-10 8-10 12 0s8 10 12 0 6-8 8-4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>' },
+  akkord:   { name: 'Akkord', col: 'var(--spur1)', sym: '<svg viewBox="0 0 40 40" class="bsym" aria-hidden="true"><circle cx="13" cy="27" r="5" fill="currentColor"/><circle cx="20" cy="18" r="5" fill="currentColor" fill-opacity=".7"/><circle cx="27" cy="9" r="5" fill="currentColor" fill-opacity=".45"/></svg>' },
+  melodie:  { name: 'Melodie', col: 'var(--spur4)', sym: '<svg viewBox="0 0 40 40" class="bsym" aria-hidden="true"><path d="M15 29V9l16-3v19" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/><circle cx="11" cy="29" r="4.5" fill="currentColor"/><circle cx="27" cy="25" r="4.5" fill="currentColor"/></svg>' },
+  effekt:   { name: 'Effekt', col: 'var(--text-dim)', sym: '<svg viewBox="0 0 40 40" class="bsym" aria-hidden="true"><path d="M6 20c3-6 6-6 9 0s6 6 9 0 6-6 9 0" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="20" cy="20" r="15" fill="none" stroke="currentColor" stroke-opacity=".45" stroke-width="2"/></svg>' }
+};
+/* Pegel je Gruppe (in die Summe) */
+const BEAT_PEGEL = { rhythmus: 1, bass: 0.8, akkord: 0.75, melodie: 0.7, effekt: 1 };
+
+/* ---------- Die 8 Stile ----------
+   Tonleitern in Halbtonschritten ab Grundton (wurzel = MIDI-Ton der mittleren Lage).
+   prog: Stufe des Akkords je Takt (0 = Grundton-Akkord). form: Stufen-Abstaende im Akkord.
+   Pads:  m = Rhythmus-Muster (16 Zeichen je Takt; X stark, x mittel, o leise, D Doppelschlag, . Pause)
+          b = Bass-Muster (X/x Grundton, F/f Quinte, T/t Terz, O/o Oktave, _ halten) - folgt prog
+          a = Akkord-Muster (X/x Akkord, _ halten) - folgt prog
+          t = Noten "Schritt:Stufe:Laenge[:Staerke 1-9]", rel = Stufen relativ zum Akkord des Taktes
+          o = Oktav-Lage relativ zur wurzel, echo = Wiederholungen (leiser werdend, alle 3 Schritte) */
+const DUR = [0, 2, 4, 5, 7, 9, 11], MOLL = [0, 2, 3, 5, 7, 8, 10], DORISCH = [0, 2, 3, 5, 7, 9, 10];
+const BEAT_STILE = [
+  { id: 'kuthu', name: 'Kuthu', bpm: 100, wurzel: 60, leiter: [0, 1, 4, 5, 7, 8, 11], leiterName: 'Mayamalavagowla', prog: [0], form: [0, 4, 7], pads: [
+    { n: 'Dumpf', g: 'rhythmus', k: 'tom', P: { f0: 105, f1: 56, dec: 0.5, nf: 380, na: 0.12 }, m: 'X..X..X.X..X..x.' },
+    { n: 'Hell', g: 'rhythmus', k: 'tom', P: { f0: 360, f1: 250, dec: 0.2, nf: 1500, na: 0.16 }, m: '..o.X..o..o.X.x.' },
+    { n: 'Doppel', g: 'rhythmus', k: 'tom', P: { f0: 300, f1: 215, dec: 0.17, nf: 1400, na: 0.12 }, m: '.......D.......D' },
+    { n: 'Schellen', g: 'rhythmus', k: 'schellen', m: '..x...x...x...xo' },
+    { n: 'Tiefbass', g: 'bass', k: 'sub', o: -2, b: 'X_....X_..X_....' },
+    { n: 'Laufbass', g: 'bass', k: 'zupfbass', o: -2, b: 'X..F..X.O..F..x.' },
+    { n: 'Harmonium', g: 'akkord', k: 'harmonium', o: -1, a: '..X_..X_..X_..X_' },
+    { n: 'Bordun', g: 'akkord', k: 'flaeche', o: -1, a: 'X_______________' },
+    { n: 'Nadaswaram', g: 'melodie', k: 'nadaswaram', o: 0, t: '0:4:3 3:5:1 4:4:2 6:2:2 8:3:4 12:2:2 14:1:2 16:0:6 22:1:2 24:2:4 28:4:4' },
+    { n: 'Flöte', g: 'melodie', k: 'floete', o: 1, t: '0:0:2 2:-1:2 4:0:4 8:2:2 10:1:2 12:0:4 16:-1:2 18:-2:2 20:-3:4 24:-2:2 26:-1:2 28:0:4' },
+    { n: 'Glöckchen', g: 'melodie', k: 'glocke', o: 1, t: '0:7:2 3:9:1 6:11:2 10:9:2 12:7:4' },
+    { n: 'Echo', g: 'effekt', k: 'glocke', o: 1, t: '0:4:2 32:2:2', echo: 3, L: 64 }
+  ] },
+  { id: 'pop', name: 'Pop', bpm: 108, wurzel: 62, leiter: DUR, prog: [0, 2, 5, 3], form: [0, 2, 4], pads: [
+    { n: 'Trommel', g: 'rhythmus', k: 'kick', m: 'X.....X.X.......' },
+    { n: 'Klatsch', g: 'rhythmus', k: 'clap', m: '....X.......X...' },
+    { n: 'Rassel', g: 'rhythmus', k: 'hat', m: 'x.o.x.o.x.o.x.oo' },
+    { n: 'Schnipp', g: 'rhythmus', k: 'holz', P: { f: 1500 }, m: '......x.......x.' },
+    { n: 'Tiefbass', g: 'bass', k: 'sub', o: -2, b: 'X_____X_X_______' },
+    { n: 'Laufbass', g: 'bass', k: 'zupfbass', o: -2, b: 'X.X.F.O.X.X.T.F.' },
+    { n: 'Akkord', g: 'akkord', k: 'keys', o: -1, a: 'X_..X_..X_..X_..' },
+    { n: 'Fläche', g: 'akkord', k: 'flaeche', o: -1, a: 'X_______________' },
+    { n: 'Melodie', g: 'melodie', k: 'zupf', o: 0, t: '0:4:2 2:4:1 3:5:1 4:4:2 6:2:2 8:3:3 11:2:1 12:1:4 16:2:2 18:2:1 19:3:1 20:2:2 22:0:2 24:1:6' },
+    { n: 'Kette', g: 'melodie', k: 'marimba', o: 0, rel: true, t: '0:0:1 2:2:1 4:4:1 6:7:1 8:4:1 10:2:1 12:4:1 14:2:1' },
+    { n: 'Glocke', g: 'melodie', k: 'glocke', o: 0, t: '0:9:4 8:7:4 16:8:6 24:6:4' },
+    { n: 'Funkeln', g: 'effekt', k: 'glocke', o: 1, t: '4:11:2:5 14:9:2:4 36:12:2:5 46:10:2:4', L: 64 }
+  ] },
+  { id: 'elektro', name: 'Elektro', bpm: 120, wurzel: 57, leiter: MOLL, prog: [0, 3, 5, 4], form: [0, 2, 4], pads: [
+    { n: 'Trommel', g: 'rhythmus', k: 'kick', P: { f0: 110, f1: 45 }, m: 'X...X...X...X...' },
+    { n: 'Klatsch', g: 'rhythmus', k: 'clap', m: '....X.......X...' },
+    { n: 'Zischen', g: 'rhythmus', k: 'hat', P: { offen: true }, m: '..x...x...x...x.' },
+    { n: 'Klick', g: 'rhythmus', k: 'holz', P: { f: 1900 }, m: 'x..o..x..o..x.o.' },
+    { n: 'Tiefbass', g: 'bass', k: 'sub', o: -2, b: '..X_..X_..X_..X_' },
+    { n: 'Sägebass', g: 'bass', k: 'sagebass', o: -2, b: 'X.xOx.Xox.XOx.Fo' },
+    { n: 'Stich', g: 'akkord', k: 'stich', o: -1, a: 'X__.....X__.....' },
+    { n: 'Fläche', g: 'akkord', k: 'flaeche', o: -1, a: 'X_______________' },
+    { n: 'Melodie', g: 'melodie', k: 'quadrat', o: 0, t: '0:4:2 2:3:2 4:2:4 8:0:2 10:2:2 12:3:4 16:4:2 18:6:2 20:7:4 24:6:2 26:4:6' },
+    { n: 'Treppe', g: 'melodie', k: 'zupf', o: 0, rel: true, t: '0:0:1 2:2:1 4:4:1 6:7:1 8:4:1 10:2:1 12:4:1 14:7:1' },
+    { n: 'Ruf', g: 'melodie', k: 'zupf', o: 1, t: '0:0:1 3:0:1 6:-1:2 10:-3:1 12:-1:2' },
+    { n: 'Welle', g: 'effekt', k: 'welle', o: 0, t: '0:0:64', L: 64 }
+  ] },
+  { id: 'hiphop', name: 'Hip-Hop', bpm: 88, wurzel: 53, leiter: DORISCH, prog: [0, 0, 3, 3], form: [0, 2, 4], pads: [
+    { n: 'Trommel', g: 'rhythmus', k: 'kick', P: { f0: 115, f1: 46 }, m: 'X......X..X.....' },
+    { n: 'Snare', g: 'rhythmus', k: 'snare', m: '....X.......X...' },
+    { n: 'Rassel', g: 'rhythmus', k: 'hat', m: 'x.x.x.x.x.x.x.xo' },
+    { n: 'Klopfen', g: 'rhythmus', k: 'holz', P: { f: 820 }, m: '...x......x...x.' },
+    { n: 'Tiefbass', g: 'bass', k: 'sub', o: -2, b: 'X_____.X_.X_____' },
+    { n: 'Laufbass', g: 'bass', k: 'zupfbass', o: -2, b: 'X..x..X.F..x.O..' },
+    { n: 'Akkord', g: 'akkord', k: 'keys', o: -1, a: 'X___....X___....' },
+    { n: 'Fläche', g: 'akkord', k: 'orgel', o: -1, a: 'X_______________' },
+    { n: 'Klavier', g: 'melodie', k: 'keys', o: 0, t: '0:7:3 3:6:1 4:4:4 10:5:2 12:4:4 16:2:3 19:3:1 20:4:6 28:2:4' },
+    { n: 'Vibrafon', g: 'melodie', k: 'vibes', o: 0, rel: true, t: '2:4:2 6:6:2 10:7:2 14:6:2' },
+    { n: 'Pfeifen', g: 'melodie', k: 'pfeife', o: 1, t: '0:2:8 8:0:4 12:1:4 16:0:12 28:-3:4' },
+    { n: 'Echo', g: 'effekt', k: 'glocke', o: 1, t: '0:4:2 32:6:2', echo: 3, L: 64 }
+  ] },
+  { id: 'rock', name: 'Rock', bpm: 112, wurzel: 52, leiter: MOLL, prog: [0, 6, 5, 6], form: [0, 2, 4], pads: [
+    { n: 'Trommel', g: 'rhythmus', k: 'kick', P: { f0: 120, f1: 52 }, m: 'X.......X.X.....' },
+    { n: 'Snare', g: 'rhythmus', k: 'snare', m: '....X.......X...' },
+    { n: 'Becken', g: 'rhythmus', k: 'becken', m: 'x.o.x.o.x.o.x.o.' },
+    { n: 'Tom', g: 'rhythmus', k: 'tom', P: { f0: 170, f1: 110, dec: 0.3, nf: 700, na: 0.08 }, m: '................' + '............xxXo' },
+    { n: 'Tiefbass', g: 'bass', k: 'sub', o: -2, b: 'X_X_X_X_X_X_X_X_' },
+    { n: 'Laufbass', g: 'bass', k: 'sagebass', o: -2, b: 'X...X.F.O...X.F.' },
+    { n: 'Power', g: 'akkord', k: 'power', o: -1, form: [0, 4, 7], a: 'X_______X___X___' },
+    { n: 'Orgel', g: 'akkord', k: 'orgel', o: -1, a: 'X_______________' },
+    { n: 'Gitarre', g: 'melodie', k: 'gitarre', o: 0, t: '0:4:2 2:6:2 4:7:4 8:6:2 10:4:2 12:3:4 16:4:6 22:3:2 24:2:4 28:1:4' },
+    { n: 'Riff', g: 'melodie', k: 'zupf', o: -1, t: '0:0:2 3:2:1 4:4:2 6:3:2 8:2:2 11:0:1 12:1:2 14:-1:2' },
+    { n: 'Hoch', g: 'melodie', k: 'quadrat', o: 1, t: '8:2:4 12:1:4 24:4:4 28:2:4' },
+    { n: 'Rauschen', g: 'effekt', k: 'wind', o: 0, t: '0:0:64', L: 64 }
+  ] },
+  { id: 'tropical', name: 'Tropical', bpm: 100, wurzel: 55, leiter: DUR, prog: [3, 4, 2, 5], form: [0, 2, 4], pads: [
+    { n: 'Trommel', g: 'rhythmus', k: 'kick', P: { f0: 118, f1: 50 }, m: 'X...X...X...X...' },
+    { n: 'Klatsch', g: 'rhythmus', k: 'clap', m: '....X.......X..x' },
+    { n: 'Rassel', g: 'rhythmus', k: 'shaker', m: 'x.ox.ox.x.ox.ox.' },
+    { n: 'Holzblock', g: 'rhythmus', k: 'holz', P: { f: 1150 }, m: '..x....x..x.....' },
+    { n: 'Tiefbass', g: 'bass', k: 'sub', o: -2, b: 'X___..X_X___..X_' },
+    { n: 'Laufbass', g: 'bass', k: 'zupfbass', o: -2, b: 'X.O.F.O.X.O.F.O.' },
+    { n: 'Akkord', g: 'akkord', k: 'stich', o: -1, a: '..X_..X_..X_..X_' },
+    { n: 'Fläche', g: 'akkord', k: 'flaeche', o: -1, a: 'X_______________' },
+    { n: 'Panflöte', g: 'melodie', k: 'floete', o: 1, t: '0:4:2 2:5:2 4:7:3 7:5:1 8:4:4 12:2:2 14:4:2 16:5:4 20:4:2 22:2:2 24:1:8' },
+    { n: 'Steeldrum', g: 'melodie', k: 'steel', o: 1, t: '0:0:1 2:2:1 3:0:1 6:-3:2 8:-2:1 10:0:1 12:2:2 14:0:2' },
+    { n: 'Marimba', g: 'melodie', k: 'marimba', o: 0, rel: true, t: '0:0:1 3:2:1 6:4:1 8:2:1 11:4:1 14:7:1' },
+    { n: 'Wellen', g: 'effekt', k: 'welle', o: 0, t: '0:0:32 32:0:32', L: 64 }
+  ] },
+  { id: 'ruhig', name: 'Ruhig', zusatz: 'Lo-Fi', bpm: 80, wurzel: 51, leiter: DUR, prog: [1, 4, 0, 5], form: [0, 2, 4, 6], pads: [
+    { n: 'Trommel', g: 'rhythmus', k: 'kick', P: { f0: 100, f1: 48 }, m: 'X......x..X.....' },
+    { n: 'Klopfen', g: 'rhythmus', k: 'snare', m: '....x.......x...' },
+    { n: 'Besen', g: 'rhythmus', k: 'shaker', m: 'o.x.o.x.o.x.o.xo' },
+    { n: 'Klick', g: 'rhythmus', k: 'holz', P: { f: 900 }, m: '......o.......o.' },
+    { n: 'Tiefbass', g: 'bass', k: 'sub', o: -2, b: 'X_______X___.X__' },
+    { n: 'Laufbass', g: 'bass', k: 'zupfbass', o: -2, b: 'X..T..F.X..O..F.' },
+    { n: 'Akkord', g: 'akkord', k: 'keys', o: -1, a: 'X_______X_____..' },
+    { n: 'Fläche', g: 'akkord', k: 'flaeche', o: -1, a: 'X_______________' },
+    { n: 'Klavier', g: 'melodie', k: 'keys', o: 0, t: '0:4:4 4:6:2 6:7:2 8:9:6 16:8:4 20:7:4 24:4:8' },
+    { n: 'Glöckchen', g: 'melodie', k: 'vibes', o: 0, rel: true, t: '2:4:2 6:6:2 10:7:2 14:6:2' },
+    { n: 'Flöte', g: 'melodie', k: 'floete', o: 1, t: '0:2:8 8:4:4 12:6:4 16:7:12 28:6:4' },
+    { n: 'Regen', g: 'effekt', k: 'regen', o: 0, t: '0:0:64', L: 64 }
+  ] },
+  { id: 'film', name: 'Filmmusik', bpm: 84, wurzel: 50, leiter: MOLL, prog: [0, 5, 2, 6], form: [0, 2, 4], pads: [
+    { n: 'Pauke', g: 'rhythmus', k: 'tom', P: { f0: 92, f1: 70, dec: 0.9, nf: 250, na: 0.08 }, m: 'X.......x.......' },
+    { n: 'Trommel', g: 'rhythmus', k: 'tom', P: { f0: 150, f1: 90, dec: 0.35, nf: 500, na: 0.1 }, m: 'X..x..X.....X...' },
+    { n: 'Wirbel', g: 'rhythmus', k: 'snare', m: '....x.......x.o.' },
+    { n: 'Schellen', g: 'rhythmus', k: 'schellen', m: 'o.o.o.o.o.o.o.o.' },
+    { n: 'Tiefbass', g: 'bass', k: 'sub', o: -2, b: 'X_______X_______' },
+    { n: 'Zupfbass', g: 'bass', k: 'zupfbass', o: -2, b: 'X..O..F.X..F..O.' },
+    { n: 'Akkord', g: 'akkord', k: 'streicher', o: -1, a: 'X__.X__.X__.X__.' },
+    { n: 'Streicher', g: 'akkord', k: 'streicher', o: -1, a: 'X_______________' },
+    { n: 'Horn', g: 'melodie', k: 'horn', o: 0, t: '0:4:6 6:5:2 8:4:4 12:2:4 16:0:8 24:1:4 28:2:4' },
+    { n: 'Harfe', g: 'melodie', k: 'harfe', o: 0, rel: true, t: '0:0:1 2:2:1 4:4:1 6:7:1 8:9:1 10:7:1 12:4:1 14:2:1' },
+    { n: 'Celesta', g: 'melodie', k: 'glocke', o: 1, t: '0:0:4 4:2:4 8:4:8 16:3:4 20:2:4 24:1:8', L: 32 },
+    { n: 'Wind', g: 'effekt', k: 'wind', o: 0, t: '0:0:64', L: 64 }
+  ] }
+];
+
+/* ---------- Pads in Ereignislisten uebersetzen (einmal beim Start) ---------- */
+function beatMidi(st, stufe, okt) {
+  const n = st.leiter.length, o = Math.floor(stufe / n), i = ((stufe % n) + n) % n;
+  return st.wurzel + 12 * (okt + o) + st.leiter[i];
+}
+const midiHz = m => 440 * Math.pow(2, (m - 69) / 12);
+function beatPadUebersetzen(st, p) {
+  const ev = [], progL = st.prog.length * 16;
+  const form = p.form || st.form;
+  const staerke = ch => ch === 'X' ? 1 : ch === 'x' ? 0.62 : 0.38;
+  let L;
+  if (p.m) {   /* Rhythmus */
+    L = p.m.length;
+    for (let s = 0; s < L; s++) {
+      const ch = p.m[s]; if (ch === '.') continue;
+      if (ch === 'D') { ev.push({ s, fs: [0], len: 1, vel: 0.85 }); ev.push({ s: s + 0.5, fs: [0], len: 1, vel: 0.7 }); }
+      else ev.push({ s, fs: [0], len: 1, vel: staerke(ch) });
+    }
+  } else if (p.b || p.a) {   /* Bass / Akkord: folgt der Akkordfolge */
+    const m = p.b || p.a; L = Math.max(progL, m.length);
+    for (let s = 0; s < L; s++) {
+      const ch = m[s % m.length]; if (ch === '.' || ch === '_') continue;
+      let len = 1; while (len < m.length && m[(s + len) % m.length] === '_' && (s + len) < L) len++;
+      const r = st.prog[Math.floor(s / 16) % st.prog.length];
+      let fs;
+      if (p.b) {
+        const u = ch.toUpperCase(), basis = beatMidi(st, r, p.o);
+        fs = [u === 'F' ? beatMidi(st, r + 4, p.o) : u === 'T' ? beatMidi(st, r + 2, p.o) : u === 'O' ? basis + 12 : basis];
+      } else fs = form.map(d => beatMidi(st, r + d, p.o));
+      ev.push({ s, fs, len, vel: ch === ch.toUpperCase() ? 1 : 0.62 });
+    }
+  } else {   /* Noten */
+    const tok = p.t.trim().split(/\s+/).map(x => x.split(':').map(Number));
+    let ende = 0; tok.forEach(([s, , len]) => { ende = Math.max(ende, s + Math.abs(len)); });
+    L = p.L || Math.max(16, Math.ceil(ende / 16) * 16);
+    if (p.rel) L = Math.max(L, progL);
+    const wdh = p.rel ? L / (p.L || Math.max(16, Math.ceil(ende / 16) * 16)) : 1;
+    const grundL = L / wdh;
+    for (let w = 0; w < wdh; w++) tok.forEach(([s0, d, len, vs]) => {
+      const s = s0 + w * grundL;
+      const r = p.rel ? st.prog[Math.floor(s / 16) % st.prog.length] : 0;
+      const vel = vs ? vs / 9 : 1;
+      const f = [beatMidi(st, r + d, p.o)];
+      ev.push({ s, fs: f, len: Math.abs(len), vel });
+      if (p.echo) for (let k = 1; k <= p.echo; k++) ev.push({ s: s + 3 * k, fs: f, len: Math.abs(len), vel: vel * Math.pow(0.5, k) });
+    });
+  }
+  const proSchritt = Array.from({ length: L }, () => []);
+  ev.forEach(e => {
+    const si = Math.floor(e.s), off = e.s - si;
+    e.fs = e.fs.map(x => x === 0 ? 0 : midiHz(x));
+    proSchritt[si % L].push(Object.assign({}, e, { off }));
+  });
+  return { L, ev, proSchritt };
+}
+BEAT_STILE.forEach(st => {
+  if (st.pads.length !== 12) throw new Error('Stil ' + st.id + ': nicht 12 Pads');
+  st.pads.forEach(p => { p.bahn = beatPadUebersetzen(st, p); if (64 % p.bahn.L) throw new Error('Loop-Laenge ' + st.id + '/' + p.n); });
+});
+
+/* ---------- Der Takt-Motor (Master-Clock + Look-ahead-Scheduler) ----------
+   opt.bpm(): aktuelles Tempo, opt.stil(): aktueller Stil, opt.ohneTimer: Scheduler wird von aussen getrieben */
+function BeatEngine(ctx, ziel, opt) {
+  const eng = { ctx, knoten: 0, stimmen: 0, geplantGesamt: 0, uebersprungen: 0, letzterTipp: null };
+  const aktiv = new Map();   /* Pad-Index -> { g: GainNode } */
+  let schritt = 0, naechste = 0, timer = 0, laeuft = false, geplant = [], messPad = -1, messErste = null;
+  const dt = () => 60 / Math.max(10, opt.bpm()) / 4;
+
+  function note(i, sitz, e, t, lenS) {
+    const st = opt.stil(), p = st.pads[i], K = BEAT_KLANG[p.k];
+    if (eng.stimmen >= BEAT_MAX_STIMMEN) { eng.uebersprungen++; return null; }
+    const dauer = K.dauer ? K.dauer(lenS, p.P) : lenS + (K.rel || 0.1);
+    const v = beatStimme(eng, t, dauer);
+    const aus = K.bau(v, e.fs, e.vel, p.P || {});
+    v.los(aus, sitz.g);
+    eng.geplantGesamt++;
+    if (i === messPad && (messErste == null || t < messErste)) messErste = t;
+    return t;
+  }
+  function planePad(i, n, t) {
+    const sitz = aktiv.get(i); if (!sitz) return null;
+    const p = opt.stil().pads[i], liste = p.bahn.proSchritt[n % p.bahn.L], d = dt();
+    let erste = null;
+    for (const e of liste) {
+      const te = t + e.off * d;
+      if (te < ctx.currentTime) continue;
+      const r = note(i, sitz, e, te, e.len * d);
+      if (r != null && (erste == null || r < erste)) erste = r;
+    }
+    return erste;
+  }
+  function tick() {
+    if (!laeuft) return;
+    const jetzt = ctx.currentTime, d0 = dt();
+    if (naechste < jetzt - 0.03) {   /* hinterher (z. B. Tab im Hintergrund): Schritte ueberspringen, im Raster bleiben */
+      const n = Math.ceil((jetzt - naechste) / d0); schritt += n; naechste += n * d0;
+    }
+    while (naechste < jetzt + BEAT_VORLAUF) {
+      aktiv.forEach((s, i) => planePad(i, schritt, naechste));
+      geplant.push({ n: schritt, t: naechste });
+      schritt++; naechste += dt();
+    }
+    while (geplant.length && geplant[0].t < jetzt - 0.05) geplant.shift();
+  }
+  function timerAn() { if (!opt.ohneTimer && !timer) timer = setInterval(tick, BEAT_TAKT_MS); }
+  function timerAus() { clearInterval(timer); timer = 0; }
+
+  eng.an = i => {
+    if (aktiv.has(i)) return true;
+    const t0 = (typeof performance !== 'undefined' ? performance.now() : 0), jetzt = ctx.currentTime;
+    messPad = i; messErste = null;
+    if (!aktiv.size || !laeuft) {   /* erster Pad: Takt beginnt jetzt bei Schritt 0 */
+      schritt = 0; naechste = jetzt + 0.005; geplant = []; laeuft = true;
+    }
+    const g = ctx.createGain(), pegel = BEAT_PEGEL[opt.stil().pads[i].g] || 0.7;
+    g.gain.setValueAtTime(0, jetzt); g.gain.linearRampToValueAtTime(pegel, jetzt + BEAT_EIN);
+    g.connect(ziel); eng.knoten++;
+    aktiv.set(i, { g });
+    let erste = null;
+    /* schon geplante Schritte im Vorlauf: diesen Pad nachtragen */
+    geplant.forEach(x => { if (x.t >= jetzt) { const r = planePad(i, x.n, x.t); if (r != null && (erste == null || r < erste)) erste = r; } });
+    /* gehaltene Noten, die gerade klingen sollten: ab jetzt mit Restlaenge (an der aktuellen Taktstelle) */
+    const p = opt.stil().pads[i], d = dt(), pos = schritt - (naechste - jetzt) / d, L = p.bahn.L, inLoop = ((pos % L) + L) % L;
+    if (!p.m && !BEAT_KLANG[p.k].dauer) p.bahn.ev.forEach(e => {
+      let rest = 0;
+      if (e.s <= inLoop && e.s + e.len > inLoop) rest = e.s + e.len - inLoop;
+      else if (e.s + e.len > L && e.s + e.len - L > inLoop) rest = e.s + e.len - L - inLoop;
+      if (rest > 1.5) { const r = note(i, aktiv.get(i), e, jetzt + 0.005, rest * d); if (r != null && (erste == null || r < erste)) erste = r; }
+    });
+    tick();
+    timerAn();
+    const t1 = (typeof performance !== 'undefined' ? performance.now() : 0);
+    if (messErste != null && (erste == null || messErste < erste)) erste = messErste;
+    messPad = -1;
+    eng.letzterTipp = { pad: i, rechenMs: t1 - t0, einblendVerzugMs: 0, ersteNoteMs: erste == null ? null : Math.max(0, (erste - jetzt) * 1000) };
+    return true;
+  };
+  eng.aus = i => {
+    const s = aktiv.get(i); if (!s) return false;
+    aktiv.delete(i);
+    const jetzt = ctx.currentTime, g = s.g;
+    try {
+      if (g.gain.cancelAndHoldAtTime) g.gain.cancelAndHoldAtTime(jetzt);
+      else { g.gain.cancelScheduledValues(jetzt); g.gain.setValueAtTime(g.gain.value, jetzt); }
+      g.gain.linearRampToValueAtTime(0, jetzt + BEAT_AUS);
+    } catch (e) {}
+    const weg = () => { try { g.disconnect(); } catch (e) {} eng.knoten--; };
+    if (opt.ohneTimer) eng.spaeter = (eng.spaeter || []).concat([{ t: jetzt + BEAT_AUS + 0.05, fn: weg }]);
+    else setTimeout(weg, (BEAT_AUS + 0.15) * 1000);
+    if (!aktiv.size) { laeuft = false; timerAus(); }
+    return false;
+  };
+  eng.umschalten = i => aktiv.has(i) ? eng.aus(i) : eng.an(i);
+  eng.alleAus = () => { Array.from(aktiv.keys()).forEach(eng.aus); laeuft = false; timerAus(); };
+  eng.istAn = i => aktiv.has(i);
+  eng.aktive = () => Array.from(aktiv.keys()).sort((a, b) => a - b);
+  eng.tick = () => {
+    if (eng.spaeter) { const j = ctx.currentTime; eng.spaeter = eng.spaeter.filter(x => { if (x.t <= j) { x.fn(); return false; } return true; }); }
+    tick();
+  };
+  eng.laeuft = () => laeuft || !!timer;
+  eng.timerAktiv = () => !!timer;
+  eng.schritt = () => schritt;
+  return eng;
+}
+
+/* ---------- Bildschirm ---------- */
+var BeatPads = (() => {
+  const reihe = $('#stilReihe'), grid = $('#bgrid'), stoppBtn = $('#beatStopp');
+  let running = false, eng = null, kette = null;
+  const stil = () => BEAT_STILE[clamp(settings.beatStil | 0, 0, BEAT_STILE.length - 1)];
+  const stilBtns = BEAT_STILE.map((st, i) => {
     const b = document.createElement('button');
-    b.className = 'cell'; b.style.setProperty('--col', d.col);
-    b.innerHTML = '<span class="ds">' + d.sym + '</span><span class="dl">' + d.label + '</span>';
-    b.setAttribute('aria-label', d.label);
-    b.addEventListener('pointerdown', e => { e.preventDefault(); tap(i, e); });
+    b.type = 'button'; b.className = 'stil'; b.setAttribute('role', 'tab'); b.dataset.stil = st.id;
+    b.innerHTML = st.name + (st.zusatz ? '<small>' + st.zusatz + '</small>' : '');
+    b.addEventListener('click', () => waehle(i));
+    reihe.insertBefore(b, stoppBtn);
+    return b;
+  });
+  const pads = Array.from({ length: 12 }, (_, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'bpad'; b.dataset.i = i;
+    b.addEventListener('pointerdown', e => { e.preventDefault(); tipp(i); });
     grid.appendChild(b);
     return b;
   });
-  const idxOf = k => DRUMS.findIndex(d => d.k === k);
-  const rhyBtns = RHYTHMS.map((r, i) => {
-    const b = document.createElement('button');
-    b.className = 'pille rhy';
-    b.textContent = r.name;
-    b.addEventListener('click', () => { settings.rhythm = i; saveSettings(); markRhythm(); if (running) reset(); });
-    rhyList.insertBefore(b, demoBtn);
-    return b;
-  });
-  function markRhythm() { rhyBtns.forEach((b, i) => b.classList.toggle('sel', i === Math.min(settings.rhythm, RHYTHMS.length - 1))); }
-  function buildSteps() {
-    stepsEl.innerHTML = '';
-    pat().split('').forEach(k => {
-      const s = document.createElement('span');
-      s.className = 'dstep' + (k === 'D' ? ' big' : '');
-      stepsEl.appendChild(s);
+  function zeichnen() {
+    const st = stil();
+    stilBtns.forEach((b, i) => { const an = BEAT_STILE[i] === st; b.classList.toggle('an', an); b.setAttribute('aria-selected', an ? 'true' : 'false'); });
+    pads.forEach((b, i) => {
+      const p = st.pads[i], gr = BEAT_GRUPPEN[p.g];
+      b.style.setProperty('--col', gr.col);
+      b.innerHTML = gr.sym + '<span class="bl">' + p.n + '</span><span class="bg">' + gr.name + '</span>';
+      b.setAttribute('aria-label', p.n + ' (' + gr.name + ')');
+      b.dataset.gruppe = p.g;
     });
+    zustandZeigen();
   }
-  function markSteps() {
-    $$('.dstep', stepsEl).forEach((s, i) => {
-      s.classList.toggle('done', i < pos);
-      s.classList.toggle('now', i === pos && !demoing);
-    });
+  function zustandZeigen() {
+    pads.forEach((b, i) => { const an = !!(eng && eng.istAn(i)); b.classList.toggle('an', an); b.setAttribute('aria-pressed', an ? 'true' : 'false'); });
   }
-  function setGlow(n) {
-    cells.forEach(c => c.classList.remove('glow', 'hint'));
-    if (n >= 0) cells[n].classList.add('glow');
+  function motor() {
+    if (eng) return eng;
+    const c = ensureAudio(); if (!c) return null;
+    try {
+      kette = beatKette(c, c.destination);
+      eng = BeatEngine(c, kette.ein, { bpm: () => stil().bpm * tempoF('beat'), stil });
+    } catch (e) { eng = null; }
+    return eng;
   }
-  function updateProgress() { prog.style.width = (100 * count / total) + '%'; }
-  function reset() {
-    clearTimers(); demoing = false; busy = false;
-    pos = 0; count = 0; total = 16;
-    cells.forEach(c => c.classList.remove('on'));
-    buildSteps(); markSteps(); updateProgress();
-    setGlow(idxOf(pat()[0]));
-  }
-  function tap(i, e) {
+  function tipp(i) {
     if (!running) return;
-    if (demoing || busy) { playDrum(DRUMS[i].k, 0.7); ripple(cells[i], e); return; }  /* freies Mittrommeln */
-    const want = idxOf(pat()[pos]);
-    if (i === want) {
-      playDrum(DRUMS[i].k, 1);
-      ripple(cells[i], e);
-      cells[i].classList.remove('glow', 'hint');
-      count++; pos = (pos + 1) % pat().length;
-      updateProgress(); markSteps();
-      busy = true;
-      if (count >= total) later(() => showReward({ msg: 'Toll getrommelt!', again: reset }), 700);
-      else later(() => { busy = false; setGlow(idxOf(pat()[pos])); }, Math.round(beat() * 1000));
-    } else {
-      hintTone();
-      const c = cells[want];
-      c.classList.remove('hint'); void c.offsetWidth; c.classList.add('hint');
-      clearTimeout(hintTimer);
-      hintTimer = setTimeout(() => c.classList.remove('hint'), 2900);
-    }
+    const e = motor(); if (!e) return;
+    try { e.umschalten(i); } catch (err) { console.warn('Beat-Pads:', err); }
+    zustandZeigen();
   }
-  function demo() {
-    if (!running || demoing) return;
-    clearTimers(); demoing = true; busy = false;
-    setGlow(-1); markSteps();
-    const p = pat(), ms = Math.round(beat() * 1000);
-    p.split('').forEach((k, j) => {
-      later(() => {
-        const n = idxOf(k);
-        playDrum(k, 0.9);
-        cells.forEach(c => c.classList.remove('on'));
-        cells[n].classList.add('on');
-      }, 400 + j * ms);
-    });
-    later(() => {
-      cells.forEach(c => c.classList.remove('on'));
-      demoing = false; markSteps(); setGlow(idxOf(p[pos]));
-    }, 400 + p.length * ms + 300);
+  function allesStopp() { if (eng) eng.alleAus(); zustandZeigen(); }
+  function waehle(i) {
+    if (i === settings.beatStil) return;
+    allesStopp();
+    settings.beatStil = i; saveSettings();
+    zeichnen();
   }
-  demoBtn.addEventListener('click', demo);
-  /* Leise Kuthu-Begleitung im Hintergrund (abschaltbar), Muster X..x X.x. X..x X.xx */
-  const BG = TROMMEL['kuthu-1'];
-  function bgTick() {
-    if (!running || !settings.drumBg || !actx || !master) return;
-    const now = actx.currentTime;
-    if (bgNext < now) bgNext = now + 0.1;
-    while (bgNext < now + 0.25) {
-      const c = BG[bgStep % BG.length];
-      if (c === 'X') playDrum('D', 0.22, bgNext); else if (c === 'x') playDrum('T', 0.1, bgNext);
-      bgStep++; bgNext += beat() / 4;
-    }
-  }
-  function bgStart() { bgStop(); if (!settings.drumBg) return; ensureAudio(); bgStep = 0; bgNext = 0; bgTimer = setInterval(bgTick, 60); }
-  function bgStop() { clearInterval(bgTimer); bgTimer = 0; }
-  $('#drumBgBtn').addEventListener('click', () => {
-    settings.drumBg = !settings.drumBg; saveSettings(); syncUI();
-    if (running) bgStart(); else bgStop();
-  });
-  markRhythm();
+  stoppBtn.addEventListener('click', allesStopp);
+  /* Seite verlassen / im Hintergrund: alles leise stoppen */
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') allesStopp(); });
+  window.addEventListener('pagehide', allesStopp);
+  zeichnen();
   return {
-    start() { running = true; markRhythm(); reset(); bgStart(); },
-    stop() { running = false; clearTimers(); clearTimeout(hintTimer); bgStop(); setGlow(-1); cells.forEach(c => c.classList.remove('on')); }
+    start() { running = true; zeichnen(); },
+    stop() { running = false; allesStopp(); },
+    lautstaerke() { try { if (kette && actx) kette.vol.gain.setTargetAtTime(volGain(), actx.currentTime, 0.08); } catch (e) {} },
+    zustand: () => ({ stil: stil().id, stilIndex: settings.beatStil, aktiv: eng ? eng.aktive() : [], stimmen: eng ? eng.stimmen : 0,
+      knoten: eng ? eng.knoten : 0, geplant: eng ? eng.geplantGesamt : 0, uebersprungen: eng ? eng.uebersprungen : 0,
+      timer: eng ? eng.timerAktiv() : false, laeuft: eng ? eng.laeuft() : false, letzterTipp: eng ? eng.letzterTipp : null,
+      bpm: stil().bpm * tempoF('beat') })
   };
 })();
 
 /* ---------------- Navigation: immer gleicher Ablauf ---------------- */
-const MODES = { lied: Lied, tiles: Tiles, wait: Wait, simon: Simon, calm: Calm, drum: Drum };
+const MODES = { lied: Lied, tiles: Tiles, wait: Wait, simon: Simon, calm: Calm, beat: BeatPads };
 let current = 'menu';
 function show(name) {
   if (MODES[current]) MODES[current].stop();
@@ -2717,7 +3745,12 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 if (!fullscreenMoeglich()) fullBtn.style.display = 'none';   /* nichts moeglich: Knopf ausblenden statt stumm */
 
 /* nur fuer automatische Tests: liest den Zustand des Lied-Spiels, aendert nichts */
-window.KrishnaTest = { lied: () => Lied.zustand(), lieder: () => LIEDER.map(l => ({ id: l.id, stufe: l.stufe, sekunden: l.sekunden, probleme: liedPruefen(l) })) };
+window.KrishnaTest = { lied: () => Lied.zustand(), lieder: () => LIEDER.map(l => ({ id: l.id, stufe: l.stufe, sekunden: l.sekunden, probleme: liedPruefen(l) })),
+  meine: () => MEINE.map(l => ({ id: l.id, titel: l.titel, stufe: l.stufe, bpm: l.bpm, sekunden: l.sekunden, laenge: l.laenge, spuren: l.spuren,
+    kacheln: l.kacheln.length, lang: l.kacheln.filter(k => k.art === 'lang').length, akkorde: l.begleitung.akkorde.length, probleme: importPruefen(l) })),
+  importStatus: () => ({ laeuft: importLaeuft, nurSitzung: meineNurSitzung, geladen: meineGeladen }),
+  beat: () => BeatPads.zustand(),
+  beatTechnik: { STILE: BEAT_STILE, kette: beatKette, motor: BeatEngine, liedKette, MAX_STIMMEN: BEAT_MAX_STIMMEN, MIX: BEAT_MIX } };
 
 applyLook();
 syncUI();
