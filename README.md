@@ -6,13 +6,19 @@ Die App startet eine lokale `index.html` im Vollbild (Querformat, Display bleibt
 
 ## Spiele
 
-Fünf Modi, alle bewusst reizarm gestaltet (ruhige Farben, sanfte Klänge, kein Zeitdruck):
+Sechs Modi, alle bewusst reizarm gestaltet (ruhige Farben, sanfte Klänge, kein Zeitdruck, keine blinkenden Effekte):
 
+- **Lieder spielen** – 14 Lieder Ton für Ton nachspielen, in 3 Stufen von ganz leicht bis etwas anspruchsvoller
 - **Langsame Kacheln** – Kacheln fallen langsam, das Tempo ist frei wählbar
 - **Warte-Modus** – eine Kachel leuchtet und wartet, bis sie angetippt wird
 - **Muster merken** – zuhören, anschauen, nachspielen
 - **Beruhigende Spiele** – Blasen und Farben, einfach tippen
 - **Kuthu-Trommeln** – weiche Trommeln, Rhythmus nachspielen
+
+Außerdem:
+
+- **Vollbild-Knopf** – blendet die Android-Leisten ein oder aus (Standard beim Start: Vollbild)
+- **Ruhe-Modus** – in den Einstellungen (für Eltern) lässt sich die Bewegung im Menü auf „voll“, „sparsam“ oder „aus“ stellen
 
 ## APK herunterladen und installieren
 
@@ -24,13 +30,18 @@ Fünf Modi, alle bewusst reizarm gestaltet (ruhige Farben, sanfte Klänge, kein 
 ## Aufbau
 
 - `app/src/main/assets/index.html` – die Web-App mit allen Spielen
-- `app/src/main/java/.../MainActivity.java` – Vollbild-WebView
+- `app/src/main/assets/OFL-Barlow.txt` – Lizenztext der eingebetteten Schrift
+- `app/src/main/java/.../MainActivity.java` – Vollbild-WebView mit JS-Brücke `AndroidHuelle` (Vollbild an/aus)
 - `.github/workflows/build-apk.yml` – baut bei jedem Push auf `main` die Debug-APK und veröffentlicht sie als Release `latest`
 
 Lokal bauen: `gradle assembleDebug` (Gradle 8.x, JDK 17, Android SDK).
 
 Hinweis: `app/debug.keystore` ist ein gewöhnlicher Android-Debug-Schlüssel mit Standardpasswörtern, damit Updates dieselbe Signatur haben. Er ist kein Geheimnis.
 
+## Schrift
+
+Die App bettet die Schrift **Barlow Semi Condensed** ein (© The Barlow Project Authors), lizenziert unter der **SIL Open Font License 1.1**. Der Lizenztext liegt in `app/src/main/assets/OFL-Barlow.txt` und wird mit der APK ausgeliefert.
+
 ---
 
-@ Joschy · Lizenz: MIT (siehe `LICENSE`)
+@ Joschy · Lizenz: MIT (siehe `LICENSE`), ausgenommen die eingebettete Schrift (OFL 1.1)
