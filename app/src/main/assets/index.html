@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   ================================================================
-   Krishnas Spiele  -  Version 2   @ Joschy
+   Krishnas Spiele  -  Version 3   @ Joschy  (130 Lieder in 7 Kategorien)
    Ruhige Musik-Spiele fuer Krishna (Samsung Galaxy Tab S5e, Android-WebView,
    Querformat, Touch). Eine einzige Datei, keine externen Ressourcen,
    kein Netzzugriff, laeuft komplett offline.
@@ -249,6 +249,14 @@ footer{margin-left:auto;color:var(--text-dim);font-size:16px;white-space:nowrap}
 .bar .title .hud{display:block;font-size:12px;font-weight:400;overflow:hidden;text-overflow:ellipsis}
 .bar .ctl{flex:0 1 210px;min-width:130px}
 .bar .ctl.tempo-ctl{flex:0 1 230px;min-width:150px}
+/* Tempo-Regler: Beschriftung TEMPO + Prozent, feine Marke bei 100 % */
+.tempo-ctl .sym{color:var(--akzent-weich)}
+.tempo-spur{position:relative;flex:1 1 auto;min-width:0;display:flex;align-items:center}
+.tempo-spur .m100{position:absolute;top:50%;width:3px;height:26px;margin:-13px 0 0 -1.5px;border-radius:2px;
+  background:var(--akzent-weich);opacity:.7;pointer-events:none;left:calc(23px + (100% - 46px) * var(--f, .5))}
+.tempo-val{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1}
+.tempo-val .tl{font-size:11px;letter-spacing:.1em;color:var(--akzent-weich)}
+.tempo-val.normal .tz{color:var(--akzent-weich)}
 .bar .pille{padding:0 14px 0 26px;font-size:18px}
 .bar .pille::before{left:11px}
 .flow{width:58px;height:58px;flex:0 0 auto}
@@ -257,22 +265,50 @@ footer{margin-left:auto;color:var(--text-dim);font-size:16px;white-space:nowrap}
 canvas{display:block;width:100%;height:100%;touch-action:none}
 
 /* ---------- Liederauswahl ---------- */
-.stufen{position:absolute;inset:12px 16px 14px;display:flex;flex-direction:column;gap:10px}
-.stufe{flex:1 1 0;min-height:0;display:flex;gap:12px}
-.stufe-kopf{flex:0 0 118px;display:flex;flex-direction:column;justify-content:center;gap:4px;padding-left:4px}
-.stufe-kopf b{font-family:var(--fm);font-size:20px;letter-spacing:.08em;color:var(--akzent);font-weight:400}
-.stufe-kopf span{font-size:14px;color:var(--text-dim);line-height:1.2}
-.lied-reihe{flex:1 1 auto;min-width:0;display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-.lied-karte{position:relative;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;
-  padding:10px 12px 10px 16px;text-align:left;min-height:var(--tipp);--ecke:12px;transition:transform .6s ease-in-out, opacity .6s ease-in-out}
-.lied-karte::before{content:"";position:absolute;left:0;top:18%;width:4px;height:34%;background:var(--mark);border-radius:0 3px 3px 0}
-.lied-karte:active{transform:scale(.97)}
-.lied-karte .lt{font-size:20px;font-weight:600;line-height:1.1}
-.lied-karte .ls{font-family:var(--fm);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
-.lied-karte .lsterne{display:flex;gap:4px}
-.lied-karte .lsterne svg{width:20px;height:20px}
+/* einfache Karten ohne Schatten/Clip-Path, damit 130 Eintraege schnell erscheinen */
+.pick{display:flex;flex-direction:column;gap:10px;padding:12px 16px 0}
+.kat-reihe{flex:0 0 auto;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px}
+.kat,.sf,.ueberrasch{min-height:var(--tipp);border-radius:10px;background:var(--flaeche);border:1px solid var(--rand);
+  color:var(--text-dim);transition:background-color .6s ease-in-out,border-color .6s ease-in-out,color .6s ease-in-out}
+.kat{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 6px;
+  font-size:17px;font-weight:600;line-height:1.08;text-align:center}
+.kat small{font-family:var(--fm);font-size:11px;font-weight:400;letter-spacing:.06em;opacity:.8}
+.kat.an,.sf.an{background:var(--flaeche2);border-color:var(--akzent);color:var(--akzent-weich)}
+.pick-zeile{flex:0 0 auto;display:flex;align-items:center;gap:12px}
+.stufen-filter{display:flex;gap:8px}
+.sf{min-width:118px;padding:0 14px;font-size:18px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
+.sf i{width:4px;height:22px;border-radius:2px;background:var(--mark,var(--text-dim))}
+.pick-zahl{flex:1 1 auto;text-align:right}
+.ueberrasch{flex:0 0 auto;padding:0 20px;font-size:18px;font-weight:600;color:var(--akzent-weich)}
+.lied-liste{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;padding:2px 2px 16px;scrollbar-width:thin;scrollbar-color:var(--rand) transparent}
+.lied-liste button{touch-action:pan-y}
+.zuletzt{display:none;margin-bottom:12px}
+.zuletzt.da{display:block}
+.zuletzt .zk{font-family:var(--fm);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin:0 0 6px 2px}
+.zuletzt .zr{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.lied-gitter{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.lied-gitter .lied-karte{min-height:78px}
+.gruppe{grid-column:1/-1;font-family:var(--fm);font-size:13px;letter-spacing:.1em;color:var(--akzent);padding:10px 2px 2px}
+.gruppe:first-child{padding-top:0}
+.gruppe span{color:var(--text-dim);margin-left:10px;letter-spacing:.04em}
+.lied-karte{position:relative;display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;gap:4px;
+  min-height:var(--tipp);padding:8px 10px 8px 16px;text-align:left;border-radius:10px;
+  background:var(--flaeche);border:1px solid var(--rand)}
+.lied-karte::before{content:"";position:absolute;left:0;top:18%;width:4px;height:40%;background:var(--mark);border-radius:0 3px 3px 0}
+.lied-karte:active{background:var(--flaeche2)}
+.lied-karte .lt{font-size:18px;font-weight:600;line-height:1.12;overflow-wrap:anywhere}
+.lied-karte .lu{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.lied-karte .ls{font-family:var(--fm);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.lied-karte .lsterne{display:flex;gap:2px;flex:0 0 auto}
+.lied-karte .lsterne svg{width:16px;height:16px}
+.lsterne .an{fill:var(--akzent-weich);stroke:var(--akzent)}
+.lsterne .aus{fill:none;stroke:var(--text-dim);stroke-opacity:.55}
+.zuletzt .lied-karte .lt{font-size:16px}
 .lied-karte.zu{opacity:.5}
-.lied-karte .schloss{position:absolute;right:10px;top:10px;width:22px;height:22px;color:var(--text-dim)}
+.lied-karte .schloss{position:absolute;right:8px;top:8px;width:20px;height:20px;color:var(--text-dim)}
+.lied-karte .schloss svg{width:20px;height:20px}
+.leer{grid-column:1/-1;padding:24px 4px;color:var(--text-dim);font-size:18px}
 
 /* ---------- Kachel-Lieder Spielfeld ---------- */
 #liedStage{background:var(--bg)}
@@ -322,7 +358,6 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 #calmCanvas.hidden{display:none}
 
 /* ---------- Kuthu-Trommeln ---------- */
-.bar .ctl.bpm-ctl{flex:0 1 240px}
 .dwrap{position:absolute;inset:12px 18px 14px;display:flex;flex-direction:column;gap:10px}
 .drow{display:flex;align-items:center;gap:10px;flex:0 0 auto;flex-wrap:wrap}
 .drow .pille{font-size:18px;padding:0 16px 0 26px}
@@ -376,8 +411,8 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   .bar .title{font-size:21px}
   .bar .title small{font-size:15px}
   .flow{width:50px;height:50px}
-  .lied-karte .lt{font-size:18px}
-  .stufen{gap:8px;inset:10px 14px 10px}
+  .pick{gap:8px;padding-top:10px}
+  .kat{font-size:16px}
   .sgrid{bottom:96px}
   .sbottom{height:80px}
   .status{font-size:25px}
@@ -389,14 +424,15 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   :root{--tipp:64px;--bar-h:80px}
   .karte .desc{display:none}
   .kopf h1{font-size:28px}
-  .lied-karte .lsterne svg{width:17px;height:17px}
-  .stufe-kopf span{font-size:13px}
+  .kat{font-size:15px}
 }
 @media (max-width:1100px){
   .bar .ctl{flex-basis:170px;min-width:120px}
   .bar .ctl.tempo-ctl{flex-basis:190px;min-width:140px}
   .bar .val{min-width:50px;font-size:14px}
-  .stufe-kopf{flex-basis:100px}
+  .lied-gitter{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .sf{min-width:96px}
+  .kat{font-size:15px}
 }
 </style>
 </head>
@@ -452,31 +488,42 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
     <div class="vol-box glas">
       <div class="slider-row"><span class="sym" data-ico="vol"></span><input type="range" class="vol" min="0" max="100" step="1" aria-label="Lautstärke"><span class="val vol-val"></span></div>
     </div>
-    <footer>Krishnas Spiele &middot; Version 2 &middot; gebaut @ Joschy</footer>
+    <footer>Krishnas Spiele &middot; Version 3 &middot; gebaut @ Joschy</footer>
   </div>
 </section>
 
 <!-- ===================== LIEDERAUSWAHL ===================== -->
 <section id="lieder" class="screen">
-  <div class="bar" data-title="Lieder spielen" data-hud="1" data-begl="1" data-tempo="1"></div>
-  <div class="stage"><div class="stufen" id="stufen"></div></div>
+  <div class="bar" data-title="Lieder spielen" data-hud="1" data-begl="1" data-tempo="pick"></div>
+  <div class="stage pick">
+    <div class="kat-reihe" id="katReihe" role="tablist" aria-label="Kategorien"></div>
+    <div class="pick-zeile">
+      <div class="stufen-filter" id="stufenFilter" role="group" aria-label="Stufe"></div>
+      <span class="hud pick-zahl" id="pickZahl"></span>
+      <button class="ueberrasch" id="ueberrasch" type="button">Überrasch mich</button>
+    </div>
+    <div class="lied-liste" id="liedListe">
+      <div class="zuletzt" id="zuletzt"></div>
+      <div class="lied-gitter" id="liedGitter"></div>
+    </div>
+  </div>
 </section>
 
 <!-- ===================== KACHEL-LIEDER (neu) ===================== -->
 <section id="lied" class="screen">
-  <div class="bar" data-title="Lieder spielen" data-song="1" data-hud="1" data-flow="1" data-warten="1" data-begl="1" data-tempo="1"></div>
+  <div class="bar" data-title="Lieder spielen" data-song="1" data-hud="1" data-flow="1" data-warten="1" data-begl="1" data-tempo="lied"></div>
   <div class="stage" id="liedStage"><canvas id="liedCanvas"></canvas></div>
 </section>
 
 <!-- ===================== LANGSAME KACHELN ===================== -->
 <section id="tiles" class="screen">
-  <div class="bar" data-title="Langsame Kacheln" data-song="1" data-tempo="1"></div>
+  <div class="bar" data-title="Langsame Kacheln" data-song="1" data-tempo="tiles"></div>
   <div class="stage"><canvas id="tilesCanvas"></canvas></div>
 </section>
 
 <!-- ===================== WARTE-MODUS ===================== -->
 <section id="wait" class="screen">
-  <div class="bar" data-title="Warte-Modus" data-song="1"></div>
+  <div class="bar" data-title="Warte-Modus" data-song="1" data-tempo="wait"></div>
   <div class="stage">
     <div class="wgrid" id="wgrid"></div>
     <div class="progress"><i id="waitProg"></i></div>
@@ -485,7 +532,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 
 <!-- ===================== MUSTER MERKEN ===================== -->
 <section id="simon" class="screen">
-  <div class="bar" data-title="Muster merken"></div>
+  <div class="bar" data-title="Muster merken" data-tempo="simon"></div>
   <div class="stage">
     <div class="sgrid">
       <button class="sfield" data-i="0" style="--col:var(--spur1)" aria-label="Feld 1"></button>
@@ -503,7 +550,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 
 <!-- ===================== BERUHIGENDE SPIELE ===================== -->
 <section id="calm" class="screen">
-  <div class="bar" data-title="Beruhigende Spiele" data-tabs="1"></div>
+  <div class="bar" data-title="Beruhigende Spiele" data-tabs="1" data-tempo="calm"></div>
   <div class="stage">
     <canvas id="calmCanvas"></canvas>
     <div class="pads" id="pads"></div>
@@ -512,7 +559,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 
 <!-- ===================== KUTHU-TROMMELN ===================== -->
 <section id="drum" class="screen">
-  <div class="bar" data-title="Kuthu-Trommeln" data-drum="1"></div>
+  <div class="bar" data-title="Kuthu-Trommeln" data-drum="1" data-tempo="drum"></div>
   <div class="stage">
     <div class="dwrap">
       <div class="drow" id="rhyList"><button class="pille demo" id="drumDemo">Vorspielen</button></div>
@@ -585,9 +632,10 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   </div>
 </div>
 <div id="toast" role="status"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="sternSym" viewBox="0 0 24 24"><path d="M12 2.6l2.85 5.95 6.55.8-4.8 4.5 1.25 6.5L12 17.2l-5.85 3.15 1.25-6.5-4.8-4.5 6.55-.8z" stroke-width="1.6" stroke-linejoin="round"/></symbol></svg>
 
 <script>
-/* Krishnas Spiele @ Joschy - Version 2 */
+/* Krishnas Spiele @ Joschy - Version 3 */
 'use strict';
 
 /* LIEDER-START
@@ -627,46 +675,46 @@ const TONLEITERN = {
 
 const LIEDER = [
   /* ---------------- Stufe 1 ---------------- */
-  { id: 'entchen', titel: 'Alle meine Entchen', stufe: 1, tonleiter: 'Dur', bpm: 56, herkunft: 'traditionell, gemeinfrei',
+  { id: 'entchen', titel: 'Alle meine Entchen', stufe: 1, kategorie: 'Kinderlieder', tonleiter: 'Dur', bpm: 56, herkunft: 'traditionell, gemeinfrei',
     melodie: 'C D E F | G/2 G/2 | A A A A | G/4 | A A A A | G/4 | F F F F | E/2 E/2 | D D D D | C/4',
     begleitung: { akkorde: ['C', 'C', 'F', 'C', 'F', 'C', 'F', 'C', 'G', 'C'], trommel: 'ruhig' } },
-  { id: 'jakob', titel: 'Bruder Jakob', stufe: 1, tonleiter: 'Dur', bpm: 60, herkunft: 'traditionell, gemeinfrei',
+  { id: 'jakob', titel: 'Bruder Jakob', stufe: 1, kategorie: 'Kinderlieder', tonleiter: 'Dur', bpm: 60, herkunft: 'traditionell, gemeinfrei',
     melodie: 'C D E C | C D E C | E F G/2 | E F G/2 | G/.5 A/.5 G/.5 F/.5 E C | G/.5 A/.5 G/.5 F/.5 E C | C G3 C/2 | C G3 C/2',
     begleitung: { akkorde: ['C', 'C', 'C', 'C', 'C', 'C', 'C5', 'C5'], trommel: 'ruhig' } },
-  { id: 'sonnenaufgang', titel: 'Sonnenaufgang', stufe: 1, tonleiter: 'Mohanam', bpm: 56, herkunft: 'Eigenkomposition',
+  { id: 'sonnenaufgang', titel: 'Sonnenaufgang', stufe: 1, kategorie: 'Kuthu-Stil', tonleiter: 'Mohanam', bpm: 56, herkunft: 'Eigenkomposition',
     melodie: 'C D E G | E D C/2 | D E G A | G E D/2 | E G A C5 | A G E/2 | G A C5 D5 | E5/2 D5 C5 | A G E D | C/4',
     begleitung: { akkorde: ['C', 'C', 'G', 'C', 'Am', 'C', 'C', 'C', 'G', 'C'], trommel: 'kuthu-1' } },
-  { id: 'trommelfest', titel: 'Trommelfest', stufe: 1, tonleiter: 'Mohanam', bpm: 60, herkunft: 'Eigenkomposition',
+  { id: 'trommelfest', titel: 'Trommelfest', stufe: 1, kategorie: 'Kuthu-Stil', tonleiter: 'Mohanam', bpm: 60, herkunft: 'Eigenkomposition',
     melodie: 'G G A G | E D E G | A A C5 A | G E G G | E G A C5 | D5 C5 A G | E D C D | E G C/2',
     begleitung: { akkorde: ['C', 'C', 'Am', 'C', 'Am', 'G', 'C', 'C'], trommel: 'kuthu-1' } },
-  { id: 'elefanten', titel: 'Elefantenparade', stufe: 1, tonleiter: 'Mohanam', bpm: 52, herkunft: 'Eigenkomposition',
+  { id: 'elefanten', titel: 'Elefantenparade', stufe: 1, kategorie: 'Kuthu-Stil', tonleiter: 'Mohanam', bpm: 52, herkunft: 'Eigenkomposition',
     melodie: 'C C D/2 | E E D/2 | C D E G | E/2 D/2 | C C D/2 | E E G/2 | A G E D | C/4',
     begleitung: { akkorde: ['C', 'C', 'C', 'G', 'C', 'C', 'Am', 'C'], trommel: 'kuthu-2' } },
 
   /* ---------------- Stufe 2 ---------------- */
-  { id: 'haenschen', titel: 'Hänschen klein', stufe: 2, tonleiter: 'Dur', bpm: 64, herkunft: 'traditionell, gemeinfrei',
+  { id: 'haenschen', titel: 'Hänschen klein', stufe: 2, kategorie: 'Kinderlieder', tonleiter: 'Dur', bpm: 64, herkunft: 'traditionell, gemeinfrei',
     melodie: 'G E E_2 | F D D_2 | C D E F | G G G_2 | G E E/2 | F D D/2 | C E G G | C_2 ~/2 | ' +
              'D D D D | D E F_2 | E E E E | E F G_2 | G E E_2 | F D D_2 | C E G G | C_4',
     begleitung: { akkorde: ['C', 'G', 'C', 'C', 'C', 'G', 'C', 'C', 'G', 'G', 'C', 'C', 'C', 'G', 'C', 'C'], trommel: 'kuthu-1' } },
-  { id: 'festtag', titel: 'Festtag', stufe: 2, tonleiter: 'Mohanam', bpm: 66, herkunft: 'Eigenkomposition',
+  { id: 'festtag', titel: 'Festtag', stufe: 2, kategorie: 'Kuthu-Stil', tonleiter: 'Mohanam', bpm: 66, herkunft: 'Eigenkomposition',
     melodie: 'A G A C5 | A G E G | A G E D | E G A_2 | C5 C5 D5 C5 | A G A C5 | A G E D | C D C_2 | ' +
              '~/2 E G | A G E/2 | D E G A | C5_2 A/2 | G A C5 D5 | C5 A G/2 | E D E G | C_4',
     begleitung: { akkorde: ['Am', 'C', 'Am', 'Am', 'C', 'Am', 'Am', 'C', 'C', 'Am', 'G', 'Am', 'C', 'Am', 'G', 'C'], trommel: 'kuthu-1' } },
-  { id: 'pfauentanz', titel: 'Pfauentanz', stufe: 2, tonleiter: 'Hamsadhwani', bpm: 64, herkunft: 'Eigenkomposition',
+  { id: 'pfauentanz', titel: 'Pfauentanz', stufe: 2, kategorie: 'Kuthu-Stil', tonleiter: 'Hamsadhwani', bpm: 64, herkunft: 'Eigenkomposition',
     melodie: 'C E G H | C5_2 H G | E G H C5 | D5_2 C5/2 | H G E D | C D E/2 | G E D C | D_2 ~/2 | ' +
              'E G H D5 | C5 H G/2 | E G H C5 | D5 E5 D5/2 | C5 H G E | D E G/2 | E D C D | C_2 ~/2',
     begleitung: { akkorde: ['C5', 'C5', 'C5', 'G5', 'G5', 'C5', 'C5', 'G5', 'C5', 'C5', 'C5', 'G5', 'C5', 'G5', 'C5', 'C5'], trommel: 'kuthu-2' } },
-  { id: 'monsun', titel: 'Monsunregen', stufe: 2, tonleiter: 'Hindolam', bpm: 62, herkunft: 'Eigenkomposition',
+  { id: 'monsun', titel: 'Monsunregen', stufe: 2, kategorie: 'Pop und Ruhiges', tonleiter: 'Hindolam', bpm: 62, herkunft: 'Eigenkomposition',
     melodie: 'C5 Bb Ab F | Eb_2 F/2 | Ab F Eb C | Eb_2 ~/2 | F Ab Bb C5 | Bb Ab F/2 | Eb F Ab F | C_2 ~/2 | ' +
              'C Eb F Ab | Bb_2 Ab/2 | C5 Bb Ab Bb | C5_2 ~/2 | Eb5 C5 Bb Ab | F Ab F/2 | Eb F Eb C | C_4',
     begleitung: { akkorde: ['C5', 'C5', 'F5', 'C5', 'F5', 'F5', 'C5', 'C5', 'C5', 'F5', 'C5', 'C5', 'C5', 'F5', 'C5', 'C5'], trommel: 'ruhig' } },
-  { id: 'marktplatz', titel: 'Marktplatz-Trommel', stufe: 2, tonleiter: 'Shivaranjani', bpm: 68, herkunft: 'Eigenkomposition',
+  { id: 'marktplatz', titel: 'Marktplatz-Trommel', stufe: 2, kategorie: 'Kuthu-Stil', tonleiter: 'Shivaranjani', bpm: 68, herkunft: 'Eigenkomposition',
     melodie: 'C D Eb D | C D G/2 | A G Eb D | C_2 ~/2 | G A C5 A | G Eb D/2 | C D Eb G | D_2 ~/2 | ' +
              'Eb G A G | Eb D C/2 | D Eb G A | C5_2 A/2 | G A G Eb | D Eb D C | D Eb D/2 | C_2 ~/2',
     begleitung: { akkorde: ['C5', 'C5', 'C5', 'C5', 'C5', 'G5', 'C5', 'G5', 'C5', 'C5', 'G5', 'C5', 'C5', 'G5', 'G5', 'C5'], trommel: 'kuthu-1' } },
 
   /* ---------------- Stufe 3 ---------------- */
-  { id: 'ode', titel: 'Ode an die Freude', stufe: 3, tonleiter: 'Dur', bpm: 72, herkunft: 'Beethoven, gemeinfrei',
+  { id: 'ode', titel: 'Ode an die Freude', stufe: 3, kategorie: 'Klassik', tonleiter: 'Dur', bpm: 72, herkunft: 'Beethoven, gemeinfrei',
     melodie: 'E+C E F G | G F E D | C C D E | E/1.5 D/.5 D_2 | ' +
              'E+C E F G | G F E D | C C D E | D/1.5 C/.5 C_2 | ' +
              'D D E C | D E/.5 F/.5 E C | D E/.5 F/.5 E D | C D G3_2 | ' +
@@ -674,23 +722,398 @@ const LIEDER = [
              'D D E C | D E/.5 F/.5 E C | D E/.5 F/.5 E D | C D G3_2 | ' +
              'E+C E F G | G F E D | C C D E | D/1.5 C/.5 C+E/2',
     begleitung: { akkorde: ['C', 'G', 'C', 'G', 'C', 'G', 'C', 'C', 'G', 'C', 'G', 'G', 'C', 'G', 'C', 'C', 'G', 'C', 'G', 'G', 'C', 'G', 'C', 'C'], trommel: 'kuthu-2' } },
-  { id: 'tanzlied', titel: 'Tanzlied', stufe: 3, tonleiter: 'Mayamalavagowla', bpm: 74, herkunft: 'Eigenkomposition',
+  { id: 'tanzlied', titel: 'Tanzlied', stufe: 3, kategorie: 'Kuthu-Stil', tonleiter: 'Mayamalavagowla', bpm: 74, herkunft: 'Eigenkomposition',
     melodie: 'C Db E F | G F E Db | E F G Ab | G F E_2 | G Ab H C5 | H Ab G F | E F E Db | C+G/2 ~/2 | ' +
              'E F G/2 | Ab G F/2 | E F G Ab | H_2 C5/2 | C5 H Ab G | F G Ab/2 | G F E Db | C/2 ~/2 | ' +
              'C Db E F | G F E Db | E F G Ab | G F E_2 | G Ab H C5 | H Ab G F | E F E Db | C+G/2 ~/2',
     begleitung: { akkorde: ['C', 'Db', 'Fm', 'C', 'C5', 'Fm', 'Db', 'C', 'C', 'Fm', 'Fm', 'C5', 'C', 'Fm', 'Db', 'C'], trommel: 'kuthu-1' } },
-  { id: 'lichterfest', titel: 'Lichterfest', stufe: 3, tonleiter: 'Kalyani', bpm: 76, herkunft: 'Eigenkomposition',
+  { id: 'lichterfest', titel: 'Lichterfest', stufe: 3, kategorie: 'Kuthu-Stil', tonleiter: 'Kalyani', bpm: 76, herkunft: 'Eigenkomposition',
     melodie: 'C E G A | H_2 A G | F# G A H | C5_2 ~/2 | D5 C5 H A | G A H/2 | A G F# E | D_2 ~/2 | ' +
              'E+C F# G A | H A G/2 | G A H C5 | D5_2 E5/2 | D5 C5 H A | G F# E/2 | D E F# G | C+G/2 ~/2 | ' +
              'C E G A | H_2 A G | F# G A H | C5+E/2 ~/2 | D5 C5 H A | G A H/2 | A G E D | C+G/2 ~/2',
     begleitung: { akkorde: ['C', 'G', 'D', 'C', 'G', 'G', 'D', 'D', 'C', 'G', 'C', 'G', 'G', 'D', 'D', 'C', 'C', 'G', 'D', 'C', 'G', 'G', 'D', 'C'], trommel: 'kuthu-2' } },
-  { id: 'rikscha', titel: 'Rikscha-Fahrt', stufe: 3, tonleiter: 'Mayamalavagowla', bpm: 80, herkunft: 'Eigenkomposition',
+  { id: 'rikscha', titel: 'Rikscha-Fahrt', stufe: 3, kategorie: 'Kuthu-Stil', tonleiter: 'Mayamalavagowla', bpm: 80, herkunft: 'Eigenkomposition',
     melodie: 'C/.5 Db/.5 E G G | Ab/.5 G/.5 F E/2 | E/.5 F/.5 G Ab G | F E C_2 | G/.5 Ab/.5 H C5 C5 | H/.5 Ab/.5 G F/2 | E F G Ab | G_2 ~/2 | ' +
              'C5+E C5 H Ab | G Ab G/2 | F G Ab H | C5_2 H/2 | Ab/.5 G/.5 F E Db | C Db E/2 | F/.5 E/.5 Db C Db | C+G/2 ~/2 | ' +
              'C/.5 Db/.5 E G G | Ab/.5 G/.5 F E/2 | E/.5 F/.5 G Ab G | F E C_2 | G/.5 Ab/.5 H C5 C5 | H/.5 Ab/.5 G F/2 | E F E Db | C+G/2 ~/2',
     begleitung: { akkorde: ['C', 'Fm', 'C', 'Db', 'C5', 'Fm', 'Fm', 'C5', 'C', 'C', 'Fm', 'C', 'Fm', 'Db', 'Db', 'C', 'C', 'Fm', 'C', 'Db', 'C5', 'Fm', 'Db', 'C'], trommel: 'kuthu-1' } }
   // , { id:'neu', titel:'Neues Lied', stufe:1, tonleiter:'Mohanam', bpm:56, melodie:'C D E G | A/2 G/2 | ...', begleitung:{ akkorde:['C'], trommel:'kuthu-1' } }
 ];
+
+/* ----------------------------------------------------------------
+   116 WEITERE LIEDER (Version 3)  @ Joschy
+   Quelle: lieder100/lieder-neu.js (erzeugt von erzeuge.js, Doku in
+   lieder100/titel.md); build.js setzt sie hier ein. Jedes Lied hat
+   das Feld "kategorie" und "herkunft".
+   Lizenz / Herkunft (kurz):
+   - 84 Eigenkompositionen (frei, von uns geschrieben), teils "im Stil"
+     von Kuthu, Kummi, Kolattam, Erntelied usw. - nicht notengetreu.
+   - 32 gemeinfreie Melodien: deutsche Kinder-, Volks- und Winterlieder
+     (traditionell bzw. Silcher, Schulz, Hering, Gruber u. a., Noten nach
+     dem Wikibooks-Liederbuch), Klassik (Mozart, Brahms, Dvorak,
+     Grieg, Pachelbel u. a., seit ueber 70 Jahren verstorben) und
+     karnatische Grunduebungen (Sarali Varisai, Purandara Dasa
+     zugeschrieben). Teils vereinfacht, gekuerzt oder auf 4/4 gesetzt.
+   Keine geschuetzten Film- oder Pop-Melodien; "Pop und Ruhiges" sind
+   Eigenkompositionen.
+   ---------------------------------------------------------------- */
+/* Neue Lieder fuer "Lieder spielen" - erzeugt von lieder100/erzeuge.js - @ Joschy
+   116 Lieder im Format der LIEDER-Liste, zusaetzliches Feld "kategorie".
+   Einfuegen: Eintraege an das LIEDER-Array anhaengen (oder LIEDER.push(...LIEDER_NEU)). */
+const LIEDER_NEU = [
+  /* ---------------- Stufe 1 ---------------- */
+  { id: 'n-allejahre', titel: 'Alle Jahre wieder', stufe: 1, kategorie: 'Volks- und Winterlieder', tonleiter: 'Dur', bpm: 50, herkunft: 'Friedrich Silcher (1789-1860), gemeinfrei',
+    melodie: 'G/1.5 A/.5 G F | E/2 D/2 | C D/.5 E/.5 F E | D/3 - | E G A G | C5/2 H A | G F/.5 E/.5 F G | E/3 -',
+    begleitung: { akkorde: ['C', 'C', 'C', 'G', 'C', 'F', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-butzemann', titel: 'Es tanzt ein Bi-Ba-Butzemann', stufe: 1, kategorie: 'Kinderlieder', tonleiter: 'Dur', bpm: 50, herkunft: 'traditionell (19. Jh., Des Knaben Wunderhorn), gemeinfrei',
+    melodie: '-/3.5 G3/.5 | C/.5 C/.5 G/.5 G/.5 E/.5 E/.5 C/.5 C/.5 | D/.5 D/.5 G3/.5 G3/.5 C/.5 E/.5 G/.5 G3/.5 | C/.5 C/.5 G/.5 G/.5 E/.5 E/.5 C/.5 C/.5 | D/.5 D/.5 G3/.5 G3/.5 C -/.5 C/.5 | D/.5 E/.5 F/.5 D/.5 E/.5 F/.5 G/.5 E/.5 | D/.5 E/.5 F/.5 D/.5 E/.5 F/.5 G/.5 G3/.5 | C/.5 C/.5 G/.5 G/.5 E/.5 E/.5 C/.5 C/.5 | D/.5 D/.5 G3/.5 G3/.5 C/2',
+    begleitung: { akkorde: ['C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-kinderleinkommet', titel: 'Ihr Kinderlein, kommet', stufe: 1, kategorie: 'Volks- und Winterlieder', tonleiter: 'Dur', bpm: 50, herkunft: 'Johann Abraham Peter Schulz (1747-1800), gemeinfrei',
+    melodie: '-/3 G | G E/.5 G/.5 G E/.5 G/.5 | F D/.5 F/.5 E -/.5 G/.5 | G E/.5 G/.5 G E/.5 G/.5 | F D/.5 F/.5 E -/.5 E/.5 | D D/.5 D/.5 F F/.5 F/.5 | E E/.5 E/.5 A -/.5 A/.5 | G G/.5 G/.5 C5 G/.5 E/.5 | F D/.5 H3/.5 C/1.5 -/.5',
+    begleitung: { akkorde: ['C', 'C', 'Dm', 'C', 'Dm', 'Dm', 'Am', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-vogel', titel: 'Kommt ein Vogel geflogen', stufe: 1, kategorie: 'Kinderlieder', tonleiter: 'Dur', bpm: 50, herkunft: 'traditionell (mündlich überliefert, gedruckt 1911), gemeinfrei',
+    melodie: '-/3 E/.5 F/.5 | G/2 E E | E/2 D D/.5 E/.5 | F/2 D D/.5 A/.5 | G/3 E/.5 F/.5 | G/2 E E | E/2 D D/.5 E/.5 | F/2 H3 H3 | C/4',
+    begleitung: { akkorde: ['C', 'C', 'C', 'Dm', 'C', 'C', 'C', 'F', 'C'], trommel: 'ruhig' } },
+  { id: 'n-sarali2', titel: 'Hin-und-Her-Gang (karnatisch)', stufe: 1, kategorie: 'Tamilische Lieder', tonleiter: 'Mayamalavagowla', bpm: 51, herkunft: 'Sarali Varisai 2, Purandara Dasa zugeschrieben, gemeinfrei',
+    melodie: 'C Db C Db | C Db E F | C Db E F | G Ab H C5 | C5 H C5 H | C5 H Ab G | C5 H Ab G | F E Db C',
+    begleitung: { akkorde: ['C5'], trommel: 'kuthu-2' } },
+  { id: 'n-nachtmusik', titel: 'Kleine Nachtmusik', stufe: 1, kategorie: 'Klassik', tonleiter: 'Dur', bpm: 51, herkunft: 'Wolfgang Amadeus Mozart (1756-1791), gemeinfrei',
+    melodie: 'C -/.5 G3/.5 C -/.5 G3/.5 | C/.5 G3/.5 C/.5 E/.5 G/2 | F -/.5 D/.5 F -/.5 D/.5 | F/.5 D/.5 H3/.5 D/.5 G3/2 | C -/.5 G3/.5 C -/.5 G3/.5 | C/.5 G3/.5 C/.5 E/.5 G/2 | F/.5 D/.5 H3/.5 D/.5 G3 H3 | C/2 G3/2 | C/4',
+    begleitung: { akkorde: ['C', 'C', 'Dm', 'G', 'C', 'C', 'G', 'C', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-largo', titel: 'Largo aus der Neuen Welt', stufe: 1, kategorie: 'Klassik', tonleiter: 'Mohanam', bpm: 51, herkunft: 'Antonin Dvorak (1841-1904), gemeinfrei',
+    melodie: 'E/1.5 G/.5 G/2 | E/1.5 D/.5 C/2 | D/1.5 E/.5 G/1.5 E/.5 | D/4 | E/1.5 G/.5 G/2 | E/1.5 D/.5 C/2 | D/1.5 E/.5 D/1.5 C/.5 | C/4',
+    begleitung: { akkorde: ['C', 'C', 'G5', 'G5', 'C', 'C', 'G5', 'C'], trommel: 'ruhig' } },
+  { id: 'n-sarali1', titel: 'Tonleiter-Gang (karnatisch)', stufe: 1, kategorie: 'Tamilische Lieder', tonleiter: 'Mayamalavagowla', bpm: 51, herkunft: 'Sarali Varisai 1, Purandara Dasa zugeschrieben, gemeinfrei',
+    melodie: 'C Db E F | G Ab H C5 | C5 H Ab G | F E Db C | C Db E F | G Ab H C5 | C5 H Ab G | F E Db C',
+    begleitung: { akkorde: ['C5'], trommel: 'kuthu-2' } },
+  { id: 'n-sarali3', titel: 'Dreierschritt-Gang (karnatisch)', stufe: 1, kategorie: 'Tamilische Lieder', tonleiter: 'Mayamalavagowla', bpm: 52, herkunft: 'Sarali Varisai 3, Purandara Dasa zugeschrieben, gemeinfrei',
+    melodie: 'C Db E C | Db E C Db | C Db E F | G Ab H C5 | C5 H Ab C5 | H Ab C5 H | C5 H Ab G | F E Db C',
+    begleitung: { akkorde: ['C5'], trommel: 'kuthu-2' } },
+  { id: 'n-kummi-klatschtanz-tamilisch', titel: 'Kummi-Klatschtanz (tamilisch)', stufe: 1, kategorie: 'Tamilische Lieder', tonleiter: 'Mohanam', bpm: 52, herkunft: 'Eigenkomposition im Stil einer tamilischen Volksweise',
+    melodie: 'E E E/.5 G/.5 D | E E E/.5 G/.5 D | E/2 E/2 | D D D/2 | A C5/2 C5 | G A/2 A | C5 C5 G E | C E C/2',
+    begleitung: { akkorde: ['C', 'G5', 'Am', 'G5', 'Am', 'G5', 'C', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-mond-reim-tamilisch', titel: 'Mond-Reim (tamilisch)', stufe: 1, kategorie: 'Tamilische Lieder', tonleiter: 'Mohanam', bpm: 52, herkunft: 'Eigenkomposition im Stil einer tamilischen Volksweise',
+    melodie: 'C/3 G | A/3 E | G E G/2 | G/.5 A/.5 E G/2 | G E G/2 | A G A/2 | G/2 E/2 | A/2 C/2',
+    begleitung: { akkorde: ['C', 'Am', 'C', 'G5', 'G5', 'Am', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-tempelglocken', titel: 'Tempelglocken-Übung', stufe: 1, kategorie: 'Tamilische Lieder', tonleiter: 'Kalyani', bpm: 52, herkunft: 'Eigenkomposition im karnatischen Stil',
+    melodie: 'C E G H | C5/2 H/2 | A G F# E | D/4 | E F# G A | H C5 H A | G F# E D | C/4',
+    begleitung: { akkorde: ['C', 'C', 'D', 'D', 'C', 'G', 'C', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-tonleiter-aufwaerts', titel: 'Tonleiter aufwärts', stufe: 1, kategorie: 'Übungen', tonleiter: 'Dur', bpm: 52, herkunft: 'Eigenkomposition (Übung)',
+    melodie: 'C D E F | G/2 -/2 | G A H C5 | C5/2 -/2 | C D E F | G A H C5 | C5/2 G/2 | C5/4',
+    begleitung: { akkorde: ['C', 'C', 'G', 'C', 'C', 'G', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-echo-uebung', titel: 'Echo-Übung', stufe: 1, kategorie: 'Übungen', tonleiter: 'Dur', bpm: 53, herkunft: 'Eigenkomposition (Übung)',
+    melodie: 'C E G/2 | C E G/2 | D F A/2 | D F A/2 | E G C5/2 | E G C5/2 | G E D/2 | C/4',
+    begleitung: { akkorde: ['C', 'C', 'Dm', 'Dm', 'C', 'C', 'G', 'C'], trommel: 'ruhig' } },
+  { id: 'n-erntetanz-tamilisch', titel: 'Erntetanz (tamilisch)', stufe: 1, kategorie: 'Tamilische Lieder', tonleiter: 'Mohanam', bpm: 53, herkunft: 'Eigenkomposition im Stil einer tamilischen Volksweise',
+    melodie: 'G/.5 A/.5 A G G | E/.5 G/.5 G E E | A/2 C5/.5 A/.5 A | D/2 G/2 | G/.5 A/.5 A G G | E/.5 G/.5 G E E | A/2 C5/.5 A/.5 A | C5/4 | A/2 C5/.5 A/.5 A | C5/4',
+    begleitung: { akkorde: ['C', 'C', 'Am', 'G5', 'C', 'C', 'Am', 'C', 'Am', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-gleiche-toene', titel: 'Gleiche Töne', stufe: 1, kategorie: 'Übungen', tonleiter: 'Dur', bpm: 53, herkunft: 'Eigenkomposition (Übung)',
+    melodie: 'C C C C | D D D D | E E E E | F/2 F/2 | G G G G | F F F F | E E D D | C/4',
+    begleitung: { akkorde: ['C', 'G', 'C', 'F', 'C', 'F', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-hopp', titel: 'Hopp, hopp, hopp, Pferdchen lauf Galopp', stufe: 1, kategorie: 'Kinderlieder', tonleiter: 'Dur', bpm: 53, herkunft: 'Carl Gottlieb Hering (1766-1853), gemeinfrei',
+    melodie: 'C E G - | G/.5 F/.5 E/.5 D/.5 C - | D/.5 D/.5 H3/.5 G3/.5 G/.5 G/.5 E/.5 C/.5 | D/.5 D/.5 H3/.5 G3/.5 G/.5 G/.5 E/.5 C/.5 | C/.5 D/.5 E/.5 F/.5 G - | G/.5 F/.5 E/.5 D/.5 C - | D/.5 D/.5 H3/.5 G3/.5 G/.5 G/.5 E/.5 C/.5 | D/.5 D/.5 H3/.5 G3/.5 G/.5 G/.5 E/.5 C/.5 | C/.5 D/.5 E/.5 F/.5 G - | G/.5 F/.5 E/.5 D/.5 C/2',
+    begleitung: { akkorde: ['C', 'C', 'G', 'G', 'C', 'C', 'G', 'G', 'C', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-frohmunter', titel: 'Lasst uns froh und munter sein', stufe: 1, kategorie: 'Volks- und Winterlieder', tonleiter: 'Dur', bpm: 53, herkunft: 'traditionell (Volkslied aus dem Münsterland, 19. Jh.), gemeinfrei',
+    melodie: 'G G G/.5 A/.5 G/.5 F/.5 | E E E/2 | F F F/.5 G/.5 F/.5 E/.5 | D D D/2 | C D E F | G/.5 A/.5 G/.5 A/.5 G/2 | C5 G G/.5 A/.5 G/.5 F/.5 | E D G/2 | C5 G G/.5 A/.5 G/.5 F/.5 | E D C/2',
+    begleitung: { akkorde: ['C', 'C', 'F', 'G', 'C', 'C', 'C', 'C', 'C', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-leiseschnee', titel: 'Leise rieselt der Schnee', stufe: 1, kategorie: 'Volks- und Winterlieder', tonleiter: 'Dur', bpm: 53, herkunft: 'Eduard Ebel (1839-1905), gemeinfrei',
+    melodie: 'E/2 E D | E D C/2 | -/2 C/2 | A3 C H3 A3 | G3/2 -/2 | D C D F | E D C/2 | -/2 D/1.5 A3/.5 | A3 H3 A3 H3 | C/4',
+    begleitung: { akkorde: ['C', 'C', 'C', 'F', 'C', 'Dm', 'C', 'Dm', 'Dm', 'C'], trommel: 'ruhig' } },
+  { id: 'n-morgenstimmung', titel: 'Morgenstimmung', stufe: 1, kategorie: 'Klassik', tonleiter: 'Mohanam', bpm: 53, herkunft: 'Edvard Grieg (1843-1907), Peer Gynt, gemeinfrei',
+    melodie: 'G E/.5 D/.5 C D/.5 E/.5 | G E/.5 D/.5 C D/.5 E/.5 | D E/.5 G/.5 E G/.5 A/.5 | E A/.5 G/.5 E D/.5 C/.5 | C/4 | G E/.5 D/.5 C D/.5 E/.5 | G E/.5 D/.5 C D/.5 E/.5 | D E/.5 G/.5 E G/.5 A/.5 | E A/.5 G/.5 E D/.5 C/.5 | C/4',
+    begleitung: { akkorde: ['C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-nachbartoene', titel: 'Nachbartöne', stufe: 1, kategorie: 'Übungen', tonleiter: 'Dur', bpm: 53, herkunft: 'Eigenkomposition (Übung)',
+    melodie: 'C D C D | E D E D | E F E F | G/2 G/2 | G F G F | E F E D | C D E D | C/4',
+    begleitung: { akkorde: ['C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-pentatonik-leiter', titel: 'Pentatonik-Leiter', stufe: 1, kategorie: 'Übungen', tonleiter: 'Mohanam', bpm: 53, herkunft: 'Eigenkomposition (Übung)',
+    melodie: 'C D E G | A/2 C5/2 | A G E D | C/4 | C D E G | A C5 A G | E D E D | C/4',
+    begleitung: { akkorde: ['C', 'Am', 'Am', 'C', 'C', 'Am', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-tonleiter-abwaerts', titel: 'Tonleiter abwärts', stufe: 1, kategorie: 'Übungen', tonleiter: 'Dur', bpm: 53, herkunft: 'Eigenkomposition (Übung)',
+    melodie: 'C5 H A G | F/2 -/2 | F E D C | C/2 -/2 | C5 H A G | F E D C | E/2 D/2 | C/4',
+    begleitung: { akkorde: ['F', 'F', 'Dm', 'C', 'F', 'Dm', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-treppe-rauf-und-runter', titel: 'Treppe rauf und runter', stufe: 1, kategorie: 'Übungen', tonleiter: 'Mohanam', bpm: 53, herkunft: 'Eigenkomposition (Übung)',
+    melodie: 'C D E G | A G E D | C D E G | A/2 G/2 | E G A C5 | A G E D | C D E D | C/4',
+    begleitung: { akkorde: ['C', 'Am', 'C', 'C', 'Am', 'Am', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-huepfschritt', titel: 'Hüpfschritt', stufe: 1, kategorie: 'Kuthu-Stil', tonleiter: 'Dur', bpm: 54, herkunft: 'Eigenkomposition',
+    melodie: 'G A H C5 | F G A H | A A/.5 A/.5 A/2 | G C5 G/2 | A A H - | G G A - | A/.5 A/.5 A H/.5 C5/.5 H | C5 C5/3 | A/.5 A/.5 A H/.5 C5/.5 H | C5 C5/3',
+    begleitung: { akkorde: ['C', 'Em', 'F', 'G', 'Dm', 'G', 'C', 'C', 'C', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-klatschkreis', titel: 'Klatschkreis', stufe: 1, kategorie: 'Kuthu-Stil', tonleiter: 'Hindolam', bpm: 54, herkunft: 'Eigenkomposition',
+    melodie: 'Eb Eb C/2 | F F Eb/2 | F Ab F - | F Ab F/2 | Eb Eb C/2 | F F Eb/2 | F Ab F - | Eb/.5 Bb3/.5 C C/2',
+    begleitung: { akkorde: ['Cm', 'Cm', 'Fm', 'Bb5', 'Cm', 'Cm', 'Fm', 'Cm'], trommel: 'kuthu-2' } },
+  { id: 'n-kleine-spruenge', titel: 'Kleine Sprünge', stufe: 1, kategorie: 'Übungen', tonleiter: 'Dur', bpm: 54, herkunft: 'Eigenkomposition (Übung)',
+    melodie: 'C E D F | E G F A | G H A C5 | H/2 C5/2 | C5 A H G | A F G E | F D E C | D/2 C/2',
+    begleitung: { akkorde: ['C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-trommelwirbel', titel: 'Trommelwirbel', stufe: 1, kategorie: 'Kuthu-Stil', tonleiter: 'Mayamalavagowla', bpm: 54, herkunft: 'Eigenkomposition',
+    melodie: 'E/2 G/2 | Ab/2 Ab/2 | Ab/.5 Ab/.5 G F G | G/4 | F/.5 F/.5 F Db E | F/.5 F/.5 F Db E | G F Ab/2 | E/.5 G/.5 F C5/2',
+    begleitung: { akkorde: ['C', 'E', 'Fm', 'C5', 'Db', 'C', 'Fm', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-viertel-und-halbe', titel: 'Viertel und Halbe', stufe: 1, kategorie: 'Übungen', tonleiter: 'Dur', bpm: 54, herkunft: 'Eigenkomposition (Übung)',
+    melodie: 'C C D/2 | E E F/2 | G G A/2 | G/4 | G G F/2 | E E D/2 | D D E/2 | C/4',
+    begleitung: { akkorde: ['G', 'F', 'F', 'C', 'F', 'G', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-bananenblatt', titel: 'Bananenblatt', stufe: 1, kategorie: 'Kuthu-Stil', tonleiter: 'Kalyani', bpm: 55, herkunft: 'Eigenkomposition',
+    melodie: 'E/2 E/.5 C/.5 C | D/2 F#/.5 E/.5 F# | G H/2 H | G G G/2 | G/2 H/.5 A/.5 A | A/2 A/.5 H/.5 H | G/2 G/2 | E F# C/2',
+    begleitung: { akkorde: ['C', 'D', 'G', 'G', 'G', 'D', 'C', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-kokosnuss-huepfer', titel: 'Kokosnuss-Hüpfer', stufe: 1, kategorie: 'Kuthu-Stil', tonleiter: 'Hamsadhwani', bpm: 55, herkunft: 'Eigenkomposition',
+    melodie: 'G C C/.5 D/.5 E | G C C/.5 D/.5 E | D E/.5 E/.5 H/2 | G/4 | G C C/.5 D/.5 E | G C C/.5 D/.5 E | D E/.5 E/.5 H/2 | G/2 C5/2',
+    begleitung: { akkorde: ['C', 'Em', 'G', 'G', 'C', 'Em', 'G', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-mangobaum', titel: 'Mangobaum', stufe: 1, kategorie: 'Kuthu-Stil', tonleiter: 'Mohanam', bpm: 55, herkunft: 'Eigenkomposition',
+    melodie: 'C C/.5 C/.5 E E | A3 A3/.5 A3/.5 D D | D D E/.5 G/.5 G | D/.5 E/.5 G G/2 | G G G - | G G G - | C/2 D/2 | C/4',
+    begleitung: { akkorde: ['C', 'Am', 'C', 'G5', 'C5', 'D5', 'C5', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-schellenband', titel: 'Schellenband', stufe: 1, kategorie: 'Kuthu-Stil', tonleiter: 'Shivaranjani', bpm: 55, herkunft: 'Eigenkomposition',
+    melodie: 'G/.5 G/.5 A Eb/.5 G/.5 A | A/.5 A/.5 C5 G/.5 A/.5 C5 | G G G A | G G/3 | G/.5 G/.5 A Eb/.5 G/.5 A | A/.5 A/.5 C5 G/.5 A/.5 C5 | G G G A | C5/2 C5/2 | G G G A | C5/2 C5/2',
+    begleitung: { akkorde: ['Cm', 'G5', 'Cm', 'G5', 'Cm', 'G5', 'Cm', 'Cm', 'Cm', 'Cm'], trommel: 'kuthu-2' } },
+  { id: 'n-bueffelkarren', titel: 'Büffelkarren', stufe: 1, kategorie: 'Kuthu-Stil', tonleiter: 'Mayamalavagowla', bpm: 56, herkunft: 'Eigenkomposition',
+    melodie: 'E/.5 G/.5 G G G | Ab/.5 G/.5 F Ab H | Ab G/.5 G/.5 F/2 | G/4 | E/.5 G/.5 G G G | Ab/.5 G/.5 F Ab H | Ab G/.5 G/.5 F/2 | E/2 C/2 | Ab G/.5 G/.5 F/2 | E/2 C/2',
+    begleitung: { akkorde: ['C', 'Fm', 'Db', 'C5', 'C', 'Fm', 'Db', 'C', 'Db', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-fahnenwinken', titel: 'Fahnenwinken', stufe: 1, kategorie: 'Kuthu-Stil', tonleiter: 'Hindolam', bpm: 56, herkunft: 'Eigenkomposition',
+    melodie: 'Eb F Eb Eb | Eb F Eb Eb | F/.5 Eb/.5 F Ab/.5 Ab/.5 Bb | Bb/2 Bb/2 | Eb F Eb Eb | Eb F Eb Eb | F/.5 Eb/.5 F Ab/.5 Ab/.5 Bb | C5 C5/3',
+    begleitung: { akkorde: ['Cm', 'Cm', 'Fm', 'Bb5', 'Cm', 'Cm', 'Fm', 'Cm'], trommel: 'kuthu-2' } },
+  { id: 'n-kreidemuster', titel: 'Kreidemuster', stufe: 1, kategorie: 'Kuthu-Stil', tonleiter: 'Dur', bpm: 56, herkunft: 'Eigenkomposition',
+    melodie: 'C C C/.5 D/.5 E | D D D/.5 E/.5 F | A G/.5 E/.5 E F | G E G/2 | E F E - | E F E - | F G A/.5 A/.5 A | C/4 | F G A/.5 A/.5 A | C/4',
+    begleitung: { akkorde: ['C', 'G', 'Am', 'G', 'C', 'Am', 'F', 'C', 'F', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-palmwedel', titel: 'Palmwedel', stufe: 1, kategorie: 'Kuthu-Stil', tonleiter: 'Mayamalavagowla', bpm: 56, herkunft: 'Eigenkomposition',
+    melodie: 'E E E - | F F F - | G G H H | C5 G/3 | E E E - | F F F - | G G H H | C5/4',
+    begleitung: { akkorde: ['C', 'Db', 'C', 'C5', 'C', 'Db', 'C', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-sandalen-stampfer', titel: 'Sandalen-Stampfer', stufe: 1, kategorie: 'Kuthu-Stil', tonleiter: 'Mohanam', bpm: 56, herkunft: 'Eigenkomposition',
+    melodie: 'G A G A | C5 G G G | A C5 A/2 | G G G/2 | C5 C5 E/.5 G/.5 A | G E G/.5 G/.5 A | C5 C5 C5 A | C5/2 C5/2',
+    begleitung: { akkorde: ['C', 'G5', 'Am', 'G5', 'Am', 'G5', 'C', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-kleine-wolke', titel: 'Kleine Wolke', stufe: 1, kategorie: 'Pop und Ruhiges', tonleiter: 'Mohanam', bpm: 57, herkunft: 'Eigenkomposition',
+    melodie: 'G/2 C/2 | D/2 C/2 | E E D/2 | E/2 D/2 | G/2 C/2 | D/2 C/2 | E E D/2 | C C/3',
+    begleitung: { akkorde: ['C', 'Am', 'C', 'G5', 'C', 'Am', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-regentropfen', titel: 'Regentropfen', stufe: 1, kategorie: 'Pop und Ruhiges', tonleiter: 'Dur', bpm: 57, herkunft: 'Eigenkomposition',
+    melodie: 'G F G/.5 A/.5 C5 | G F G/.5 A/.5 C5 | C5/.5 D5/.5 H C5/2 | D5/4 | G F G/.5 A/.5 C5 | G F G/.5 A/.5 C5 | C5/.5 D5/.5 H C5/2 | C5/2 C5/2',
+    begleitung: { akkorde: ['C', 'Em', 'F', 'G', 'C', 'Em', 'F', 'C'], trommel: 'ruhig' } },
+  { id: 'n-roboterschritt', titel: 'Roboterschritt', stufe: 1, kategorie: 'Pop und Ruhiges', tonleiter: 'Dur', bpm: 57, herkunft: 'Eigenkomposition',
+    melodie: 'C/2 C/2 | D/2 D/2 | D D/2 E | D/.5 E/.5 E D/2 | F/2 F/2 | G/2 G/2 | G A G A | G/2 C/2',
+    begleitung: { akkorde: ['C', 'G', 'Am', 'G', 'Dm', 'G', 'C', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-seifenblasen', titel: 'Seifenblasen', stufe: 1, kategorie: 'Pop und Ruhiges', tonleiter: 'Hindolam', bpm: 57, herkunft: 'Eigenkomposition',
+    melodie: 'Eb F/2 Ab | Bb Ab/2 Bb | Ab/.5 Ab/.5 F Ab/2 | F F/3 | Ab Ab/.5 Bb/.5 Eb/2 | F Ab/.5 Eb/.5 F/2 | Ab/.5 Bb/.5 F Eb Ab | Eb C/3 | Ab/.5 Bb/.5 F Eb Ab | Eb C/3',
+    begleitung: { akkorde: ['Cm', 'Ab', 'Fm', 'Bb5', 'Ab', 'Bb5', 'Cm', 'Cm', 'Cm', 'Cm'], trommel: 'kuthu-2' } },
+  { id: 'n-gluehwuermchen', titel: 'Glühwürmchen', stufe: 1, kategorie: 'Pop und Ruhiges', tonleiter: 'Mohanam', bpm: 58, herkunft: 'Eigenkomposition',
+    melodie: 'G/2 E E | A/2 G G | E/3 G | E/.5 G/.5 C5 G/2 | G/2 E E | A/2 G G | E/3 G | C5/4',
+    begleitung: { akkorde: ['C', 'Am', 'C', 'G5', 'C', 'Am', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-gute-nacht', titel: 'Gute Nacht', stufe: 1, kategorie: 'Pop und Ruhiges', tonleiter: 'Shivaranjani', bpm: 58, herkunft: 'Eigenkomposition',
+    melodie: 'G/3 A | A/3 C5 | A/2 A/2 | G/4 | C5 D5 C5/2 | D5 Eb5 D5/2 | D5/2 C5/2 | C5/2 C5/2',
+    begleitung: { akkorde: ['C5', 'Cm', 'D5', 'G5', 'Cm', 'D5', 'G5', 'Cm'], trommel: 'ruhig' } },
+  { id: 'n-morgentau', titel: 'Morgentau', stufe: 1, kategorie: 'Pop und Ruhiges', tonleiter: 'Dur', bpm: 58, herkunft: 'Eigenkomposition',
+    melodie: 'E F E/2 | F E F/2 | E/3 F | G/2 G/2 | E F E/2 | F E F/2 | E/3 F | E/.5 D/.5 C C/2 | E/3 F | E/.5 D/.5 C C/2',
+    begleitung: { akkorde: ['C', 'Dm', 'Em', 'G', 'C', 'Dm', 'Em', 'C', 'Em', 'C'], trommel: 'ruhig' } },
+  { id: 'n-papierflieger', titel: 'Papierflieger', stufe: 1, kategorie: 'Pop und Ruhiges', tonleiter: 'Hamsadhwani', bpm: 58, herkunft: 'Eigenkomposition',
+    melodie: 'C D/2 E | D C/2 D | E/2 G G | G G/3 | G G E/.5 G/.5 G | E E D/.5 E/.5 E | G/2 G E | C/2 C/2',
+    begleitung: { akkorde: ['C5', 'G', 'C', 'G', 'C', 'Em', 'G', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-sommerwiese', titel: 'Sommerwiese', stufe: 1, kategorie: 'Pop und Ruhiges', tonleiter: 'Kalyani', bpm: 58, herkunft: 'Eigenkomposition',
+    melodie: 'E F#/2 F# | D E/2 F# | G/2 A A | G/2 G/2 | E F#/2 F# | D E/2 F# | G/2 A A | G A C/2',
+    begleitung: { akkorde: ['C', 'Hm', 'Am', 'G', 'C', 'Hm', 'Am', 'C'], trommel: 'ruhig' } },
+  { id: 'n-uhrwerk', titel: 'Uhrwerk', stufe: 1, kategorie: 'Pop und Ruhiges', tonleiter: 'Shivaranjani', bpm: 58, herkunft: 'Eigenkomposition',
+    melodie: 'G Eb C/.5 C/.5 D | Eb A C5/.5 C5/.5 Eb | A C5 A/2 | A G/3 | C5 G/.5 Eb/.5 G/2 | C5 G/.5 Eb/.5 G/2 | G/.5 A/.5 C5/.5 C5/.5 G A | C5 C5 C5/2 | G/.5 A/.5 C5/.5 C5/.5 G A | C5 C5 C5/2',
+    begleitung: { akkorde: ['C5', 'Cm', 'D5', 'G5', 'Cm', 'D5', 'G5', 'Cm', 'G5', 'Cm'], trommel: 'kuthu-2' } },
+  /* ---------------- Stufe 2 ---------------- */
+  { id: 'n-bruederchen', titel: 'Brüderchen, komm tanz mit mir', stufe: 2, kategorie: 'Kinderlieder', tonleiter: 'Dur', bpm: 60, herkunft: 'traditionell (auch bei Engelbert Humperdinck, 1854-1921), gemeinfrei',
+    melodie: 'G/.5 A/.5 G/.5 F/.5 E/.5 D/.5 C | D/.5 E/.5 D/.5 C/.5 H3/.5 A3/.5 G3/.5 ~/.5 | E/.5 C/.5 G F/.5 D/.5 A | H/.5 A/.5 G/.5 F/.5 E/.5 D/.5 C | G3/.5 C/.5 E/.5 C/.5 G/.5 G/.5 G/.5 ~/.5 | G3/.5 C/.5 E/.5 C/.5 A/.5 A/.5 A/.5 ~/.5 | F/.5 D/.5 H G/.5 E/.5 C5 | H/.5 A/.5 G/.5 F/.5 E/.5 D/.5 C | G/.5 A/.5 G/.5 F/.5 E/.5 D/.5 C | D/.5 E/.5 D/.5 C/.5 H3/.5 A3/.5 G3/.5 ~/.5 | E/.5 C/.5 G F/.5 D/.5 A | H/.5 A/.5 G/.5 F/.5 E/.5 D/.5 C | G3/.5 C/.5 E/.5 C/.5 G/.5 G/.5 G/.5 ~/.5 | G3/.5 C/.5 E/.5 C/.5 A/.5 A/.5 A/.5 ~/.5 | F/.5 D/.5 H G/.5 E/.5 C5 | H/.5 A/.5 G/.5 F/.5 E/.5 D/.5 C',
+    begleitung: { akkorde: ['C', 'G', 'C', 'C', 'C', 'Am', 'C', 'C', 'C', 'G', 'C', 'C', 'C', 'Am', 'C', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-kuckuckesel', titel: 'Der Kuckuck und der Esel', stufe: 2, kategorie: 'Kinderlieder', tonleiter: 'Dur', bpm: 60, herkunft: 'Carl Friedrich Zelter (1758-1832), gemeinfrei',
+    melodie: '-/3 G | E G E G | F F ~/1 F | D F D F | E_2 ~/1 G/.5 F/.5 | E E E E | F F ~/1 F/.5 E/.5 | D D D D | E E ~/1 C | C D E F | G/1.5 A/.5 G F | E E D D | C_3 ~/1',
+    begleitung: { akkorde: ['C', 'C', 'F', 'Dm', 'C', 'C', 'F', 'G', 'C', 'C', 'C', 'C', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-maennlein', titel: 'Ein Männlein steht im Walde', stufe: 2, kategorie: 'Kinderlieder', tonleiter: 'Dur', bpm: 60, herkunft: 'traditionell (Text Hoffmann von Fallersleben, 1843), gemeinfrei',
+    melodie: '-/3 G3 | C D E F | G_2 A F | E_2 D_2 | C_2 ~/1 G3 | C D E F | G_2 A F | E_2 D_2 | C_2 ~/2 | G/1.5 F/.5 E G | F E D_2 | G/1.5 F/.5 E G | F E D_2 | C D E F | G_2 A F | E_2 D_2 | C_4',
+    begleitung: { akkorde: ['C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'Dm', 'C', 'Dm', 'C', 'C', 'C', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-haensel', titel: 'Hänsel und Gretel', stufe: 2, kategorie: 'Kinderlieder', tonleiter: 'Dur', bpm: 60, herkunft: 'traditionell (Volksweise 19. Jh.), gemeinfrei',
+    melodie: 'G_2 E F | G_2 E C | D C D E | C_3 ~/1 | G_2 E F | G_2 E C | D C D E | C_2 ~/1 C | D D D E | F_2 D D | E D E F | G_3 ~/1 | G_2 E F | G_2 E C | D C D E | C_4',
+    begleitung: { akkorde: ['C', 'C', 'G', 'C', 'C', 'C', 'G', 'C', 'G', 'Dm', 'C', 'C', 'C', 'C', 'G', 'C'], trommel: 'ruhig' } },
+  { id: 'n-laterne', titel: 'Ich geh mit meiner Laterne', stufe: 2, kategorie: 'Kinderlieder', tonleiter: 'Dur', bpm: 60, herkunft: 'traditionell (Volkslied), gemeinfrei',
+    melodie: '-/3.5 G3/.5 | C/1.5 C/.5 E C/.5 E/.5 | G_2 E/1.5 C/.5 | D D/.5 D/.5 D/.5 E/.5 D | C_2 ~/1.5 G3/.5 | C/1.5 C/.5 E C/.5 E/.5 | G_2 E/1.5 C/.5 | D D/.5 D/.5 D/.5 E/.5 D | C_2 ~/1.5 E/.5 | G/1.5 E/.5 C/1.5 E/.5 | G/1.5 E/.5 C/1.5 C/.5 | D/.5 D/.5 D D/.5 E/.5 D | C_2 ~/1.5 E/.5 | G/1.5 E/.5 C/1.5 E/.5 | G/1.5 E/.5 C/1.5 C/.5 | D/.5 D/.5 D D/.5 E/.5 D | C_4',
+    begleitung: { akkorde: ['C', 'C', 'C', 'G', 'C', 'C', 'C', 'G', 'C', 'C', 'C', 'G', 'C', 'C', 'C', 'G', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-stillenacht', titel: 'Stille Nacht, heilige Nacht', stufe: 2, kategorie: 'Volks- und Winterlieder', tonleiter: 'Dur', bpm: 60, herkunft: 'Franz Xaver Gruber (1787-1863), gemeinfrei',
+    melodie: 'G3 A3/.5 G3/.5 E3_2 | G3 A3/.5 G3/.5 E3_2 | D/1.5 D/.5 H3_2 | C/1.5 C/.5 G3_2 | A3/1.5 A3/.5 C H3/.5 A3/.5 | G3 A3/.5 G3/.5 E3_2 | A3/1.5 A3/.5 C H3/.5 A3/.5 | G3 A3/.5 G3/.5 E3_2 | D/1.5 D/.5 F D/.5 H3/.5 | C_2 E_2 | C G3/.5 E3/.5 G3 F3/.5 D3/.5 | C3_4',
+    begleitung: { akkorde: ['C', 'C', 'G', 'C', 'F', 'C', 'F', 'C', 'Dm', 'C', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-sarali5', titel: 'Gang mit Haltepunkt (karnatisch)', stufe: 2, kategorie: 'Tamilische Lieder', tonleiter: 'Mayamalavagowla', bpm: 61, herkunft: 'Sarali Varisai 5 (1. und 2. Tempo), Purandara Dasa zugeschrieben, gemeinfrei',
+    melodie: 'C Db E F | G_2 C Db | C Db E F | G Ab H C5 | C5 H Ab G | F_2 C5 H | C5 H Ab G | F E Db C | C/.5 Db/.5 E/.5 F/.5 G C/.5 Db/.5 | C/.5 Db/.5 E/.5 F/.5 G/.5 Ab/.5 H/.5 C5/.5 | C5/.5 H/.5 Ab/.5 G/.5 F C5/.5 H/.5 | C5/.5 H/.5 Ab/.5 G/.5 F/.5 E/.5 Db/.5 C/.5 | C/.5 Db/.5 E/.5 F/.5 G C/.5 Db/.5 | C/.5 Db/.5 E/.5 F/.5 G/.5 Ab/.5 H/.5 C5/.5 | C5/.5 H/.5 Ab/.5 G/.5 F C5/.5 H/.5 | C5/.5 H/.5 Ab/.5 G/.5 F/.5 E/.5 Db/.5 C/.5',
+    begleitung: { akkorde: ['C5'], trommel: 'kuthu-2' } },
+  { id: 'n-wiegenlied', titel: 'Guten Abend, gut Nacht', stufe: 2, kategorie: 'Klassik', tonleiter: 'Dur', bpm: 61, herkunft: 'Johannes Brahms (1833-1897), Wiegenlied, gemeinfrei',
+    melodie: '-/3 E/.5 E/.5 | G_2.5 E/.5 E | G_2 ~/1 E/.5 G/.5 | C5_2 H/1.5 A/.5 | A G_2 D/.5 E/.5 | F D_2 D/.5 E/.5 | F_2 ~/1 D/.5 F/.5 | H/.5 A/.5 G_2 H | C5_2 ~/1 C/.5 C/.5 | C5_3 A/.5 F/.5 | G_3 E/.5 C/.5 | F G A_2 | G_3 C/.5 C/.5 | C5_3 A/.5 F/.5 | G_3 E/.5 C/.5 | F E D_2 | C_4',
+    begleitung: { akkorde: ['C', 'C', 'C', 'F', 'C', 'Dm', 'Dm', 'G', 'C', 'F', 'C', 'F', 'C', 'F', 'C', 'Dm', 'C'], trommel: 'ruhig' } },
+  { id: 'n-menuett', titel: 'Menuett in G', stufe: 2, kategorie: 'Klassik', tonleiter: 'Dur', bpm: 61, herkunft: 'Christian Petzold (1677-1733), Notenbüchlein für Anna Magdalena Bach, gemeinfrei',
+    melodie: 'G_2 C/.5 D/.5 E/.5 F/.5 | G_2 C C | A_2 F/.5 G/.5 A/.5 H/.5 | C5_2 C C | F_2 G/.5 F/.5 E/.5 D/.5 | E_2 F/.5 E/.5 D/.5 C/.5 | H3_2 C/.5 D/.5 E/.5 C/.5 | D_4 | G_2 C/.5 D/.5 E/.5 F/.5 | G_2 C C | A_2 F/.5 G/.5 A/.5 H/.5 | C5_2 C C | F_2 G/.5 F/.5 E/.5 D/.5 | E_2 F/.5 E/.5 D/.5 C/.5 | D_2 E/.5 D/.5 C/.5 H3/.5 | C_4',
+    begleitung: { akkorde: ['C', 'C', 'F', 'C', 'Dm', 'C', 'G', 'G', 'C', 'C', 'F', 'C', 'Dm', 'C', 'G', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-morgenkinder', titel: 'Morgen, Kinder, wird\'s was geben', stufe: 2, kategorie: 'Volks- und Winterlieder', tonleiter: 'Dur', bpm: 61, herkunft: 'Carl Gottlieb Hering zugeschrieben (1766-1853), Volksweise, gemeinfrei',
+    melodie: 'C G3 A3 G3 | A3/.5 C/.5 H3/.5 D/.5 C G3 | E E/.5 F/.5 G E | F E D_2 | C G3 A3 G3 | A3/.5 C/.5 H3/.5 D/.5 C G3 | E E/.5 F/.5 G E | F E D_2 | F F A A | D D G_2 | C C F F | E/.5 D/.5 C/.5 H3/.5 C_2',
+    begleitung: { akkorde: ['C', 'C', 'C', 'Dm', 'C', 'C', 'C', 'Dm', 'Dm', 'G', 'F', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-sarali7', titel: 'Umkehr-Gang (karnatisch)', stufe: 2, kategorie: 'Tamilische Lieder', tonleiter: 'Mayamalavagowla', bpm: 61, herkunft: 'Sarali Varisai 7 (1. und 2. Tempo), Purandara Dasa zugeschrieben, gemeinfrei',
+    melodie: 'C Db E F | G Ab H Ab | C Db E F | G Ab H C5 | C5 H Ab G | F E Db E | C5 H Ab G | F E Db C | C/.5 Db/.5 E/.5 F/.5 G/.5 Ab/.5 H/.5 Ab/.5 | C/.5 Db/.5 E/.5 F/.5 G/.5 Ab/.5 H/.5 C5/.5 | C5/.5 H/.5 Ab/.5 G/.5 F/.5 E/.5 Db/.5 E/.5 | C5/.5 H/.5 Ab/.5 G/.5 F/.5 E/.5 Db/.5 C/.5 | C/.5 Db/.5 E/.5 F/.5 G/.5 Ab/.5 H/.5 Ab/.5 | C/.5 Db/.5 E/.5 F/.5 G/.5 Ab/.5 H/.5 C5/.5 | C5/.5 H/.5 Ab/.5 G/.5 F/.5 E/.5 Db/.5 E/.5 | C5/.5 H/.5 Ab/.5 G/.5 F/.5 E/.5 Db/.5 C/.5',
+    begleitung: { akkorde: ['C5'], trommel: 'kuthu-2' } },
+  { id: 'n-sarali4', titel: 'Viererschritt-Gang (karnatisch)', stufe: 2, kategorie: 'Tamilische Lieder', tonleiter: 'Mayamalavagowla', bpm: 61, herkunft: 'Sarali Varisai 4 (1. und 2. Tempo), Purandara Dasa zugeschrieben, gemeinfrei',
+    melodie: 'C Db E F | C Db E F | C Db E F | G Ab H C5 | C5 H Ab G | C5 H Ab G | C5 H Ab G | F E Db C | C/.5 Db/.5 E/.5 F/.5 C/.5 Db/.5 E/.5 F/.5 | C/.5 Db/.5 E/.5 F/.5 G/.5 Ab/.5 H/.5 C5/.5 | C5/.5 H/.5 Ab/.5 G/.5 C5/.5 H/.5 Ab/.5 G/.5 | C5/.5 H/.5 Ab/.5 G/.5 F/.5 E/.5 Db/.5 C/.5 | C/.5 Db/.5 E/.5 F/.5 C/.5 Db/.5 E/.5 F/.5 | C/.5 Db/.5 E/.5 F/.5 G/.5 Ab/.5 H/.5 C5/.5 | C5/.5 H/.5 Ab/.5 G/.5 C5/.5 H/.5 Ab/.5 G/.5 | C5/.5 H/.5 Ab/.5 G/.5 F/.5 E/.5 Db/.5 C/.5',
+    begleitung: { akkorde: ['C5'], trommel: 'kuthu-2' } },
+  { id: 'n-janta1', titel: 'Doppelschritt-Gang (karnatisch)', stufe: 2, kategorie: 'Tamilische Lieder', tonleiter: 'Mayamalavagowla', bpm: 62, herkunft: 'Janta Varisai 1 (1. und 2. Tempo), Purandara Dasa zugeschrieben, gemeinfrei',
+    melodie: 'C C Db Db | E E F F | G G Ab Ab | H H C5 C5 | C5 C5 H H | Ab Ab G G | F F E E | Db Db C C | C/.5 C/.5 Db/.5 Db/.5 E/.5 E/.5 F/.5 F/.5 | G/.5 G/.5 Ab/.5 Ab/.5 H/.5 H/.5 C5/.5 C5/.5 | C5/.5 C5/.5 H/.5 H/.5 Ab/.5 Ab/.5 G/.5 G/.5 | F/.5 F/.5 E/.5 E/.5 Db/.5 Db/.5 C/.5 C/.5 | C/.5 C/.5 Db/.5 Db/.5 E/.5 E/.5 F/.5 F/.5 | G/.5 G/.5 Ab/.5 Ab/.5 H/.5 H/.5 C5/.5 C5/.5 | C5/.5 C5/.5 H/.5 H/.5 Ab/.5 Ab/.5 G/.5 G/.5 | F/.5 F/.5 E/.5 E/.5 Db/.5 Db/.5 C/.5 C/.5',
+    begleitung: { akkorde: ['C5'], trommel: 'kuthu-2' } },
+  { id: 'n-kolattam-stoecketanz-tamilisch', titel: 'Kolattam-Stöcketanz (tamilisch)', stufe: 2, kategorie: 'Tamilische Lieder', tonleiter: 'Dur', bpm: 62, herkunft: 'Eigenkomposition im Stil einer tamilischen Volksweise',
+    melodie: 'E G/.5 A/.5 G G | E C/.5 H3/.5 C C | E F G_2 | G_2 G_2 | E G/.5 A/.5 G G | E C/.5 H3/.5 C C | E F G_2 | C5_4 | G_2 E F | H_2 G A | G_2 G/.5 H/.5 G | G_2 G_2 | E G/.5 A/.5 G G | E C/.5 H3/.5 C C | E F G_2 | C5_4',
+    begleitung: { akkorde: ['C', 'Dm', 'Em', 'G', 'C', 'Dm', 'Em', 'C', 'C', 'F', 'C', 'G', 'C', 'Dm', 'Em', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-mond-wiegenlied-tamilisch', titel: 'Mond-Wiegenlied (tamilisch)', stufe: 2, kategorie: 'Tamilische Lieder', tonleiter: 'Hindolam', bpm: 62, herkunft: 'Eigenkomposition im Stil einer tamilischen Volksweise',
+    melodie: 'Eb/1.5 C/.5 Eb_2 | C/1.5 Ab/.5 Ab_2 | Bb_2 C5 Bb | F Ab Bb_2 | Ab_4 | Bb_4 | C5/1.5 Bb/.5 C5_2 | C5_4 | Eb/1.5 C/.5 Eb_2 | C/1.5 Ab/.5 Ab_2 | Bb_2 C5 Bb | F Ab Bb_2 | Ab_4 | Bb_4 | C5/1.5 Bb/.5 C5_2 | C5_4',
+    begleitung: { akkorde: ['Cm', 'Ab', 'Fm', 'Bb5', 'Ab', 'Bb5', 'Cm', 'Cm', 'Cm', 'Ab', 'Fm', 'Bb5', 'Ab', 'Bb5', 'Cm', 'Cm'], trommel: 'ruhig' } },
+  { id: 'n-achtel-uebung', titel: 'Achtel-Übung', stufe: 2, kategorie: 'Übungen', tonleiter: 'Dur', bpm: 63, herkunft: 'Eigenkomposition (Übung)',
+    melodie: 'C/.5 D/.5 E/.5 F/.5 G_2 | G/.5 F/.5 E/.5 D/.5 C_2 | E/.5 F/.5 G/.5 A/.5 H_2 | H/.5 A/.5 G/.5 F/.5 E_2 | C D/.5 E/.5 F G/.5 A/.5 | G F/.5 E/.5 D_2 | C/.5 C/.5 E/.5 E/.5 G/.5 G/.5 E/.5 E/.5 | D_2 ~/2 | G/.5 A/.5 G/.5 F/.5 E/.5 F/.5 E/.5 D/.5 | C/.5 D/.5 E/.5 F/.5 G_2 | A/.5 G/.5 F/.5 E/.5 D/.5 E/.5 F/.5 D/.5 | E_2 ~/2 | C/.5 D/.5 E/.5 C/.5 D/.5 E/.5 F/.5 D/.5 | E/.5 F/.5 G/.5 E/.5 F/.5 G/.5 A/.5 F/.5 | G/.5 F/.5 E/.5 D/.5 E/.5 D/.5 H3/.5 D/.5 | C_4',
+    begleitung: { akkorde: ['C', 'C', 'Em', 'Em', 'F', 'G', 'C', 'G', 'C', 'C', 'Dm', 'C', 'C', 'C', 'G', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-atempausen', titel: 'Atempausen', stufe: 2, kategorie: 'Übungen', tonleiter: 'Mohanam', bpm: 63, herkunft: 'Eigenkomposition (Übung)',
+    melodie: 'C D E_2 | ~/2 E_2 | D E G_2 | ~/2 G_2 | A G E_2 | ~/2 D_2 | E D C_2 | ~/4 | G A C5_2 | ~/2 C5_2 | A G E_2 | ~/2 G_2 | A G E D | ~/2 D_2 | E D C D | C_4',
+    begleitung: { akkorde: ['C', 'C', 'G5', 'C', 'Am', 'G5', 'C', 'C', 'C', 'C', 'Am', 'C', 'Am', 'G5', 'C', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-grosse-spruenge', titel: 'Große Sprünge', stufe: 2, kategorie: 'Übungen', tonleiter: 'Dur', bpm: 63, herkunft: 'Eigenkomposition (Übung)',
+    melodie: 'C G C G | E C5 E C5 | D A D A | G_2 ~/2 | C5 E C5 E | A D A D | G G3 G G3 | C_2 ~/2 | C E G C5 | G E C_2 | D F A F | D_2 G3_2 | E G C5 G | E C G3_2 | G3 C E G | C_4',
+    begleitung: { akkorde: ['C', 'C', 'Dm', 'C', 'C', 'Dm', 'C', 'C', 'C', 'C', 'Dm', 'G', 'C', 'C', 'C', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-gruss-an-ganesha-geetham-stil', titel: 'Gruß an Ganesha (Geetham-Stil)', stufe: 2, kategorie: 'Tamilische Lieder', tonleiter: 'Mayamalavagowla', bpm: 63, herkunft: 'Eigenkomposition im Stil einer tamilischen Volksweise',
+    melodie: 'E/.5 G/.5 Ab C5_2 | Ab/.5 Db5/.5 Db5 Ab_2 | Db5_2 Db5_2 | C5 C5 G_2 | G Ab_2 C5 | Ab C5_2 Db5 | F G Ab/.5 C5/.5 G | C5 Db5 C5_2 | E/.5 G/.5 Ab C5_2 | Ab/.5 Db5/.5 Db5 Ab_2 | Db5_2 Db5_2 | C5 C5 G_2 | Db_2 Ab3_2 | Db_2 Ab3_2 | C_3 Db | C_4',
+    begleitung: { akkorde: ['C', 'Fm', 'Db', 'C5', 'C', 'E', 'Fm', 'C', 'C', 'Fm', 'Db', 'C5', 'Db', 'C', 'Fm', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-lange-toene-halten', titel: 'Lange Töne halten', stufe: 2, kategorie: 'Übungen', tonleiter: 'Dur', bpm: 63, herkunft: 'Eigenkomposition (Übung)',
+    melodie: 'C_2 D_2 | E_2 F_2 | G_4 | ~/2 G_2 | A_2 G_2 | F_2 E_2 | D_4 | ~/2 D_2 | E_2 F_2 | G_2 A_2 | H_2 C5_2 | C5_4 | A_2 F_2 | E_2 D_2 | G_2 G3_2 | C_4',
+    begleitung: { akkorde: ['C', 'C', 'C', 'C', 'C', 'C', 'G', 'G', 'C', 'C', 'C', 'C', 'F', 'C', 'C', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-blumenkette', titel: 'Blumenkette', stufe: 2, kategorie: 'Kuthu-Stil', tonleiter: 'Hamsadhwani', bpm: 64, herkunft: 'Eigenkomposition',
+    melodie: 'C/1.5 D/.5 E G3 | H3/1.5 H3/.5 H3 G3 | G3 H3 H3_2 | G3_3 ~/1 | H/.5 E/.5 G/.5 G/.5 E_2 | G/.5 H/.5 D/.5 C/.5 H3_2 | G3 G3 G3_2 | C_3 ~/1 | C/1.5 D/.5 E G3 | H3/1.5 H3/.5 H3 G3 | G3 H3 H3_2 | G3_3 ~/1 | H/.5 E/.5 G/.5 G/.5 E_2 | G/.5 H/.5 D/.5 C/.5 H3_2 | G3 G3 G3_2 | C_3 ~/1',
+    begleitung: { akkorde: ['C', 'G', 'Em', 'G', 'Em', 'C', 'G5', 'C', 'C', 'G', 'Em', 'G', 'Em', 'C', 'G5', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-fahrradtour', titel: 'Fahrradtour', stufe: 2, kategorie: 'Pop und Ruhiges', tonleiter: 'Hindolam', bpm: 64, herkunft: 'Eigenkomposition',
+    melodie: 'Eb Bb3 Eb/1.5 C5/.5 | Eb5 C5 Eb5/1.5 Bb/.5 | C5/.5 Eb5/.5 C5/.5 C5/.5 Ab_2 | F C5 F_2 | C5 Eb5 C5 Eb5 | Bb C5 C5 F | Ab3/.5 Ab3/.5 Ab3 C Ab3 | Bb3 Ab3 C_2 | Eb Bb3 Eb/1.5 C5/.5 | Eb5 C5 Eb5/1.5 Bb/.5 | C5/.5 Eb5/.5 C5/.5 C5/.5 Ab_2 | C5_2 C5_2',
+    begleitung: { akkorde: ['Cm', 'Cm', 'Fm', 'Bb5', 'Cm', 'Fm', 'Ab', 'Cm', 'Cm', 'Cm', 'Fm', 'Cm'], trommel: 'ruhig' } },
+  { id: 'n-festumzug', titel: 'Festumzug', stufe: 2, kategorie: 'Kuthu-Stil', tonleiter: 'Dur', bpm: 64, herkunft: 'Eigenkomposition',
+    melodie: 'G/1.5 F/.5 G A | H/1.5 A/.5 H C5 | C5/1.5 G/.5 E_2 | D D D_2 | G/1.5 F/.5 G A | H/1.5 A/.5 H C5 | C5/1.5 G/.5 E_2 | C_2 ~/2 | C5/.5 D5/.5 E5/.5 D5/.5 E5_2 | D5/.5 E5/.5 D5/.5 E5/.5 A_2 | A A_2 F | G F G_2 | G/1.5 F/.5 G A | H/1.5 A/.5 H C5 | C5/1.5 G/.5 E_2 | C_2 ~/2',
+    begleitung: { akkorde: ['C', 'F', 'C', 'G', 'C', 'F', 'C', 'C', 'C', 'Dm', 'Em', 'G', 'C', 'F', 'C', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-laternenzug', titel: 'Laternenzug', stufe: 2, kategorie: 'Kuthu-Stil', tonleiter: 'Shivaranjani', bpm: 64, herkunft: 'Eigenkomposition',
+    melodie: 'C/1.5 C/.5 Eb Eb | Eb/1.5 Eb/.5 A A | A ~/1 G Eb | G_2 D_2 | G C5/.5 Eb/.5 Eb_2 | G C5/.5 Eb/.5 Eb_2 | Eb G C5/1.5 C5/.5 | C5_3 ~/1 | C/1.5 C/.5 Eb Eb | Eb/1.5 Eb/.5 A A | A ~/1 G Eb | G_2 D_2 | Eb_2 C Eb | G_2 D G | G/1.5 D/1.5 Eb | C_2 ~/2',
+    begleitung: { akkorde: ['C5', 'Cm', 'D5', 'G5', 'Cm', 'G5', 'Cm', 'Cm', 'C5', 'Cm', 'D5', 'G5', 'Cm', 'D5', 'G5', 'Cm'], trommel: 'kuthu-2' } },
+  { id: 'n-reisfeld-tanz', titel: 'Reisfeld-Tanz', stufe: 2, kategorie: 'Kuthu-Stil', tonleiter: 'Kalyani', bpm: 64, herkunft: 'Eigenkomposition',
+    melodie: 'E - E E | E ~/1 E E | C_2 A3/.5 A3/.5 A3 | H3_2 G3_2 | E ~/1 E E | E ~/1 E E | C_2 A3/.5 A3/.5 A3 | G3 C_3 | A/1.5 F#/.5 E A | A/1.5 F#/.5 E A | C5/.5 H/.5 H G G | F#_2 G_2 | E D/.5 E/.5 G_2 | E D/.5 E/.5 G_2 | D G A_2 | C5_3 ~/1',
+    begleitung: { akkorde: ['C', 'Hm', 'Am', 'G', 'C', 'Hm', 'Am', 'C', 'Am', 'D', 'C', 'G', 'C', 'D', 'G', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-trommelkreis', titel: 'Trommelkreis', stufe: 2, kategorie: 'Kuthu-Stil', tonleiter: 'Mayamalavagowla', bpm: 64, herkunft: 'Eigenkomposition',
+    melodie: 'E/1.5 H3/.5 C C | H3/1.5 C/.5 H3 Db | C Db/.5 F/.5 Ab_2 | G_2 ~/2 | Ab Db5 C5 H | Ab E F G | Ab_3 Ab | Db5_2 C5_2 | E/1.5 H3/.5 C C | H3/1.5 C/.5 H3 Db | C Db/.5 F/.5 Ab_2 | C5/.5 C5/.5 H C5_2',
+    begleitung: { akkorde: ['C', 'E', 'Fm', 'C5', 'Fm', 'C', 'Db', 'C', 'C', 'E', 'Fm', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-gewuerzmarkt', titel: 'Gewürzmarkt', stufe: 2, kategorie: 'Kuthu-Stil', tonleiter: 'Mohanam', bpm: 65, herkunft: 'Eigenkomposition',
+    melodie: 'G A C5/1.5 E5/.5 | G A C5/1.5 E5/.5 | D5 D5 A/.5 C5/.5 D5 | D5 D5 D5_2 | C5 ~/1 E5 D5 | C5 ~/1 E5 D5 | D5/.5 E5 E5/.5 D5_2 | C5_2 ~/2 | A/1.5 A/.5 C5 A | A/1.5 A/.5 C5 A | C5_2 E5_2 | D5_3 ~/1 | G A C5/1.5 E5/.5 | G A C5/1.5 E5/.5 | D5 D5 A/.5 C5/.5 D5 | C5 C5_3',
+    begleitung: { akkorde: ['C', 'G5', 'Am', 'G5', 'Am', 'C', 'G5', 'C', 'Am', 'G5', 'C', 'G5', 'C', 'G5', 'Am', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-muschelhorn', titel: 'Muschelhorn', stufe: 2, kategorie: 'Kuthu-Stil', tonleiter: 'Mohanam', bpm: 65, herkunft: 'Eigenkomposition',
+    melodie: 'C_2 A3_2 | C_2 D_2 | E E/.5 E/.5 A_2 | G_3 ~/1 | C_2 A3_2 | C_2 D_2 | E E/.5 E/.5 A_2 | A_2 C_2 | A_3 E | A_3 E | G A/.5 A/.5 G/.5 E/.5 A3 | G3/.5 G3/.5 A3 G3_2 | C/1.5 G3/.5 A3 C | D/1.5 A3/.5 C D | G/1.5 C/1.5 E | C D C_2',
+    begleitung: { akkorde: ['C', 'C', 'Am', 'G5', 'C', 'C', 'Am', 'C', 'Am', 'G5', 'C', 'G5', 'Am', 'C', 'G5', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-rundtanz', titel: 'Rundtanz', stufe: 2, kategorie: 'Kuthu-Stil', tonleiter: 'Dur', bpm: 65, herkunft: 'Eigenkomposition',
+    melodie: 'E/.5 F G/.5 G_2 | E/.5 F G/.5 G_2 | H_2 C5_2 | G/.5 A/.5 G G_2 | E/.5 F G/.5 G_2 | E/.5 F G/.5 G_2 | H_2 C5_2 | C5/.5 H/.5 H C5_2 | A A C5 C5 | G G H H | A H_2 H | H_2 G_2 | E/.5 F G/.5 G_2 | E/.5 F G/.5 G_2 | H_2 C5_2 | C5/.5 H/.5 H C5_2',
+    begleitung: { akkorde: ['C', 'Dm', 'Em', 'G', 'C', 'Dm', 'Em', 'C', 'F', 'C', 'Dm', 'G', 'C', 'Dm', 'Em', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-zuckerrohr', titel: 'Zuckerrohr', stufe: 2, kategorie: 'Kuthu-Stil', tonleiter: 'Hindolam', bpm: 65, herkunft: 'Eigenkomposition',
+    melodie: 'Eb Bb3 C - | Eb Ab F ~/1 | Eb ~/1 Eb Eb | Bb3 F_3 | Eb5 ~/1 C5 Eb5 | C5 ~/1 Bb C5 | Eb F F_2 | Eb_2 C_2 | Eb Bb3 C ~/1 | Eb Ab F ~/1 | Eb ~/1 Eb Eb | Bb3 F_3 | Eb5 ~/1 C5 Eb5 | C5 ~/1 Bb C5 | Eb F F_2 | Eb_2 C_2',
+    begleitung: { akkorde: ['Cm', 'Fm', 'Ab', 'Bb5', 'Ab', 'Bb5', 'Cm', 'Cm', 'Cm', 'Fm', 'Ab', 'Bb5', 'Ab', 'Bb5', 'Cm', 'Cm'], trommel: 'kuthu-2' } },
+  { id: 'n-erntetrommel', titel: 'Erntetrommel', stufe: 2, kategorie: 'Kuthu-Stil', tonleiter: 'Mayamalavagowla', bpm: 66, herkunft: 'Eigenkomposition',
+    melodie: 'E_2 E/.5 F/.5 G | E_2 E/.5 Db/.5 C | Db G G/1.5 Db/.5 | C_2 G_2 | G_2 Ab_2 | Ab_2 Ab_2 | C5 C5/.5 C5/.5 C5 Ab | C5/.5 Db5/.5 Db5 C5_2 | E_2 E/.5 F/.5 G | E_2 E/.5 Db/.5 C | Db G G/1.5 Db/.5 | C_2 G_2 | F/.5 F/.5 Db C Db | C/.5 H3/.5 E G Ab | E_2 F G | C5 H C5_2',
+    begleitung: { akkorde: ['C', 'Db', 'C', 'C5', 'C', 'E', 'Fm', 'C', 'C', 'Db', 'C', 'C5', 'Fm', 'C', 'Db', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-pixelwelt', titel: 'Pixelwelt', stufe: 2, kategorie: 'Pop und Ruhiges', tonleiter: 'Mohanam', bpm: 67, herkunft: 'Eigenkomposition',
+    melodie: 'G_2 C5_2 | G_2 D_2 | E C A3/.5 C/.5 E | C C D_2 | C5 A C5 D5 | D5 C5 D5 E5 | E5/.5 A/.5 C5/.5 A/.5 E A | C5 C5_3 | E G C5/.5 G/.5 A | G A D5/.5 A/.5 C5 | E5 E5/.5 D5/.5 G_2 | D E G_2 | G_2 C5_2 | G_2 D_2 | E C A3/.5 C/.5 E | G_2 C_2',
+    begleitung: { akkorde: ['C', 'G5', 'Am', 'G5', 'Am', 'C', 'G5', 'C', 'C', 'Am', 'C', 'G5', 'C', 'G5', 'Am', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-regenbogen', titel: 'Regenbogen', stufe: 2, kategorie: 'Pop und Ruhiges', tonleiter: 'Kalyani', bpm: 67, herkunft: 'Eigenkomposition',
+    melodie: 'E/1.5 F#/.5 G_2 | D/1.5 E/.5 F#_2 | A A A/.5 G/.5 F# | G_4 | E/1.5 F#/.5 G_2 | D/1.5 E/.5 F#_2 | A A A/.5 G/.5 F# | E/.5 G/.5 F# C_2 | G/.5 A/.5 H/.5 H/.5 G_2 | H/.5 A/.5 C5/.5 G/.5 G_2 | C5/.5 A/.5 F# A_2 | G_2 ~/2 | E_3 A | F#_3 H | G F# G H | C5_2 ~/2',
+    begleitung: { akkorde: ['C', 'Em', 'D', 'G', 'C', 'Em', 'D', 'C', 'C', 'Hm', 'Am', 'G', 'C', 'D', 'G', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-sternenhimmel', titel: 'Sternenhimmel', stufe: 2, kategorie: 'Pop und Ruhiges', tonleiter: 'Shivaranjani', bpm: 67, herkunft: 'Eigenkomposition',
+    melodie: 'C D_3 | Eb G_3 | A_3 G | Eb G G_2 | G/1.5 D/.5 G3_2 | G/1.5 D/.5 G3_2 | D_2 ~/1 Eb | G3_2 C_2 | C D_3 | Eb G_3 | A_3 G | Eb G G_2 | G/1.5 D/.5 G3_2 | G/1.5 D/.5 G3_2 | D_2 ~/1 Eb | G3_2 C_2',
+    begleitung: { akkorde: ['C5', 'Cm', 'D5', 'G5', 'Cm', 'D5', 'G5', 'Cm', 'C5', 'Cm', 'D5', 'G5', 'Cm', 'D5', 'G5', 'Cm'], trommel: 'ruhig' } },
+  { id: 'n-wolkenreise', titel: 'Wolkenreise', stufe: 2, kategorie: 'Pop und Ruhiges', tonleiter: 'Shivaranjani', bpm: 67, herkunft: 'Eigenkomposition',
+    melodie: 'C C Eb/1.5 G/.5 | A3 A3 D/1.5 Eb/.5 | G/.5 C/.5 D Eb_2 | D D D_2 | G_3 C5 | C5_3 G | A A C5 A | G A3 C5_2 | C C Eb/1.5 G/.5 | A3 A3 D/1.5 Eb/.5 | G/.5 C/.5 D Eb_2 | D D D_2 | C D/.5 C/.5 C_2 | C A3/.5 C/.5 C_2 | D G A C5 | C5_4',
+    begleitung: { akkorde: ['Cm', 'G5', 'Cm', 'G5', 'C5', 'Cm', 'D5', 'Cm', 'Cm', 'G5', 'Cm', 'G5', 'Cm', 'D5', 'G5', 'Cm'], trommel: 'ruhig' } },
+  { id: 'n-herbstblaetter', titel: 'Herbstblätter', stufe: 2, kategorie: 'Pop und Ruhiges', tonleiter: 'Dur', bpm: 68, herkunft: 'Eigenkomposition',
+    melodie: 'E_4 | G_4 | H_3 A | C5/.5 F/.5 G G_2 | E_4 | G_4 | H_3 A | C5_3 ~/1 | A/1.5 H/.5 E_2 | A/1.5 H/.5 E_2 | G_2 C5_2 | G_4 | E_4 | G_4 | H_3 A | C5_3 ~/1',
+    begleitung: { akkorde: ['C', 'Dm', 'Em', 'G', 'C', 'Dm', 'Em', 'C', 'Dm', 'G', 'C', 'G', 'C', 'Dm', 'Em', 'C'], trommel: 'ruhig' } },
+  { id: 'n-leuchtturm', titel: 'Leuchtturm', stufe: 2, kategorie: 'Pop und Ruhiges', tonleiter: 'Dur', bpm: 68, herkunft: 'Eigenkomposition',
+    melodie: 'G A_2 A | A F_2 A | G F/.5 E/.5 E_2 | C D D_2 | C5 E5/.5 E5/.5 E5_2 | C5 E5/.5 D5/.5 E5_2 | C5_3 D5 | E5_2 C5_2 | G A_2 A | A F_2 A | G F/.5 E/.5 E_2 | C D D_2 | C5 E5/.5 E5/.5 E5_2 | C5 E5/.5 D5/.5 E5_2 | C5_3 D5 | E5_2 C5_2',
+    begleitung: { akkorde: ['C', 'F', 'C', 'G', 'C', 'Am', 'F', 'C', 'C', 'F', 'C', 'G', 'C', 'Am', 'F', 'C'], trommel: 'ruhig' } },
+  { id: 'n-raketenstart', titel: 'Raketenstart', stufe: 2, kategorie: 'Pop und Ruhiges', tonleiter: 'Hamsadhwani', bpm: 68, herkunft: 'Eigenkomposition',
+    melodie: 'G C5 G/.5 C5/.5 H | H C5 H/.5 G/.5 E | G_2 E G | G G_3 | C5/.5 D5/.5 C5/.5 D5/.5 C5 D5 | C5/.5 D5/.5 C5/.5 D5/.5 C5 D5 | H_2 D5_2 | C5 C5_3 | G C5 G/.5 C5/.5 H | H C5 H/.5 G/.5 E | G_2 E G | G G_3 | E/.5 E/.5 E/.5 G/.5 E_2 | E/.5 E/.5 E/.5 D/.5 E_2 | G C5 G/.5 H/.5 H | C5_2 C5_2',
+    begleitung: { akkorde: ['C5', 'G', 'C', 'G', 'C', 'Em', 'G', 'C', 'C5', 'G', 'C', 'G', 'Em', 'C', 'G5', 'C'], trommel: 'ruhig' } },
+  { id: 'n-tiefsee', titel: 'Tiefsee', stufe: 2, kategorie: 'Pop und Ruhiges', tonleiter: 'Dur', bpm: 68, herkunft: 'Eigenkomposition',
+    melodie: 'C_3 F | H3_3 E | C_2 ~/1 H3 | A3 G3 G3_2 | C_3 F | H3_3 E | C_2 ~/1 H3 | C_2 ~/2 | E_2 ~/1 D | E_2 ~/1 G | E_2 G A | G_4 | C_3 E | H3_3 D | C G F_2 | E/.5 G/.5 F C_2',
+    begleitung: { akkorde: ['C', 'Am', 'F', 'G', 'C', 'Am', 'F', 'C', 'C', 'Dm', 'Em', 'G', 'C', 'Em', 'F', 'C'], trommel: 'ruhig' } },
+  /* ---------------- Stufe 3 ---------------- */
+  { id: 'n-voegel', titel: 'Alle Vögel sind schon da', stufe: 3, kategorie: 'Kinderlieder', tonleiter: 'Dur', bpm: 70, herkunft: 'traditionell (Melodie um 1837, Text Hoffmann von Fallersleben), gemeinfrei',
+    melodie: 'C+A3/1.5 E/.5 G C5 | A C5/.5 A/.5 G_2 | F/1.5 G/.5 E C | D_2 C_2 | G+E G F F | E G/.5 E/.5 D_2 | G G F F | E G/.5 E/.5 D_2 | C+A3/1.5 E/.5 G C5 | A C5/.5 A/.5 G_2 | F/1.5 G/.5 E C | D_2 C_2 | C+A3/1.5 E/.5 G C5 | A C5/.5 A/.5 G_2 | F/1.5 G/.5 E C | D_2 C_2 | G+E G F F | E G/.5 E/.5 D_2 | G G F F | E G/.5 E/.5 D_2 | C+A3/1.5 E/.5 G C5 | A C5/.5 A/.5 G_2 | F/1.5 G/.5 E C | D_2 C+A3/2',
+    begleitung: { akkorde: ['Am', 'C', 'C', 'C', 'C', 'G', 'C', 'G', 'Am', 'C', 'C', 'C', 'Am', 'C', 'C', 'C', 'C', 'G', 'C', 'G', 'Am', 'C', 'C', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-cancan', titel: 'Can-Can', stufe: 3, kategorie: 'Klassik', tonleiter: 'Dur', bpm: 70, herkunft: 'Jacques Offenbach (1819-1880), Orpheus in der Unterwelt, gemeinfrei',
+    melodie: 'C+A3 D/.5 F/.5 E/.5 D/.5 G | G G/.5 A/.5 E/.5 F/.5 D | D D/.5 F/.5 E/.5 D/.5 C/.5 C5/.5 | H/.5 A/.5 G/.5 F/.5 E/.5 D/.5 C | C+A3 D/.5 F/.5 E/.5 D/.5 G | G G/.5 A/.5 E/.5 F/.5 D | D D/.5 F/.5 E/.5 D/.5 C/.5 C5/.5 | H/.5 A/.5 G/.5 F/.5 E/.5 D/.5 C | C+A3 D/.5 F/.5 E/.5 D/.5 G | G G/.5 A/.5 E/.5 F/.5 D | D D/.5 F/.5 E/.5 D/.5 C/.5 C5/.5 | H/.5 A/.5 G/.5 F/.5 E/.5 D/.5 C | C+A3 D/.5 F/.5 E/.5 D/.5 G | G G/.5 A/.5 E/.5 F/.5 D | D D/.5 F/.5 E/.5 D/.5 C/.5 C5/.5 | H/.5 A/.5 G/.5 F/.5 E/.5 D/.5 C | C+A3 D/.5 F/.5 E/.5 D/.5 G | G G/.5 A/.5 E/.5 F/.5 D | D D/.5 F/.5 E/.5 D/.5 C/.5 C5/.5 | H/.5 A/.5 G/.5 F/.5 E/.5 D/.5 C+A3',
+    begleitung: { akkorde: ['Am', 'C', 'Dm', 'C', 'Am', 'C', 'Dm', 'C', 'Am', 'C', 'Dm', 'C', 'Am', 'C', 'Dm', 'C', 'Am', 'C', 'Dm', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-thisra', titel: 'Dreier-Wellen (karnatisch)', stufe: 3, kategorie: 'Tamilische Lieder', tonleiter: 'Mayamalavagowla', bpm: 70, herkunft: 'Alankaram im Tisra Eka Tala (1. und 2. Tempo), Purandara Dasa zugeschrieben, gemeinfrei',
+    melodie: 'C+C3 Db E Db | E F E F | G F G Ab | G Ab H Ab | H+C3 C5 C5 H | Ab H Ab G | Ab G F G | F E F E | Db+C3 E Db C | C/.5 Db/.5 E/.5 Db/.5 E/.5 F/.5 E/.5 F/.5 | G/.5 F/.5 G/.5 Ab/.5 G/.5 Ab/.5 H/.5 Ab/.5 | H/.5 C5/.5 C5/.5 H/.5 Ab/.5 H/.5 Ab/.5 G/.5 | Ab+C3/.5 G/.5 F/.5 G/.5 F/.5 E/.5 F/.5 E/.5 | Db/.5 E/.5 Db/.5 C/.5 C/.5 Db/.5 E/.5 Db/.5 | E/.5 F/.5 E/.5 F/.5 G/.5 F/.5 G/.5 Ab/.5 | G/.5 Ab/.5 H/.5 Ab/.5 H/.5 C5/.5 C5/.5 H/.5 | Ab+C3/.5 H/.5 Ab/.5 G/.5 Ab/.5 G/.5 F/.5 G/.5 | F/.5 E/.5 F/.5 E/.5 Db/.5 E/.5 Db/.5 C/.5 | C+C3/4',
+    begleitung: { akkorde: ['C5'], trommel: 'kuthu-2' } },
+  { id: 'n-kanon', titel: 'Kanon in D', stufe: 3, kategorie: 'Klassik', tonleiter: 'Dur', bpm: 70, herkunft: 'Johann Pachelbel (1653-1706), gemeinfrei',
+    melodie: 'E+C/2 D_2 | C_2 H3_2 | A3_2 G3_2 | A3_2 H3_2 | C+A3/2 H3_2 | A3_2 G3_2 | F3_2 E3_2 | F3_2 D3_2 | C+A3 E G F | E C E D | C A3 C G3 | F3 A3 G3 F3 | E+C/2 D_2 | C_2 H3_2 | A3_2 G3_2 | A3_2 H3_2 | C+A3/2 H3_2 | A3_2 G3_2 | F3_2 G3_2 | C+A3/4',
+    begleitung: { akkorde: ['C', 'C', 'C', 'G', 'F', 'C', 'C', 'Dm', 'C', 'C', 'C', 'F', 'C', 'C', 'C', 'G', 'F', 'C', 'C', 'C'], trommel: 'ruhig' } },
+  { id: 'n-weihnachtsmann', titel: 'Morgen kommt der Weihnachtsmann', stufe: 3, kategorie: 'Volks- und Winterlieder', tonleiter: 'Dur', bpm: 70, herkunft: 'traditionell (französische Weise, 18. Jh.; Text Hoffmann von Fallersleben), gemeinfrei',
+    melodie: 'C+A3 C G G | A A G_2 | F F E E | D D C_2 | G+E G F F | E E D_2 | G G F F | E E D_2 | C+A3 C G G | A A G_2 | F F E E | D D C_2 | C+A3 C G G | A A G_2 | F F E E | D D C_2 | G+E G F F | E E D_2 | G G F F | E E D_2 | C+A3 C G G | A A G_2 | F F E E | D D C+A3/2',
+    begleitung: { akkorde: ['C', 'C', 'C', 'C', 'C', 'G', 'C', 'G', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'G', 'C', 'G', 'C', 'C', 'C', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-dhruva', titel: 'Treppenwelle (karnatisch)', stufe: 3, kategorie: 'Tamilische Lieder', tonleiter: 'Mayamalavagowla', bpm: 70, herkunft: 'Alankaram im Dhruva Tala (2. Tempo, je Durchgang 1 Schlag Pause), Purandara Dasa zugeschrieben, gemeinfrei',
+    melodie: 'C+C3/.5 Db/.5 E/.5 F/.5 E/.5 Db/.5 C/.5 Db/.5 | E/.5 Db/.5 C/.5 Db/.5 E/.5 F/.5 ~/1 | Db/.5 E/.5 F/.5 G/.5 F/.5 E/.5 Db/.5 E/.5 | F/.5 E/.5 Db/.5 E/.5 F/.5 G/.5 ~/1 | E+C3/.5 F/.5 G/.5 Ab/.5 G/.5 F/.5 E/.5 F/.5 | G/.5 F/.5 E/.5 F/.5 G/.5 Ab/.5 ~/1 | F/.5 G/.5 Ab/.5 H/.5 Ab/.5 G/.5 F/.5 G/.5 | Ab/.5 G/.5 F/.5 G/.5 Ab/.5 H/.5 ~/1 | G+C3/.5 Ab/.5 H/.5 C5/.5 H/.5 Ab/.5 G/.5 Ab/.5 | H/.5 Ab/.5 G/.5 Ab/.5 H/.5 C5/.5 ~/1 | C5/.5 H/.5 Ab/.5 G/.5 Ab/.5 H/.5 C5/.5 H/.5 | Ab/.5 H/.5 C5/.5 H/.5 Ab/.5 G/.5 ~/1 | H+C3/.5 Ab/.5 G/.5 F/.5 G/.5 Ab/.5 H/.5 Ab/.5 | G/.5 Ab/.5 H/.5 Ab/.5 G/.5 F/.5 ~/1 | Ab/.5 G/.5 F/.5 E/.5 F/.5 G/.5 Ab/.5 G/.5 | F/.5 G/.5 Ab/.5 G/.5 F/.5 E/.5 ~/1 | G+C3/.5 F/.5 E/.5 Db/.5 E/.5 F/.5 G/.5 F/.5 | E/.5 F/.5 G/.5 F/.5 E/.5 Db/.5 ~/1 | F/.5 E/.5 Db/.5 C/.5 Db/.5 E/.5 F/.5 E/.5 | Db/.5 E/.5 F/.5 E/.5 Db/.5 C+C3/.5 ~/1',
+    begleitung: { akkorde: ['C5'], trommel: 'kuthu-2' } },
+  { id: 'n-bootslied-am-fluss-tamilisch', titel: 'Bootslied am Fluss (tamilisch)', stufe: 3, kategorie: 'Tamilische Lieder', tonleiter: 'Hindolam', bpm: 71, herkunft: 'Eigenkomposition im Stil einer tamilischen Volksweise',
+    melodie: 'Eb+C Bb3_3 | F3 C_3 | Eb_2 Ab Eb5 | Bb/1.5 C/.5 Bb_2 | C5+Ab Eb5_3 | C5 Eb_3 | Ab/1.5 Eb5/.5 Bb Bb | Eb_2 C5_2 | Eb+C Bb3_3 | F3 C_3 | Eb_2 Ab Eb5 | Bb/1.5 C/.5 Bb_2 | C5+Ab Eb5_3 | C5 Eb_3 | Ab/1.5 Eb5/.5 Bb Bb | Eb_2 C5_2 | C+Ab3/1.5 Eb/.5 Ab C5 | Eb5/1.5 C5/.5 Eb5 F | Bb3_2 C_2 | Bb3 F3 Bb3_2 | Eb+C Bb3_3 | F3 C_3 | Eb_2 Ab Eb5 | C5_2 C5+Ab/2',
+    begleitung: { akkorde: ['Cm', 'Ab', 'Fm', 'Bb5', 'Cm', 'Cm', 'Fm', 'Cm', 'Cm', 'Ab', 'Fm', 'Bb5', 'Cm', 'Cm', 'Fm', 'Cm', 'Fm', 'Cm', 'Bb5', 'Bb5', 'Cm', 'Ab', 'Fm', 'Cm'], trommel: 'ruhig' } },
+  { id: 'n-lampenfest-lied-tamilisch', titel: 'Lampenfest-Lied (tamilisch)', stufe: 3, kategorie: 'Tamilische Lieder', tonleiter: 'Kalyani', bpm: 71, herkunft: 'Eigenkomposition im Stil einer tamilischen Volksweise',
+    melodie: 'E+C D E/1.5 C/.5 | E F# E/1.5 G/.5 | E_2 A3_2 | H3_2 G3_2 | E+C D E/1.5 C/.5 | E F# E/1.5 G/.5 | E_2 A3_2 | C/.5 F#3/.5 G3 C_2 | A+F#/2 H C5 | A_2 G F# | G A/.5 D5/.5 C5_2 | A D5_3 | E+C D E/1.5 C/.5 | E F# E/1.5 G/.5 | E_2 A3_2 | C/.5 F#3/.5 G3 C_2 | F#+D G D_2 | E F# C_2 | A C5 D5 G | G_4 | E+C D E/1.5 C/.5 | E F# E/1.5 G/.5 | E_2 A3_2 | C/.5 F#3/.5 G3 C+A3/2',
+    begleitung: { akkorde: ['C', 'Hm', 'Am', 'G', 'C', 'Hm', 'Am', 'C', 'Am', 'D', 'C', 'D', 'C', 'Hm', 'Am', 'C', 'Hm', 'Em', 'D', 'G', 'C', 'Hm', 'Am', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-synkopen-uebung', titel: 'Synkopen-Übung', stufe: 3, kategorie: 'Übungen', tonleiter: 'Mohanam', bpm: 71, herkunft: 'Eigenkomposition (Übung)',
+    melodie: 'C/.5 D E/.5 G G | A/.5 G E/.5 D_2 | E/.5 G A/.5 C5 A | G_2 ~/2 | C/1.5 D/1.5 E | G/1.5 E/1.5 D | C/.5 D E/.5 D C | D_2 ~/2 | G/.5 A G/.5 E D | E/.5 G E/.5 D_2 | C5/.5 A G/.5 E G | A_2 ~/2 | A/1.5 G/1.5 E | D/1.5 E/1.5 G | E/.5 D C/.5 D E | C+G/2 ~/2 | C/.5 D E/.5 G G | A/.5 G E/.5 D_2 | E/.5 D C/.5 D E | C+G/4',
+    begleitung: { akkorde: ['C', 'G5', 'Am', 'C', 'C', 'C', 'C', 'G5', 'C', 'G5', 'C', 'Am', 'Am', 'G5', 'G5', 'C', 'C', 'G5', 'G5', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-tempelfest-tanz', titel: 'Tempelfest-Tanz', stufe: 3, kategorie: 'Kuthu-Stil', tonleiter: 'Dur', bpm: 71, herkunft: 'Eigenkomposition',
+    melodie: 'C+A3/.5 F F/.5 C C | C/.5 G3 G3/.5 C C | G/1.5 C5/1.5 A | G_2 ~/2 | C+A3/.5 F F/.5 C C | C/.5 G3 G3/.5 C C | G/1.5 C5/1.5 A | C5 C5 C5_2 | A+F A A G | C5 C5 C5 H | H/.5 A/.5 F A/.5 H/.5 A | H G_3 | C+A3/.5 F F/.5 C C | C/.5 G3 G3/.5 C C | G/1.5 C5/1.5 A | C5 C5 C5_2 | C+A3/3 F3 | D_3 G3 | A3/.5 H3/.5 F A/.5 D5/.5 D5 | C5/1.5 A/.5 D5_2 | C+A3/.5 F F/.5 C C | C/.5 G3 G3/.5 C C | G/1.5 C5/1.5 A | C5 C5 C5+A/2',
+    begleitung: { akkorde: ['C', 'Dm', 'Em', 'G', 'C', 'Dm', 'Em', 'C', 'Am', 'Dm', 'G', 'G', 'C', 'Dm', 'Em', 'C', 'C', 'G', 'Am', 'G', 'C', 'Dm', 'Em', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-zwei-haende-zugleich', titel: 'Zwei Hände zugleich', stufe: 3, kategorie: 'Übungen', tonleiter: 'Dur', bpm: 71, herkunft: 'Eigenkomposition (Übung)',
+    melodie: 'C+E E G G | C+E E G_2 | D+F F A A | D+F F A_2 | E+G G H H | E+G G C5_2 | F+A A G F | E+G/2 ~/2 | G+C G E C | A+C A F_2 | G+H G E D | C+E/2 ~/2 | C E G C5 | C5+E5/2 G_2 | A F D H3 | C+G/2 ~/2 | E+C D E F | G+E A G_2 | F+D E D H3 | C+G/4',
+    begleitung: { akkorde: ['C', 'C', 'Dm', 'Dm', 'Em', 'C', 'F', 'C', 'C', 'F', 'Em', 'C', 'C', 'C', 'Dm', 'C', 'C', 'C', 'Dm', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-feuerwerk-am-fluss', titel: 'Feuerwerk am Fluss', stufe: 3, kategorie: 'Kuthu-Stil', tonleiter: 'Kalyani', bpm: 72, herkunft: 'Eigenkomposition',
+    melodie: 'E+C H G A | G D5 H C5 | E5 C5 A/1.5 C5/.5 | F# H D5_2 | E+C H G A | G D5 H C5 | E5 C5 A/1.5 C5/.5 | C5_3 ~/1 | G+E H/.5 E5/.5 H A | F# C5/.5 H/.5 C5 D5 | G_2 D/.5 D/.5 A | G G G_2 | G+E H/.5 E5/.5 H A | F# C5/.5 H/.5 C5 D5 | G_2 D/.5 D/.5 A | G/1.5 E/.5 C5_2 | G+E/2 H/.5 A/.5 E5 | D5_2 A/.5 A/.5 F# | E/.5 F#/.5 G/.5 D E/.5 D | D D D_2 | E+C H G A | G D5 H C5 | E5 C5 A/1.5 C5/.5 | C5+A/3 ~/1',
+    begleitung: { akkorde: ['C', 'Hm', 'Am', 'D', 'C', 'Hm', 'Am', 'C', 'C', 'D', 'G', 'G', 'C', 'D', 'G', 'C', 'G', 'D', 'C', 'D', 'C', 'Hm', 'Am', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-hochzeitstrommel', titel: 'Hochzeitstrommel', stufe: 3, kategorie: 'Kuthu-Stil', tonleiter: 'Hamsadhwani', bpm: 72, herkunft: 'Eigenkomposition',
+    melodie: 'G+E/.5 E C/.5 E G | G/.5 H D5/.5 H G | H E G H | G_2 ~/2 | C5+G ~/1 G C5 | G ~/1 H D5 | E5/.5 G H/.5 G_2 | C5 C5_3 | G+E/.5 E C/.5 E G | G/.5 H D5/.5 H G | H E G H | G_2 ~/2 | C5+G ~/1 G C5 | G ~/1 H D5 | E5/.5 G H/.5 G_2 | C5 C5_3 | H+G/1.5 D5/.5 H_2 | H/1.5 D5/.5 H_2 | G D G C5 | D5_4 | G+E/.5 E C/.5 E G | G/.5 H D5/.5 H G | H E G H | C5/.5 H/.5 E C5+G/2',
+    begleitung: { akkorde: ['C', 'Em', 'G', 'G', 'C5', 'G', 'C', 'C', 'C', 'Em', 'G', 'G', 'C5', 'G', 'C', 'C', 'Em', 'C', 'G5', 'G', 'C', 'Em', 'G', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-sonnenfest', titel: 'Sonnenfest', stufe: 3, kategorie: 'Kuthu-Stil', tonleiter: 'Mayamalavagowla', bpm: 72, herkunft: 'Eigenkomposition',
+    melodie: 'C+Ab3/1.5 G3/1.5 Ab3 | Ab3/1.5 G3/1.5 F3 | G3/.5 F3/.5 G3/.5 E3/.5 G3_2 | G3_2 ~/2 | G+E/1.5 E/.5 G G | H/1.5 G/.5 H H | Db5/1.5 F/.5 Ab/1.5 Ab/.5 | E G C5_2 | F+Db/.5 E/.5 C C Db | G/.5 F/.5 Db Db E | F Ab E/.5 H3/.5 Ab3 | C/.5 C/.5 E G3_2 | C+Ab3/1.5 G3/1.5 Ab3 | Ab3/1.5 G3/1.5 F3 | G3/.5 F3/.5 G3/.5 E3/.5 G3_2 | C_4 | G+E/1.5 E/.5 G G | H/1.5 G/.5 H H | Db5/1.5 F/.5 Ab/1.5 Ab/.5 | E G C5+Ab/2',
+    begleitung: { akkorde: ['C', 'Db', 'C', 'C5', 'C', 'Fm', 'Db', 'C', 'Fm', 'C', 'Db', 'C5', 'C', 'Db', 'C', 'C', 'C', 'Fm', 'Db', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-tanzende-fuesse', titel: 'Tanzende Füße', stufe: 3, kategorie: 'Kuthu-Stil', tonleiter: 'Shivaranjani', bpm: 72, herkunft: 'Eigenkomposition',
+    melodie: 'Eb+C D_2 Eb | C D_2 A3 | G/.5 A G/.5 C_2 | D D D_2 | D5+A/.5 Eb C5/.5 D5_2 | D5/.5 Eb C5/.5 D5_2 | D5_3 D5 | Eb G C5_2 | Eb+C D_2 Eb | C D_2 A3 | G/.5 A G/.5 C_2 | D D D_2 | C+A3 C/.5 D/.5 C/.5 Eb/.5 A | D D/.5 Eb/.5 D/.5 G/.5 C5 | Eb G3 Eb C5 | C5_4 | D5+A/.5 Eb C5/.5 D5_2 | D5/.5 Eb C5/.5 D5_2 | D5_3 D5 | D5 A D5_2 | Eb+C D_2 Eb | C D_2 A3 | G/.5 A G/.5 C_2 | C+A3/2 ~/2',
+    begleitung: { akkorde: ['Cm', 'D5', 'G5', 'G5', 'G5', 'Cm', 'D5', 'Cm', 'Cm', 'D5', 'G5', 'G5', 'Cm', 'G5', 'Cm', 'Cm', 'G5', 'Cm', 'D5', 'G5', 'Cm', 'D5', 'G5', 'Cm'], trommel: 'kuthu-2' } },
+  { id: 'n-wirbelwind', titel: 'Wirbelwind', stufe: 3, kategorie: 'Kuthu-Stil', tonleiter: 'Mohanam', bpm: 72, herkunft: 'Eigenkomposition',
+    melodie: 'G+E/.5 C5 A/.5 D_2 | A/.5 D5 C5/.5 E_2 | E G/.5 C5/.5 E5 C5 | D5_2 ~/2 | G+E/.5 C5 A/.5 D_2 | A/.5 D5 C5/.5 E_2 | E G/.5 C5/.5 E5 C5 | C5/.5 G/.5 A3 C5_2 | C5+A/1.5 A/1.5 G | C5/1.5 A/1.5 G | E5 D5 C5 C5 | D5_4 | G+E/.5 C5 A/.5 D_2 | A/.5 D5 C5/.5 E_2 | E G/.5 C5/.5 E5 C5 | C5/.5 G/.5 A3 C5_2 | C5+A/1.5 A/1.5 G | C5/1.5 A/1.5 G | E5 D5 C5 C5 | G_2 C5+A/2',
+    begleitung: { akkorde: ['C', 'C', 'Am', 'G5', 'C', 'C', 'Am', 'C', 'C', 'Am', 'C', 'G5', 'C', 'C', 'Am', 'C', 'C', 'Am', 'C', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-dorfplatz-tanz', titel: 'Dorfplatz-Tanz', stufe: 3, kategorie: 'Kuthu-Stil', tonleiter: 'Mayamalavagowla', bpm: 73, herkunft: 'Eigenkomposition',
+    melodie: 'E+Db/1.5 Ab/.5 G Ab | Ab/1.5 E5/.5 C5 Db5 | Ab Db/.5 E/.5 F_2 | C5_2 G_2 | G+E H_2 H | G H_2 H | C5 Db5/.5 C5/.5 C5_2 | C5_2 ~/2 | E+Db/1.5 Ab/.5 G Ab | Ab/1.5 E5/.5 C5 Db5 | Ab Db/.5 E/.5 F_2 | C5_2 G_2 | E+Db C/.5 F/.5 G E | G E/.5 Ab/.5 H G | E/.5 G/.5 G F/.5 C/.5 H3 | H3 C_3 | G+E H_2 H | G H_2 H | C5 Db5/.5 C5/.5 C5_2 | G_2 ~/2 | E+Db/1.5 Ab/.5 G Ab | Ab/1.5 E5/.5 C5 Db5 | Ab Db/.5 E/.5 F_2 | C+Ab3/2 ~/2',
+    begleitung: { akkorde: ['C', 'Fm', 'Db', 'C5', 'C', 'E', 'Fm', 'C', 'C', 'Fm', 'Db', 'C5', 'C', 'Db', 'C', 'C', 'C', 'E', 'Fm', 'C5', 'C', 'Fm', 'Db', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-glockenschlag', titel: 'Glockenschlag', stufe: 3, kategorie: 'Kuthu-Stil', tonleiter: 'Mohanam', bpm: 73, herkunft: 'Eigenkomposition',
+    melodie: 'G+E/2 E5/.5 E5/.5 C5 | G_2 A3/.5 A3/.5 D | D5 D5 C5/.5 C5/.5 C5 | D5_4 | G+E/2 E5/.5 E5/.5 C5 | G_2 A3/.5 A3/.5 D | D5 D5 C5/.5 C5/.5 C5 | C5/1.5 C5/.5 C5_2 | C5+A/.5 A/.5 C5 E5/.5 C5/.5 D5 | C5/.5 D5/.5 C5 G/.5 C5/.5 A | E5/.5 C5/.5 E5 E5 C5 | G C5 D5_2 | C5+A/.5 A/.5 C5 E5/.5 C5/.5 D5 | C5/.5 D5/.5 C5 G/.5 C5/.5 A | E5/.5 C5/.5 E5 E5 C5 | D5 A C5_2 | E+C/.5 C/.5 E/.5 G/.5 E_2 | E/.5 A/.5 E/.5 D/.5 E_2 | C_3 E | D G D_2 | G+E/2 E5/.5 E5/.5 C5 | G_2 A3/.5 A3/.5 D | D5 D5 C5/.5 C5/.5 C5 | C5/1.5 C5/.5 C5+A/2',
+    begleitung: { akkorde: ['C', 'C', 'Am', 'G5', 'C', 'C', 'Am', 'C', 'C', 'G5', 'Am', 'G5', 'C', 'G5', 'Am', 'C', 'Am', 'G5', 'C', 'G5', 'C', 'C', 'Am', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-goldener-wagen', titel: 'Goldener Wagen', stufe: 3, kategorie: 'Kuthu-Stil', tonleiter: 'Hindolam', bpm: 73, herkunft: 'Eigenkomposition',
+    melodie: 'Eb+C - Ab C5 | F ~/1 C5 Bb | C5 C/.5 Ab/.5 Eb/.5 Ab/.5 Bb | Bb_2 ~/2 | Ab+F Ab3 Eb C | Ab Ab3 Eb C | Eb_2 C/.5 C/.5 C | C Ab C_2 | Eb+C ~/1 Ab C5 | F ~/1 C5 Bb | C5 C/.5 Ab/.5 Eb/.5 Ab/.5 Bb | Bb_2 ~/2 | Ab+F Ab3 Eb C | Ab Ab3 Eb C | Eb_2 C/.5 C/.5 C | C Ab C_2 | C+Ab3/.5 F/.5 Eb/.5 F/.5 Bb_2 | C/.5 F/.5 Eb/.5 F/.5 Bb_2 | Eb_2 F_2 | F_2 ~/2 | Eb+C ~/1 Ab C5 | F ~/1 C5 Bb | C5 C/.5 Ab/.5 Eb/.5 Ab/.5 Bb | C5/1.5 Ab/.5 C5+Ab/2',
+    begleitung: { akkorde: ['Cm', 'Fm', 'Ab', 'Bb5', 'Ab', 'Bb5', 'Cm', 'Cm', 'Cm', 'Fm', 'Ab', 'Bb5', 'Ab', 'Bb5', 'Cm', 'Cm', 'Fm', 'Cm', 'Bb5', 'Bb5', 'Cm', 'Fm', 'Ab', 'Cm'], trommel: 'kuthu-2' } },
+  { id: 'n-trommel-und-glocke', titel: 'Trommel und Glocke', stufe: 3, kategorie: 'Kuthu-Stil', tonleiter: 'Dur', bpm: 73, herkunft: 'Eigenkomposition',
+    melodie: 'E+C/.5 E F/.5 G/.5 E/.5 E | E/.5 E F/.5 G/.5 E/.5 E | E C/.5 H3/.5 C/.5 D/.5 D | D_2 D_2 | E+C/.5 E F/.5 G/.5 E/.5 E | E/.5 E F/.5 G/.5 E/.5 E | E C/.5 H3/.5 C/.5 D/.5 D | C_2 C_2 | G+E/1.5 A/.5 E D | G/1.5 F/.5 H C5 | D5/.5 D5 E5/.5 D5_2 | D5_2 ~/2 | E+C/.5 E F/.5 G/.5 E/.5 E | E/.5 E F/.5 G/.5 E/.5 E | E C/.5 H3/.5 C/.5 D/.5 D | C_2 C_2 | E+C/1.5 H/1.5 H | G/1.5 D5/1.5 D5 | E5 H/.5 C5/.5 H/.5 E5/.5 D5 | G_2 D5_2 | E+C/.5 E F/.5 G/.5 E/.5 E | E/.5 E F/.5 G/.5 E/.5 E | E C/.5 H3/.5 C/.5 D/.5 D | C_2 C+A3/2',
+    begleitung: { akkorde: ['C', 'G', 'Am', 'G', 'C', 'G', 'Am', 'C', 'C', 'Am', 'F', 'G', 'C', 'G', 'Am', 'C', 'C', 'Dm', 'Em', 'G', 'C', 'G', 'Am', 'C'], trommel: 'kuthu-1' } },
+  { id: 'n-neonstadt', titel: 'Neonstadt', stufe: 3, kategorie: 'Pop und Ruhiges', tonleiter: 'Dur', bpm: 74, herkunft: 'Eigenkomposition',
+    melodie: 'C+A3/.5 E/.5 C G3 F3 | H3/.5 D/.5 H3 F3 E3 | F3_3 A3 | G3 C G3_2 | G+E/1.5 H/.5 D5/.5 D5/.5 A | G/1.5 H/.5 D5/.5 D5/.5 A | C5/.5 H/.5 C5/.5 H/.5 G_2 | C5_2 ~/2 | C+A3/.5 E/.5 C G3 F3 | H3/.5 D/.5 H3 F3 E3 | F3_3 A3 | G3 C G3_2 | G+E/1.5 H/.5 D5/.5 D5/.5 A | G/1.5 H/.5 D5/.5 D5/.5 A | C5/.5 H/.5 C5/.5 H/.5 G_2 | C5_2 ~/2 | C+A3 E D/.5 E/.5 F | E G F/.5 G/.5 A | F/.5 H3/.5 E/.5 F/.5 D_2 | D_2 ~/2 | C+A3/.5 E/.5 C G3 F3 | H3/.5 D/.5 H3 F3 E3 | F3_3 A3 | E3_2 C+A3/2',
+    begleitung: { akkorde: ['C', 'Em', 'F', 'G', 'C', 'F', 'C', 'C', 'C', 'Em', 'F', 'G', 'C', 'F', 'C', 'C', 'F', 'C', 'Dm', 'G', 'C', 'Em', 'F', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-wellenrauschen', titel: 'Wellenrauschen', stufe: 3, kategorie: 'Pop und Ruhiges', tonleiter: 'Mohanam', bpm: 74, herkunft: 'Eigenkomposition',
+    melodie: 'G+E/2 C_2 | A_2 D_2 | G/1.5 D/.5 G A | E G G_2 | G+E/2 C_2 | A_2 D_2 | G/1.5 D/.5 G A | C5_2 C5_2 | C5+A/1.5 G/.5 C5 D5 | C5/1.5 G/.5 C5 D5 | C5_3 D5 | G C5 D5_2 | G+E/2 C_2 | A_2 D_2 | G/1.5 D/.5 G A | C5_2 C5_2 | C5+A/1.5 G/.5 C5 D5 | C5/1.5 G/.5 C5 D5 | C5_3 D5 | E/.5 A/.5 C C5+A/2',
+    begleitung: { akkorde: ['C5', 'D5', 'C5', 'G5', 'C5', 'D5', 'C5', 'C', 'C', 'C', 'Am', 'G5', 'C5', 'D5', 'C5', 'C', 'C', 'C', 'Am', 'C'], trommel: 'ruhig' } },
+  { id: 'n-weltraumspaziergang', titel: 'Weltraumspaziergang', stufe: 3, kategorie: 'Pop und Ruhiges', tonleiter: 'Dur', bpm: 74, herkunft: 'Eigenkomposition',
+    melodie: 'G+E D_3 | H3 H3_3 | C_4 | D_3 ~/1 | G+E D_3 | H3 H3_3 | C_4 | D/1.5 H3/.5 C_2 | C5+A/1.5 D5/.5 C5_2 | H/1.5 C5/.5 H_2 | C5_2 E5_2 | D5 H D5_2 | C5+A/1.5 D5/.5 C5_2 | H/1.5 C5/.5 H_2 | C5_2 E5_2 | H_2 C5_2 | F+D/3 D | E_3 C | E A_3 | H_2 G_2 | G+E D_3 | H3 H3_3 | C_4 | D/1.5 H3/.5 C+A3/2',
+    begleitung: { akkorde: ['C', 'G', 'Am', 'G', 'C', 'G', 'Am', 'C', 'Am', 'F', 'C', 'G', 'Am', 'F', 'C', 'C', 'F', 'G', 'Em', 'G', 'C', 'G', 'Am', 'C'], trommel: 'ruhig' } },
+  { id: 'n-zugfahrt', titel: 'Zugfahrt', stufe: 3, kategorie: 'Pop und Ruhiges', tonleiter: 'Hamsadhwani', bpm: 74, herkunft: 'Eigenkomposition',
+    melodie: 'G+E/.5 C5 E/.5 G_2 | D5/.5 H E/.5 D_2 | E/1.5 G/.5 C5/1.5 C5/.5 | D_2 D5_2 | C5+G D5/.5 C5/.5 C5_2 | E5 D5/.5 D5/.5 G_2 | D5/1.5 C5/.5 G/1.5 C5/.5 | E5_2 C5_2 | G+E/.5 C5 E/.5 G_2 | D5/.5 H E/.5 D_2 | E/1.5 G/.5 C5/1.5 C5/.5 | D_2 D5_2 | E+C/2 ~/1 E | E_2 ~/1 E | G H D5_2 | C5_2 C5_2 | C5+G D5/.5 C5/.5 C5_2 | E5 D5/.5 D5/.5 G_2 | D5/1.5 C5/.5 G/1.5 C5/.5 | D5_4 | G+E/.5 C5 E/.5 G_2 | D5/.5 H E/.5 D_2 | E/1.5 G/.5 C5/1.5 C5/.5 | C/.5 D/.5 D5 C5+G/2',
+    begleitung: { akkorde: ['C5', 'G', 'C', 'G', 'C', 'Em', 'G', 'C', 'C5', 'G', 'C', 'G', 'Em', 'C', 'G5', 'C', 'C', 'Em', 'G', 'G', 'C5', 'G', 'C', 'C'], trommel: 'kuthu-2' } },
+  { id: 'n-abendrot', titel: 'Abendrot', stufe: 3, kategorie: 'Pop und Ruhiges', tonleiter: 'Shivaranjani', bpm: 75, herkunft: 'Eigenkomposition',
+    melodie: 'G+Eb D G/1.5 D/.5 | A Eb A/1.5 Eb/.5 | D/.5 A/.5 Eb5 A C5 | D5 G D5_2 | C5+A Eb_2 G | C5 Eb_2 G | G A D5 Eb5 | C5 C5 C5_2 | G+Eb D G/1.5 D/.5 | A Eb A/1.5 Eb/.5 | D/.5 A/.5 Eb5 A C5 | D5 G D5_2 | C5+A Eb_2 G | C5 Eb_2 G | G A D5 Eb5 | C5 C5 C5_2 | G+Eb/1.5 D/.5 G/1.5 C5/.5 | A/1.5 Eb/.5 A/1.5 D5/.5 | C5 G/.5 A/.5 C5_2 | D5 Eb5 D5_2 | G+Eb D G/1.5 D/.5 | A Eb A/1.5 Eb/.5 | D/.5 A/.5 Eb5 A C5 | C5 D5 C5+A/2',
+    begleitung: { akkorde: ['C5', 'Cm', 'D5', 'G5', 'Cm', 'D5', 'G5', 'Cm', 'C5', 'Cm', 'D5', 'G5', 'Cm', 'D5', 'G5', 'Cm', 'Cm', 'G5', 'Cm', 'G5', 'C5', 'Cm', 'D5', 'Cm'], trommel: 'kuthu-2' } },
+  { id: 'n-kristallhoehle', titel: 'Kristallhöhle', stufe: 3, kategorie: 'Pop und Ruhiges', tonleiter: 'Shivaranjani', bpm: 75, herkunft: 'Eigenkomposition',
+    melodie: 'G+Eb/.5 Eb/.5 G/.5 G/.5 C5/.5 G/.5 A | G/.5 A/.5 G/.5 G/.5 D/.5 G/.5 Eb | A_2 A Eb | A/.5 A/.5 Eb D_2 | C5+A Eb5 C5/1.5 Eb5/.5 | C5 Eb5 C5/1.5 Eb5/.5 | D5/.5 Eb5/.5 Eb5/.5 Eb5/.5 D5 A | C5_4 | G+Eb D/.5 G/.5 C5/.5 G/.5 D | G C5/.5 G/.5 D/.5 G/.5 C5 | G/.5 C5/.5 G/.5 C5/.5 Eb5/.5 C5/.5 G/.5 D/.5 | D_3 ~/1 | G+Eb/.5 Eb/.5 G/.5 G/.5 C5/.5 G/.5 A | G/.5 A/.5 G/.5 G/.5 D/.5 G/.5 Eb | A_2 A Eb | C5/.5 A/.5 C5 C_2 | C5+A Eb5 C5/1.5 Eb5/.5 | C5 Eb5 C5/1.5 Eb5/.5 | D5/.5 Eb5/.5 Eb5/.5 Eb5/.5 D5 A | C5+A/4',
+    begleitung: { akkorde: ['C5', 'Cm', 'D5', 'G5', 'Cm', 'D5', 'G5', 'Cm', 'Cm', 'G5', 'Cm', 'G5', 'C5', 'Cm', 'D5', 'Cm', 'Cm', 'D5', 'G5', 'Cm'], trommel: 'kuthu-2' } },
+  { id: 'n-mondlicht', titel: 'Mondlicht', stufe: 3, kategorie: 'Pop und Ruhiges', tonleiter: 'Mohanam', bpm: 75, herkunft: 'Eigenkomposition',
+    melodie: 'C+A3/2 G3/1.5 G/.5 | D_2 A3/1.5 A/.5 | E A_3 | G_4 | C+A3/2 G3/1.5 G/.5 | D_2 A3/1.5 A/.5 | E A_3 | D5 C5 C5_2 | G+E/3 E | C5_3 A | E_2 G_2 | A/1.5 D5/.5 G_2 | G+E/3 E | C5_3 A | E_2 G_2 | C5_2 C5_2 | C+A3/2 E/1.5 C/.5 | D_2 G/1.5 D/.5 | C_2 ~/1 G | G_4 | C+A3/2 G3/1.5 G/.5 | D_2 A3/1.5 A/.5 | E A_3 | D5 C5 C5+A/2',
+    begleitung: { akkorde: ['C', 'C', 'Am', 'G5', 'C', 'C', 'Am', 'C', 'C', 'Am', 'C', 'G5', 'C', 'Am', 'C', 'C', 'Am', 'G5', 'C', 'G5', 'C', 'C', 'Am', 'C'], trommel: 'ruhig' } },
+  { id: 'n-nordlicht', titel: 'Nordlicht', stufe: 3, kategorie: 'Pop und Ruhiges', tonleiter: 'Kalyani', bpm: 75, herkunft: 'Eigenkomposition',
+    melodie: 'C+A3/3 F# | E_3 A | F#_2 D/1.5 E/.5 | D D_3 | C+A3/3 F# | E_3 A | F#_2 D/1.5 E/.5 | A3_2 C_2 | A+F#/4 | A_4 | C5 A_3 | G_2 G_2 | C+A3/3 F# | E_3 A | F#_2 D/1.5 E/.5 | A3_2 C_2 | D+H3 E_3 | A H_3 | E_2 ~/1 C | D_3 ~/1 | C+A3/3 F# | E_3 A | F#_2 D/1.5 E/.5 | A3_2 C+A3/2',
+    begleitung: { akkorde: ['C', 'Em', 'D', 'D', 'C', 'Em', 'D', 'C', 'Am', 'D', 'C', 'G', 'C', 'Em', 'D', 'C', 'G', 'D', 'C', 'D', 'C', 'Em', 'D', 'C'], trommel: 'ruhig' } },
+  { id: 'n-schneeflockentanz', titel: 'Schneeflockentanz', stufe: 3, kategorie: 'Pop und Ruhiges', tonleiter: 'Hindolam', bpm: 76, herkunft: 'Eigenkomposition',
+    melodie: 'Eb+C/.5 Ab/.5 F C/.5 Bb3/.5 Ab3 | C/.5 Ab3/.5 C C/.5 Ab3/.5 Bb3 | Ab3/1.5 Bb3/1.5 Eb | F Eb F_2 | C5+Ab/2 Ab Bb | C5_2 Ab Bb | C5 Eb5/.5 C5/.5 F_2 | Eb/1.5 Bb3/.5 C_2 | Eb+C/.5 Ab/.5 F C/.5 Bb3/.5 Ab3 | C/.5 Ab3/.5 C C/.5 Ab3/.5 Bb3 | Ab3/1.5 Bb3/1.5 Eb | F Eb F_2 | Eb+C/3 Ab3 | F_3 Bb3 | Eb F_2 Ab | C5/.5 Ab/.5 Eb5 C5_2 | C5+Ab/2 Ab Bb | C5_2 Ab Bb | C5 Eb5/.5 C5/.5 F_2 | Bb_2 F_2 | Eb+C/.5 Ab/.5 F C/.5 Bb3/.5 Ab3 | C/.5 Ab3/.5 C C/.5 Ab3/.5 Bb3 | Ab3/1.5 Bb3/1.5 Eb | Eb_2 C+Ab3/2',
+    begleitung: { akkorde: ['Cm', 'Cm', 'Fm', 'Bb5', 'Fm', 'Cm', 'Bb5', 'Cm', 'Cm', 'Cm', 'Fm', 'Bb5', 'Ab', 'Bb5', 'Cm', 'Cm', 'Fm', 'Cm', 'Bb5', 'Bb5', 'Cm', 'Cm', 'Fm', 'Cm'], trommel: 'kuthu-2' } }
+];
+if (typeof LIEDER_NEU !== 'undefined') LIEDER_NEU.forEach(l => LIEDER.push(l));
 
 /* Lieder im alten Format aus Version 1 ({ name, notes:['C4',...] }) koennen
    hier eingetragen werden; sie werden automatisch umgewandelt (jede Note 1 Schlag). */
@@ -824,7 +1247,10 @@ $$('[data-ico]').forEach(el => { el.innerHTML = ICON[el.dataset.ico] || ''; });
 /* ---------------- Einstellungen und Fortschritt (localStorage) ---------------- */
 const STORE_KEY = 'krishnaSpiele.v2', STORE_V1 = 'krishnaSpiele.v1';
 const BPM_MIN = 30, BPM_MAX = 120;
-const DEFAULTS = { tempo: 4, volume: 60, liedId: 'entchen', bpm: 44, drumBg: false, rhythm: 0,
+/* Tempo in Prozent: 100 % = Normaltempo, 200 % = doppelt so schnell.
+   Unter 100 % bleibt der langsame Einstieg (ab 30 %, Trommeln ab 50 % = 30 bpm). */
+const TEMPO_MIN = 30, TEMPO_MAX = 200, TEMPO_STEP = 5, TEMPO_MODI = ['lied', 'tiles', 'wait', 'simon', 'calm'];
+const DEFAULTS = { tempi: { lied: 70, tiles: 70, wait: 100, simon: 100, calm: 100 }, volume: 60, liedId: 'entchen', bpm: 48, drumBg: false, rhythm: 0,
   begleitung: true, beglVol: 100, warten: { 1: true, 2: false, 3: false }, ruhe: 'voll', thema: 'reaktor',
   ausgleich: 0, alleFrei: true, sterne: {}, calmSub: 'bubbles' };
 const V1_NAMEN = ['Alle meine Entchen', 'Hänschen klein', 'Bruder Jakob', 'Ode an die Freude', 'Trommelfest', 'Tanzlied', 'Sonnenaufgang', 'Festtag'];
@@ -840,7 +1266,11 @@ function loadSettings() {
     else { const r1 = localStorage.getItem(STORE_V1); if (r1) { o = JSON.parse(r1); v1 = true; } }
   } catch (e) { o = null; }
   if (!o || typeof o !== 'object') return s;
-  if (num(o, 'tempo', 1, 10)) s.tempo = o.tempo;
+  if (o.tempi && typeof o.tempi === 'object') TEMPO_MODI.forEach(m => { if (num(o.tempi, m, TEMPO_MIN, TEMPO_MAX)) s.tempi[m] = o.tempi[m]; });
+  else if (num(o, 'tempo', 1, 10)) {   /* alter Regler 1..10 (= 30..120 %) */
+    const p = Math.round((30 + 10 * (o.tempo - 1)) / TEMPO_STEP) * TEMPO_STEP;
+    s.tempi.lied = s.tempi.tiles = clamp(p, TEMPO_MIN, TEMPO_MAX);
+  }
   if (num(o, 'volume', 0, 100)) s.volume = o.volume;
   if (num(o, 'bpm', BPM_MIN, BPM_MAX)) s.bpm = o.bpm;
   if (typeof o.drumBg === 'boolean') s.drumBg = o.drumBg;
@@ -867,7 +1297,10 @@ function saveSettings() {
 const aktLied = () => LIEDER.find(l => l.id === settings.liedId) || LIEDER[0];
 /* Melodie als einfache Tonliste (fuer Langsame Kacheln, Warte-Modus, Muster merken) */
 const liedToene = l => l.kacheln.filter(k => k.art !== 'ruhe' && !k.zweit).map(k => k.ton);
-const tempoFaktor = () => 0.3 + 0.1 * (settings.tempo - 1);   /* Regler 1 = 30 % ... 10 = 120 % */
+/* Tempo je Modus in Prozent; Trommeln: 100 % = 60 bpm */
+const tempoProz = m => m === 'drum' ? Math.round(settings.bpm / 0.6) : (settings.tempi[m] || 100);
+const tempoF = m => tempoProz(m) / 100;
+const tempoFaktor = () => tempoF('lied');
 const sterneVon = id => settings.sterne[id] || 0;
 const sterneStufe = st => LIEDER.filter(l => l.stufe === st).reduce((a, l) => a + sterneVon(l.id), 0);
 const stufeFrei = st => settings.alleFrei || st <= 1 || sterneStufe(st - 1) >= 6;
@@ -1124,7 +1557,8 @@ document.addEventListener('visibilitychange', () => {
 /* ---------------- Gesten blockieren (kein Zoom, kein Scrollen, kein Markieren) ---------------- */
 ['gesturestart', 'gesturechange', 'dblclick', 'contextmenu', 'selectstart', 'dragstart'].forEach(ev =>
   document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
-document.addEventListener('touchmove', e => { if (e.target.type !== 'range') e.preventDefault(); }, { passive: false });
+/* Wischen nur in der Liederliste erlaubt (touch-action:pan-y dort), sonst bleibt die Seite gesperrt */
+document.addEventListener('touchmove', e => { if (e.target.type !== 'range' && !(e.target.closest && e.target.closest('.lied-liste'))) e.preventDefault(); }, { passive: false });
 document.addEventListener('touchstart', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });   /* kein Zwei-Finger-Zoom; Pointer-Events (Multi-Touch) laufen weiter */
 document.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
 
@@ -1152,9 +1586,13 @@ $$('.bar').forEach(bar => {
   if (d.begl) html += '<button class="pille tgl-begl"></button>';
   if (d.drum) {
     html += '<button class="pille bg-toggle" id="drumBgBtn"></button>';
-    html += '<div class="ctl bpm-ctl slider-row"><span class="sym">' + ICON.tempo + '</span><input type="range" class="bpm" min="' + BPM_MIN + '" max="' + BPM_MAX + '" step="2" aria-label="Trommel-Tempo"><span class="val bpm-val"></span></div>';
   }
-  if (d.tempo) html += '<div class="ctl tempo-ctl slider-row"><span class="sym">' + ICON.tempo + '</span><input type="range" class="tempo" min="1" max="10" step="0.5" aria-label="Tempo"><span class="val tempo-val"></span></div>';
+  if (d.tempo) {
+    const min = d.tempo === 'drum' ? 50 : TEMPO_MIN, f = (100 - min) / (TEMPO_MAX - min);
+    html += '<div class="ctl tempo-ctl slider-row"><span class="sym">' + ICON.tempo + '</span><span class="tempo-spur" style="--f:' + f.toFixed(4) + '">' +
+      '<input type="range" class="tempo" data-m="' + d.tempo + '" min="' + min + '" max="' + TEMPO_MAX + '" step="' + TEMPO_STEP + '" aria-label="Tempo">' +
+      '<i class="m100" title="100 %"></i></span><span class="val tempo-val"><span class="tl">TEMPO</span><span class="tz"></span></span></div>';
+  }
   html += '<div class="ctl slider-row"><span class="sym">' + ICON.vol + '</span><input type="range" class="vol" min="0" max="100" step="1" aria-label="Lautstärke"></div>';
   bar.innerHTML = html;
 });
@@ -1164,10 +1602,12 @@ function zweiZeilen(name, an) { return '<span class="zwei">' + name + '<span cla
 function syncUI() {
   $$('input.vol').forEach(el => { if (+el.value !== settings.volume) el.value = settings.volume; });
   $$('.vol-val').forEach(el => { el.textContent = settings.volume + ' %'; });
-  $$('input.tempo').forEach(el => { if (+el.value !== settings.tempo) el.value = settings.tempo; });
-  $$('.tempo-val').forEach(el => { el.textContent = Math.round(tempoFaktor() * 100) + ' %'; });
-  $$('input.bpm').forEach(el => { if (+el.value !== settings.bpm) el.value = settings.bpm; });
-  $$('.bpm-val').forEach(el => { el.textContent = settings.bpm; });
+  $$('input.tempo').forEach(el => {
+    const m = el.dataset.m === 'pick' ? pickZiel : el.dataset.m, p = tempoProz(m);
+    if (+el.value !== p) el.value = p;
+    const v = el.closest('.tempo-ctl').querySelector('.tempo-val');
+    v.querySelector('.tz').textContent = p + ' %'; v.classList.toggle('normal', p === 100);
+  });
   $$('input.beglvol').forEach(el => { if (+el.value !== settings.beglVol) el.value = settings.beglVol; });
   $$('.beglvol-val').forEach(el => { el.textContent = settings.beglVol + ' %'; });
   $$('input.ausgleich').forEach(el => { if (+el.value !== settings.ausgleich) el.value = settings.ausgleich; });
@@ -1190,8 +1630,13 @@ function bindRange(cls, fn) {
   document.addEventListener('input', e => { if (e.target.classList && e.target.classList.contains(cls)) { fn(+e.target.value); syncUI(); saveSettings(); } });
 }
 bindRange('vol', v => { settings.volume = v; applyVolume(); });
-bindRange('tempo', v => { settings.tempo = v; });
-bindRange('bpm', v => { settings.bpm = v; });
+document.addEventListener('input', e => {
+  const el = e.target; if (!el.classList || !el.classList.contains('tempo')) return;
+  const m = el.dataset.m === 'pick' ? pickZiel : el.dataset.m, p = clamp(Math.round(+el.value / TEMPO_STEP) * TEMPO_STEP, m === 'drum' ? 50 : TEMPO_MIN, TEMPO_MAX);
+  if (m === 'drum') settings.bpm = clamp(Math.round(p * 0.6), BPM_MIN, BPM_MAX);
+  else settings.tempi[m] = clamp(p, TEMPO_MIN, TEMPO_MAX);
+  syncUI(); saveSettings();
+});
 bindRange('beglvol', v => { settings.beglVol = v; applyVolume(); });
 bindRange('ausgleich', v => { settings.ausgleich = v; });
 document.addEventListener('change', e => { if (e.target.classList && e.target.classList.contains('vol')) playNote('E5', 0.5, 1.2); });
@@ -1268,45 +1713,101 @@ const cssVar = n => { try { return getComputedStyle(document.documentElement).ge
 /* ================================================================
    LIEDERAUSWAHL (fuer Lieder spielen, Langsame Kacheln, Warte-Modus)
    ================================================================ */
-let pickZiel = 'lied';
+var pickZiel = 'lied';   /* var: syncUI liest es schon vor dieser Zeile */
 const STUFEN_INFO = { 1: '3 Spuren · kurze Kacheln', 2: '4 Spuren · lange Kacheln, Ruhe', 3: '4 Spuren · Doppel-Kacheln' };
+const KATEGORIEN = ['Alle', 'Kinderlieder', 'Volks- und Winterlieder', 'Klassik', 'Kuthu-Stil', 'Pop und Ruhiges', 'Tamilische Lieder', 'Übungen'];
+const ZULETZT_KEY = 'krishnaSpiele.zuletzt';
+let pickKat = 'Alle', pickStufe = 0;   /* 0 = alle Stufen */
+const LIEDER_SORTIERT = LIEDER.slice().sort((a, b) => a.stufe - b.stufe || a.titel.localeCompare(b.titel, 'de'));
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function zuletztLesen() {
+  try {
+    const a = JSON.parse(localStorage.getItem(ZULETZT_KEY) || '[]');
+    return Array.isArray(a) ? a.filter(id => typeof id === 'string' && LIEDER.some(l => l.id === id)).slice(0, 6) : [];
+  } catch (e) { return []; }
+}
+function zuletztMerken(id) {
+  const a = [id].concat(zuletztLesen().filter(x => x !== id)).slice(0, 6);
+  try { localStorage.setItem(ZULETZT_KEY, JSON.stringify(a)); } catch (e) { /* Speicher nicht verfuegbar */ }
+}
+const liedFrei = l => pickZiel !== 'lied' || stufeFrei(l.stufe);
+const fehltSterne = st => Math.max(0, 6 - sterneStufe(st - 1));
+const STERN_KLEIN = an => '<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sternSym" class="' + (an ? 'an' : 'aus') + '"/></svg>';
+function karteHtml(l, mitKat) {
+  const frei = liedFrei(l), s = sterneVon(l.id);
+  return '<button type="button" class="lied-karte' + (frei ? '' : ' zu') + '" data-id="' + l.id + '" style="--mark:var(--spur' + l.stufe + ')"' +
+    ' aria-label="' + esc(l.titel) + ', Stufe ' + l.stufe + ', ' + s + ' Sterne">' +
+    '<span class="lt">' + esc(l.titel) + '</span><span class="lu"><span class="ls">' + (mitKat ? esc(l.kategorie) : 'Stufe ' + l.stufe) + '</span>' +
+    '<span class="lsterne">' + STERN_KLEIN(s > 0) + STERN_KLEIN(s > 1) + STERN_KLEIN(s > 2) + '</span></span>' +
+    (frei ? '' : '<span class="schloss">' + ICON.lock + '</span>') + '</button>';
+}
+const pickSichtbar = () => LIEDER_SORTIERT.filter(l => (pickKat === 'Alle' || l.kategorie === pickKat) && (!pickStufe || l.stufe === pickStufe));
+function pickerListe() {
+  const liste = pickSichtbar(), mitKat = pickKat === 'Alle';
+  let h = '', st = 0;
+  liste.forEach(l => {
+    if (!pickStufe && l.stufe !== st) {
+      st = l.stufe;
+      h += '<div class="gruppe">STUFE ' + st + '<span>' + STUFEN_INFO[st] +
+        (pickZiel === 'lied' && !stufeFrei(st) ? ' · noch ' + fehltSterne(st) + ' Sterne aus Stufe ' + (st - 1) : '') + '</span></div>';
+    }
+    h += karteHtml(l, mitKat);
+  });
+  if (!liste.length) h = '<div class="leer">In dieser Auswahl gibt es keine Lieder. Wähle eine andere Stufe.</div>';
+  $('#liedGitter').innerHTML = h;
+  $('#pickZahl').textContent = liste.length + (liste.length === 1 ? ' Lied' : ' Lieder');
+  $$('#katReihe .kat').forEach(b => { const an = b.dataset.kat === pickKat; b.classList.toggle('an', an); b.setAttribute('aria-selected', an ? 'true' : 'false'); });
+  $$('#stufenFilter .sf').forEach(b => { const an = +b.dataset.st === pickStufe; b.classList.toggle('an', an); b.setAttribute('aria-pressed', an ? 'true' : 'false'); });
+}
 function pickerRender() {
-  const box = $('#stufen');
   const titel = { lied: 'Lieder spielen', tiles: 'Langsame Kacheln', wait: 'Warte-Modus' }[pickZiel];
   $('#lieder .t-name').textContent = titel;
   $('#lieder .bar-hud').textContent = '[ LIED WÄHLEN ]';
   $$('#lieder .tgl-begl').forEach(b => { b.style.display = pickZiel === 'lied' ? '' : 'none'; });
-  box.innerHTML = '';
-  [1, 2, 3].forEach(st => {
-    const frei = pickZiel !== 'lied' || stufeFrei(st);
-    const row = document.createElement('div'); row.className = 'stufe';
-    const fehlt = Math.max(0, 6 - sterneStufe(st - 1));
-    row.innerHTML = '<div class="stufe-kopf"><b>STUFE ' + st + '</b><span>' + STUFEN_INFO[st] + '</span>' +
-      (frei ? '' : '<span>noch ' + fehlt + ' Sterne aus Stufe ' + (st - 1) + '</span>') + '</div><div class="lied-reihe"></div>';
-    const reihe = $('.lied-reihe', row);
-    LIEDER.filter(l => l.stufe === st).forEach(l => {
-      const b = document.createElement('button');
-      b.className = 'lied-karte glas' + (frei ? '' : ' zu');
-      b.dataset.id = l.id;
-      b.style.setProperty('--mark', 'var(--spur' + st + ')');
-      const s = sterneVon(l.id);
-      b.innerHTML = '<span class="lt">' + l.titel + '</span><span class="ls">' + TONLEITERN[l.tonleiter].name + '</span>' +
-        '<span class="lsterne">' + [0, 1, 2].map(i => sternSvg(i < s)).join('') + '</span>' + (frei ? '' : '<span class="schloss">' + ICON.lock + '</span>');
-      b.addEventListener('click', () => {
-        if (!frei) { hintTone(); toast('Diese Stufe wird mit ' + fehlt + ' weiteren Sternen aus Stufe ' + (st - 1) + ' frei.'); return; }
-        settings.liedId = l.id; saveSettings();
-        show(pickZiel);
-      });
-      reihe.appendChild(b);
-    });
-    box.appendChild(row);
-  });
+  const zl = zuletztLesen().map(id => LIEDER.find(l => l.id === id)).filter(Boolean);
+  const zb = $('#zuletzt');
+  zb.classList.toggle('da', zl.length > 0);
+  zb.innerHTML = zl.length ? '<div class="zk">Zuletzt gespielt</div><div class="zr">' + zl.map(l => karteHtml(l, false)).join('') + '</div>' : '';
+  pickerListe();
+  $('#liedListe').scrollTop = 0;
 }
+function liedWaehlen(l) {
+  if (!liedFrei(l)) {
+    const f = fehltSterne(l.stufe);
+    hintTone(); toast('Diese Stufe wird mit ' + f + ' weiteren Sternen aus Stufe ' + (l.stufe - 1) + ' frei.'); return;
+  }
+  settings.liedId = l.id; saveSettings();
+  zuletztMerken(l.id);
+  show(pickZiel);
+}
+(function pickerAufbauen() {
+  const kr = $('#katReihe');
+  kr.innerHTML = KATEGORIEN.map(k => {
+    const n = k === 'Alle' ? LIEDER.length : LIEDER.filter(l => l.kategorie === k).length;
+    return '<button type="button" class="kat" role="tab" data-kat="' + esc(k) + '">' + esc(k === 'Alle' ? 'Alle Lieder' : k) + '<small>' + n + '</small></button>';
+  }).join('');
+  kr.addEventListener('click', e => { const b = e.target.closest('.kat'); if (!b) return; pickKat = b.dataset.kat; pickerListe(); $('#liedListe').scrollTop = 0; });
+  const sf = $('#stufenFilter');
+  sf.innerHTML = [0, 1, 2, 3].map(st => '<button type="button" class="sf" data-st="' + st + '"' + (st ? ' style="--mark:var(--spur' + st + ')"><i></i>Stufe ' + st : '>Alle Stufen') + '</button>').join('');
+  sf.addEventListener('click', e => { const b = e.target.closest('.sf'); if (!b) return; pickStufe = +b.dataset.st; pickerListe(); $('#liedListe').scrollTop = 0; });
+  $('#liedListe').addEventListener('click', e => {
+    const b = e.target.closest('.lied-karte'); if (!b) return;
+    const l = LIEDER.find(x => x.id === b.dataset.id); if (l) liedWaehlen(l);
+  });
+  $('#ueberrasch').addEventListener('click', () => {
+    const frei = pickSichtbar().filter(liedFrei);
+    if (!frei.length) { hintTone(); toast('Hier ist gerade kein Lied frei.'); return; }
+    liedWaehlen(frei[Math.floor(Math.random() * frei.length)]);
+  });
+})();
 function openPicker(ziel) { pickZiel = ziel; show('lieder'); }
 
 /* ================================================================
    MODUS 1 (NEU): LIEDER SPIELEN - Kachel-Lieder
    Kacheln fallen in 3 oder 4 Spuren. Jeder Tipp spielt den naechsten Ton.
+   Wie bei 'Langsame Kacheln': Sobald eine Kachel sichtbar ist, darf sie
+   angetippt werden, egal wo in der Spur. Ein Tipp zaehlt immer fuer die
+   zeitlich naechste offene Kachel dieser Spur; frueh zaehlt wie puenktlich.
    Kein Game Over, kein Punktabzug, Tempo steigt nie von selbst.
    Takt 1-4 laufen mit halbem Tempo, danach das gewaehlte Tempo.
    Zeit wird in Schlaegen gerechnet (pos), nicht in Sekunden.
@@ -1373,7 +1874,7 @@ const Lied = (() => {
   }
   function start() {
     lied = aktLied(); resize(); spurFarbenLesen();
-    kacheln = lied.kacheln.map(k => Object.assign({}, k, { hit: false, missed: false, seen: 0, hitT: 0, held: false, holdEnd: null }));
+    kacheln = lied.kacheln.map(k => Object.assign({}, k, { hit: false, missed: false, seen: 0, hitT: 0, hitPos: 0, held: false, holdEnd: null }));
     kacheln.forEach(k => { if (k.partner) k.partner = null; });
     for (let i = 0; i < kacheln.length; i++) if (kacheln[i].art === 'doppel' && !kacheln[i].zweit) {
       const b = kacheln.find(x => x.zweit && x.beat === kacheln[i].beat); if (b) { kacheln[i].partner = b; b.partner = kacheln[i]; }
@@ -1432,7 +1933,7 @@ const Lied = (() => {
           if (tippbar(k) && !k.hit && !k.missed) { k.missed = true; flowZiel = Math.max(0, flowZiel - 0.2); }
         }
       }
-      holds.forEach((h, id) => { if (pos >= h.k.beat + h.k.len) { h.ton.stop(); h.k.holdEnd = h.k.beat + h.k.len; holds.delete(id); } });
+      holds.forEach((h, id) => { if (pos >= h.k.hitPos + h.k.len) { h.ton.stop(); h.k.holdEnd = h.k.hitPos + h.k.len; holds.delete(id); } });
       /* Begleitung: kurzer Vorlauf, beim Warten nicht ueber die wartende Kachel hinaus */
       let limit = pos + 0.18 * bps;
       if (wartenAn() && d) limit = Math.min(limit, d.beat - 1e-6);
@@ -1512,7 +2013,8 @@ const Lied = (() => {
         alpha = 0.6 * (1 - a); grow = a * 10;
       }
       if (k.missed) alpha *= 0.35;
-      const top = k.hit && k.art !== 'lang' ? g.lineY - hLen : yb - hLen;
+      /* getroffene Kachel blendet dort aus, wo sie getroffen wurde (spaete Treffer an der Linie) */
+      const top = k.hit && k.art !== 'lang' ? g.lineY - Math.max(0, k.beat - k.hitPos) * g.ppb - hLen : yb - hLen;
       const bot = top + hLen;
       /* Doppel: Verbindungslinie */
       if (k.art === 'doppel' && !k.zweit && k.partner && !k.hit) {
@@ -1530,7 +2032,7 @@ const Lied = (() => {
       ctx.beginPath(); ctx.arc(cx, cy, rr, 0, Math.PI * 2); ctx.stroke();
       if (k.art === 'lang' && k.hit) {
         const ende = k.holdEnd != null ? k.holdEnd : pos;
-        const p = clamp((ende - k.beat) / k.len, 0, 1);
+        const p = clamp((ende - k.hitPos) / k.len, 0, 1);
         ctx.lineWidth = 6; ctx.globalAlpha = 0.95;
         ctx.beginPath(); ctx.arc(cx, cy, rr, -Math.PI / 2, -Math.PI / 2 + p * Math.PI * 2); ctx.stroke();
         ctx.globalAlpha = 0.18; ctx.fillStyle = col;
@@ -1552,7 +2054,7 @@ const Lied = (() => {
     if (erstTipp && !finished) {
       ctx.globalAlpha = 0.75; ctx.fillStyle = cssVar('--text') || '#dff7f4';
       ctx.font = '600 26px ' + (cssVar('--fh') || 'sans-serif'); ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-      ctx.fillText(wartenAn() ? 'Tippe die Kachel, wenn sie unten ankommt' : 'Tippe die Kacheln an der Linie', W / 2, 46);
+      ctx.fillText('Tippe auf die Kacheln, sobald du sie siehst', W / 2, 46);
       ctx.globalAlpha = 1;
     }
   }
@@ -1564,18 +2066,21 @@ const Lied = (() => {
   cv.addEventListener('pointerdown', e => {
     e.preventDefault();
     if (!running || finished) return;
-    const spur = spurAus(e), bps = bpsAt(pos);
-    const jp = pos - settings.ausgleich / 1000 * bps, fb = fenster() * bps;
-    let best = null, bd = 1e9;
+    /* wie 'Langsame Kacheln': die zeitlich naechste offene Kachel dieser Spur zaehlt,
+       sobald sie sichtbar ist - egal wo in der Spur getippt wird. Spaetere Kacheln
+       derselben Spur werden nie uebersprungen. */
+    const spur = spurAus(e), g = geo();
+    let best = null;
     for (let i = dueIdx; i < kacheln.length; i++) {
       const k = kacheln[i];
-      if (k.beat > jp + fb) break;
       if (k.spur !== spur || !tippbar(k) || k.hit || k.missed) continue;
-      const dd = Math.abs(k.beat - jp);
-      if (dd <= fb && dd < bd) { best = k; bd = dd; }
+      const yb = g.lineY - (k.beat - pos) * g.ppb;
+      const hLen = k.art === 'lang' ? Math.max(g.ppb * 0.8, k.len * g.ppb - 10) : Math.min(1, k.len) * g.ppb * 0.8;
+      if (yb > Math.min(hLen, g.ppb * 0.8) * 0.35 && yb - hLen < H) best = k;
+      break;
     }
     if (best) {
-      best.hit = true; best.hitT = nowSec(); hits++; erstTipp = false;
+      best.hit = true; best.hitT = nowSec(); best.hitPos = Math.min(pos, best.beat); hits++; erstTipp = false;
       flowZiel = Math.min(1, flowZiel + 0.08);
       const f = noteFreq(best.ton);
       if (best.art === 'lang') {
@@ -1607,7 +2112,11 @@ const Lied = (() => {
       const g = geo(), d = finished ? null : due(), r = cv.getBoundingClientRect();
       return { pos, waiting, finished, hits, total, laenge: lied.laenge, spuren: g.n,
         due: d ? { spur: d.spur, beat: d.beat, art: d.art } : null,
-        spurX: Array.from({ length: g.n }, (_, i) => r.left + g.mx + (i + 0.5) * g.laneW), tippY: r.top + g.lineY + g.zone / 2 };
+        spurX: Array.from({ length: g.n }, (_, i) => r.left + g.mx + (i + 0.5) * g.laneW), tippY: r.top + g.lineY + g.zone / 2,
+        offen: kacheln.filter(k => tippbar(k) && !k.hit && !k.missed).slice(0, 12).map(k => {
+          const yb = g.lineY - (k.beat - pos) * g.ppb;
+          return { spur: k.spur, beat: k.beat, art: k.art, len: k.len, ton: k.ton, unten: r.top + yb, sichtbar: yb > 0 && yb < H };
+        }) };
     }
   };
 })();
@@ -1639,8 +2148,8 @@ const Tiles = (() => {
     next = 0; scroll = 0; done = false; hintUntil = 0;
   }
   const bottomOf = (i, g) => g.startY + scroll - i * g.step;
-  /* Tempo 1 = sehr langsam ... Tempo 10 = zuegig (immer noch ruhig) */
-  const speed = () => H * (0.03 + (settings.tempo - 1) * 0.03);
+  /* Tempo in Prozent: 100 % = 0,24 Bildhoehen pro Sekunde, 200 % = doppelt so schnell */
+  const speed = () => H * 0.0024 * tempoProz('tiles');
 
   function frame(ts) {
     if (!running) return;
@@ -1770,7 +2279,7 @@ const Wait = (() => {
         active = -1;
         setTimeout(() => { if (running) showReward({ msg: 'Toll gemacht!', again: reset, andere: () => openPicker('wait') }); }, 700);
       } else {
-        setTimeout(() => { if (!running) return; busy = false; pick(); }, 500);
+        setTimeout(() => { if (!running) return; busy = false; pick(); }, Math.round(500 / tempoF('wait')));
       }
     } else {
       hintTone();
@@ -1830,8 +2339,8 @@ const Simon = (() => {
     clearTimers();
     locked = true; pos = 0;
     setStatus('Schau gut zu …');
-    const step = 1100;
-    seq.forEach((v, k) => later(() => { light(v, 700); playNote(TONES[v]); }, 900 + k * step));
+    const f = tempoF('simon'), step = Math.round(1100 / f), an = Math.max(600, Math.round(700 / f));   /* nie kuerzer als 600 ms */
+    seq.forEach((v, k) => later(() => { light(v, an); playNote(TONES[v]); }, 900 + k * step));
     later(() => { locked = false; pos = 0; setStatus('Jetzt du!'); }, 900 + seq.length * step);
   }
   function tap(i) {
@@ -1900,8 +2409,9 @@ const Calm = (() => {
     last = ts;
     const now = ts / 1000;
     if (sub === 'bubbles') {
-      if (bubbles.length < 11 && now > nextSpawn) { bubbles.push(makeBubble()); nextSpawn = now + 1.2 + Math.random() * 1.4; }
-      bubbles.forEach(b => { b.y -= b.vy * dt; b.x += Math.sin(now * 0.6 + b.ph) * 12 * dt; });
+      const tf = tempoF('calm');
+      if (bubbles.length < 11 && now > nextSpawn) { bubbles.push(makeBubble()); nextSpawn = now + (1.2 + Math.random() * 1.4) / tf; }
+      bubbles.forEach(b => { b.y -= b.vy * tf * dt; b.x += Math.sin(now * 0.6 + b.ph) * 12 * dt; });
       bubbles = bubbles.filter(b => b.y > -b.r - 10);
     }
     if (sub !== 'pads') draw(now);
@@ -1932,9 +2442,10 @@ const Calm = (() => {
         ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (1 + 0.6 * a), 0, Math.PI * 2); ctx.stroke();
       });
     } else if (sub === 'ringe') {
-      ringe = ringe.filter(r => now - r.t0 < 4.5);
+      const rd = 4.5 / tempoF('calm');   /* Ringe wachsen je nach Tempo (bei 200 % gut 2 s) */
+      ringe = ringe.filter(r => now - r.t0 < rd);
       ringe.forEach(r => {
-        const a = (now - r.t0) / 4.5, e = 1 - Math.pow(1 - a, 2);
+        const a = (now - r.t0) / rd, e = 1 - Math.pow(1 - a, 2);
         ctx.globalAlpha = 0.75 * (1 - a); ctx.strokeStyle = cs[r.col]; ctx.lineWidth = 4;
         ctx.beginPath(); ctx.arc(r.x, r.y, 14 + 190 * e, 0, Math.PI * 2); ctx.stroke();
         ctx.globalAlpha = 0.35 * (1 - a); ctx.lineWidth = 2;
