@@ -12,20 +12,24 @@ Für Android-Tablets und -Handys ab Android 8.
 
 ## Screenshots
 
-Die Bilder stammen aus Version 3 und zeigen die App im Querformat auf einem Tablet.
+Die Bilder stammen aus Version 5.1 und zeigen die App im Querformat auf einem Tablet.
 
 <table>
   <tr>
-    <td width="50%" align="center"><img src="docs/screenshots/01-menue.png" width="100%" alt="Hauptmenü der App mit den sechs Spielmodi"><br><sub>Hauptmenü</sub></td>
-    <td width="50%" align="center"><img src="docs/screenshots/02-liederauswahl.png" width="100%" alt="Liederauswahl mit Kategorie-Reitern und Liedliste"><br><sub>Liederauswahl mit Kategorien</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/01-menue.png" width="100%" alt="Hauptmenü mit Lieder spielen, vier ruhigen Spielmodi, Beat-Pads und Einstellungen"><br><sub>Hauptmenü</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/02-liederauswahl.png" width="100%" alt="Liederauswahl mit Kategorie-Reitern, Stufenfilter und Liedliste"><br><sub>Liederauswahl mit Kategorien</sub></td>
   </tr>
   <tr>
     <td width="50%" align="center"><img src="docs/screenshots/03-lied-spielen.png" width="100%" alt="Ein Lied wird gespielt, Kacheln erscheinen im Takt"><br><sub>Lied spielen (Kacheln im Takt, sofort antippbar)</sub></td>
-    <td width="50%" align="center"><img src="docs/screenshots/04-belohnung.png" width="100%" alt="Ruhiger Belohnungs-Bildschirm nach einem gespielten Lied"><br><sub>Ruhiger Belohnungs-Bildschirm</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/04-beat-pads-pop.png" width="100%" alt="Beat-Pads im Stil Pop mit einigen aktiven Pads"><br><sub>Beat-Pads: Stil Pop</sub></td>
   </tr>
   <tr>
-    <td width="50%" align="center"><img src="docs/screenshots/05-ruhige-spiele.png" width="100%" alt="Beruhigende Spiele mit Blasen und sanften Farben"><br><sub>Beruhigende Spiele</sub></td>
-    <td width="50%" align="center"><img src="docs/screenshots/06-einstellungen.png" width="100%" alt="Einstellungen mit Ruhe-Modus und Auswahl des Farbthemas"><br><sub>Einstellungen: Ruhe-Modus und Farbthema</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/05-beat-pads-rock.png" width="100%" alt="Beat-Pads im Stil Rock mit einigen aktiven Pads"><br><sub>Beat-Pads: Stil Rock</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/06-beat-pads-ruhig.png" width="100%" alt="Beat-Pads im Stil Ruhig (Lo-Fi) mit einigen aktiven Pads"><br><sub>Beat-Pads: Stil Ruhig (Lo-Fi)</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" align="center"><img src="docs/screenshots/07-einstellungen.png" width="100%" alt="Einstellungen für Eltern"><br><sub>Einstellungen (für Eltern)</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/08-meine-lieder.png" width="100%" alt="Kategorie Meine Lieder, noch leer, mit Knopf zum Importieren"><br><sub>„Meine Lieder“: eigene MIDI-Dateien importieren</sub></td>
   </tr>
 </table>
 
@@ -35,7 +39,7 @@ Die App startet eine lokale `index.html` im Vollbild (Querformat, Display bleibt
 
 ## Spiele
 
-Stand: **Version 5**. Sechs Modi, alle bewusst reizarm gestaltet (ruhige Farben, sanfte Klänge, kein Zeitdruck, keine blinkenden Effekte):
+Stand: **Version 5.1** (Beat-Pads geben beim Antippen sofort eine leise Bestätigung, Stimmen werden beim Ausschalten sauber freigegeben). Sechs Modi, alle bewusst reizarm gestaltet (ruhige Farben, sanfte Klänge, kein Zeitdruck, keine blinkenden Effekte):
 
 - **Lieder spielen** – 130 Lieder Ton für Ton nachspielen, sortiert in 8 Reitern (7 Kategorien plus „Alle“), in 3 Stufen von ganz leicht bis etwas anspruchsvoller
 - **Langsame Kacheln** – Kacheln fallen langsam herunter

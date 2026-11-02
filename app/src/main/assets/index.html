@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   ================================================================
-   Krishnas Spiele  -  Version 5   @ Joschy  (130 eingebaute Lieder in 7 Kategorien)
+   Krishnas Spiele  -  Version 5.1   @ Joschy  (130 eingebaute Lieder in 7 Kategorien)
    Ruhige Musik-Spiele fuer Krishna (Samsung Galaxy Tab S5e, Android-WebView,
    Querformat, Touch). Eine einzige Datei, keine externen Ressourcen,
    kein Netzzugriff, laeuft komplett offline.
@@ -523,7 +523,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
       <div class="slider-row"><span class="sym" data-ico="vol"></span><input type="range" class="vol" min="0" max="100" step="1" aria-label="Lautstärke"><span class="val vol-val"></span></div>
     </div>
     <button class="pille" id="importMenuBtn" type="button" style="--mark:var(--spur2)">Lieder importieren</button>
-    <footer>Krishnas Spiele &middot; Version 5 &middot; gebaut @ Joschy</footer>
+    <footer>Krishnas Spiele &middot; Version 5.1 &middot; gebaut @ Joschy</footer>
   </div>
 </section>
 
@@ -680,7 +680,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="sternSym" viewBox="0 0 24 24"><path d="M12 2.6l2.85 5.95 6.55.8-4.8 4.5 1.25 6.5L12 17.2l-5.85 3.15 1.25-6.5-4.8-4.5 6.55-.8z" stroke-width="1.6" stroke-linejoin="round"/></symbol></svg>
 
 <script>
-/* Krishnas Spiele @ Joschy - Version 5 */
+/* Krishnas Spiele @ Joschy - Version 5.1 */
 'use strict';
 
 /* LIEDER-START
@@ -3039,11 +3039,12 @@ const Calm = (() => {
    Die Klang-Bausteine laufen mit jedem AudioContext/OfflineAudioContext.
    ================================================================ */
 const BEAT_ATT = 0.015;          /* weichster Einsatz einer Note (s) */
-const BEAT_MAX_STIMMEN = 24;     /* Obergrenze gleichzeitiger Stimmen */
+const BEAT_MAX_STIMMEN = 28;     /* Obergrenze gleichzeitig klingender Stimmen (gemessen: 24 reichte bei 200 % nicht ganz) */
 const BEAT_EIN = 0.03;           /* Einblenden beim Antippen (s) */
 const BEAT_AUS = 0.04;           /* Ausblenden beim zweiten Tipp (s) */
 const BEAT_VORLAUF = 0.1;        /* Look-ahead des Schedulers (s) */
 const BEAT_TAKT_MS = 25;         /* Scheduler-Intervall (ms) */
+const BEAT_BESTAETIGUNG = 0.4;   /* laengere Wartezeit bis zur ersten Note: sofort eine leise Bestaetigungsnote (s) */
 
 /* Rauschen, fest geseedet (gleiches Ergebnis bei jedem Start) */
 const beatRauschPuffer = new WeakMap();
@@ -3119,16 +3120,28 @@ function beatStimme(eng, t, dauer) {
       lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(f * tiefe, t + (verz || 0.2));
       l.connect(lg); lg.connect(o.frequency);
     },
-    los(aus, ziel) {
+    /* sitz: Pad-Sitzung; ihre Stimmen werden beim Ausschalten sofort freigegeben */
+    los(aus, ziel, sitz) {
       aus.connect(ziel);
       eng.knoten += nodes.length; eng.stimmen++;
-      let fertig = false;
+      let fertig = false, frei = false;
       const aufraeumen = () => {
         if (fertig) return; fertig = true;
         nodes.forEach(n => { try { n.disconnect(); } catch (e) {} });
-        eng.knoten -= nodes.length; eng.stimmen--;
+        eng.knoten -= nodes.length;
+        if (!frei) { frei = true; eng.stimmen--; }
+        if (sitz) sitz.stimmen.delete(v);
+        eng.alle.delete(v);
+      };
+      /* Freigabe: der Sitzungs-Regler blendet schon aus; danach Quellen stoppen, Slot sofort frei */
+      v.freigeben = tStop => {
+        if (fertig || frei) return;
+        frei = true; eng.stimmen--; eng.alle.delete(v);
+        srcs.forEach(s => { try { s.stop(Math.max(tStop, c.currentTime)); } catch (e) {} });
       };
       srcs.forEach(s => { s.start(t); s.stop(tEnd + 0.01); });
+      if (sitz) sitz.stimmen.add(v);
+      eng.alle.add(v);
       if (srcs.length) srcs[0].onended = aufraeumen; else aufraeumen();
     }
   };
@@ -3321,10 +3334,10 @@ const BEAT_STILE = [
     { n: 'Laufbass', g: 'bass', k: 'zupfbass', o: -2, b: 'X..F..X.O..F..x.' },
     { n: 'Harmonium', g: 'akkord', k: 'harmonium', o: -1, a: '..X_..X_..X_..X_' },
     { n: 'Bordun', g: 'akkord', k: 'flaeche', o: -1, a: 'X_______________' },
-    { n: 'Nadaswaram', g: 'melodie', k: 'nadaswaram', o: 0, t: '0:4:3 3:5:1 4:4:2 6:2:2 8:3:4 12:2:2 14:1:2 16:0:6 22:1:2 24:2:4 28:4:4' },
+    { n: 'Nadaswaram', g: 'melodie', k: 'nadaswaram', o: 0, t: '0:0:2 2:2:2 4:3:1 5:4:3 8:7:2 10:5:2 12:4:4 16:3:2 18:4:2 20:2:4 24:3:3 27:1:1 28:0:4' },
     { n: 'Flöte', g: 'melodie', k: 'floete', o: 1, t: '0:0:2 2:-1:2 4:0:4 8:2:2 10:1:2 12:0:4 16:-1:2 18:-2:2 20:-3:4 24:-2:2 26:-1:2 28:0:4' },
     { n: 'Glöckchen', g: 'melodie', k: 'glocke', o: 1, t: '0:7:2 3:9:1 6:11:2 10:9:2 12:7:4' },
-    { n: 'Echo', g: 'effekt', k: 'glocke', o: 1, t: '0:4:2 32:2:2', echo: 3, L: 64 }
+    { n: 'Echo', g: 'effekt', k: 'glocke', o: 1, t: '0:4:2 16:2:2:5 32:2:2 48:0:2:5', echo: 3, L: 64 }
   ] },
   { id: 'pop', name: 'Pop', bpm: 108, wurzel: 62, leiter: DUR, prog: [0, 2, 5, 3], form: [0, 2, 4], pads: [
     { n: 'Trommel', g: 'rhythmus', k: 'kick', m: 'X.....X.X.......' },
@@ -3335,10 +3348,10 @@ const BEAT_STILE = [
     { n: 'Laufbass', g: 'bass', k: 'zupfbass', o: -2, b: 'X.X.F.O.X.X.T.F.' },
     { n: 'Akkord', g: 'akkord', k: 'keys', o: -1, a: 'X_..X_..X_..X_..' },
     { n: 'Fläche', g: 'akkord', k: 'flaeche', o: -1, a: 'X_______________' },
-    { n: 'Melodie', g: 'melodie', k: 'zupf', o: 0, t: '0:4:2 2:4:1 3:5:1 4:4:2 6:2:2 8:3:3 11:2:1 12:1:4 16:2:2 18:2:1 19:3:1 20:2:2 22:0:2 24:1:6' },
+    { n: 'Melodie', g: 'melodie', k: 'zupf', o: 0, t: '0:2:2 2:4:2 4:3:1 5:2:1 6:4:2 8:5:3 11:4:1 12:2:4 16:1:2 18:2:1 19:3:1 20:1:2 22:0:2 24:1:6' },
     { n: 'Kette', g: 'melodie', k: 'marimba', o: 0, rel: true, t: '0:0:1 2:2:1 4:4:1 6:7:1 8:4:1 10:2:1 12:4:1 14:2:1' },
-    { n: 'Glocke', g: 'melodie', k: 'glocke', o: 0, t: '0:9:4 8:7:4 16:8:6 24:6:4' },
-    { n: 'Funkeln', g: 'effekt', k: 'glocke', o: 1, t: '4:11:2:5 14:9:2:4 36:12:2:5 46:10:2:4', L: 64 }
+    { n: 'Glocke', g: 'melodie', k: 'glocke', o: 0, t: '0:9:4 8:8:4 16:6:6 24:7:4' },
+    { n: 'Funkeln', g: 'effekt', k: 'glocke', o: 1, t: '4:11:2:5 14:9:2:4 24:10:2:4 36:12:2:5 46:10:2:4 56:9:2:4', L: 64 }
   ] },
   { id: 'elektro', name: 'Elektro', bpm: 120, wurzel: 57, leiter: MOLL, prog: [0, 3, 5, 4], form: [0, 2, 4], pads: [
     { n: 'Trommel', g: 'rhythmus', k: 'kick', P: { f0: 110, f1: 45 }, m: 'X...X...X...X...' },
@@ -3366,18 +3379,18 @@ const BEAT_STILE = [
     { n: 'Klavier', g: 'melodie', k: 'keys', o: 0, t: '0:7:3 3:6:1 4:4:4 10:5:2 12:4:4 16:2:3 19:3:1 20:4:6 28:2:4' },
     { n: 'Vibrafon', g: 'melodie', k: 'vibes', o: 0, rel: true, t: '2:4:2 6:6:2 10:7:2 14:6:2' },
     { n: 'Pfeifen', g: 'melodie', k: 'pfeife', o: 1, t: '0:2:8 8:0:4 12:1:4 16:0:12 28:-3:4' },
-    { n: 'Echo', g: 'effekt', k: 'glocke', o: 1, t: '0:4:2 32:6:2', echo: 3, L: 64 }
+    { n: 'Echo', g: 'effekt', k: 'glocke', o: 1, t: '0:4:2 16:5:2:5 32:6:2 48:4:2:5', echo: 3, L: 64 }
   ] },
   { id: 'rock', name: 'Rock', bpm: 112, wurzel: 52, leiter: MOLL, prog: [0, 6, 5, 6], form: [0, 2, 4], pads: [
     { n: 'Trommel', g: 'rhythmus', k: 'kick', P: { f0: 120, f1: 52 }, m: 'X.......X.X.....' },
     { n: 'Snare', g: 'rhythmus', k: 'snare', m: '....X.......X...' },
     { n: 'Becken', g: 'rhythmus', k: 'becken', m: 'x.o.x.o.x.o.x.o.' },
-    { n: 'Tom', g: 'rhythmus', k: 'tom', P: { f0: 170, f1: 110, dec: 0.3, nf: 700, na: 0.08 }, m: '................' + '............xxXo' },
+    { n: 'Tom', g: 'rhythmus', k: 'tom', P: { f0: 170, f1: 110, dec: 0.3, nf: 700, na: 0.08 }, m: '........o.......' + '....o.......xxXo' },
     { n: 'Tiefbass', g: 'bass', k: 'sub', o: -2, b: 'X_X_X_X_X_X_X_X_' },
     { n: 'Laufbass', g: 'bass', k: 'sagebass', o: -2, b: 'X...X.F.O...X.F.' },
     { n: 'Power', g: 'akkord', k: 'power', o: -1, form: [0, 4, 7], a: 'X_______X___X___' },
     { n: 'Orgel', g: 'akkord', k: 'orgel', o: -1, a: 'X_______________' },
-    { n: 'Gitarre', g: 'melodie', k: 'gitarre', o: 0, t: '0:4:2 2:6:2 4:7:4 8:6:2 10:4:2 12:3:4 16:4:6 22:3:2 24:2:4 28:1:4' },
+    { n: 'Gitarre', g: 'melodie', k: 'gitarre', o: 0, t: '0:4:3 3:6:1 4:2:4 8:6:2 10:4:2 12:3:4 16:4:6 22:3:2 24:2:4 28:1:4' },
     { n: 'Riff', g: 'melodie', k: 'zupf', o: -1, t: '0:0:2 3:2:1 4:4:2 6:3:2 8:2:2 11:0:1 12:1:2 14:-1:2' },
     { n: 'Hoch', g: 'melodie', k: 'quadrat', o: 1, t: '8:2:4 12:1:4 24:4:4 28:2:4' },
     { n: 'Rauschen', g: 'effekt', k: 'wind', o: 0, t: '0:0:64', L: 64 }
@@ -3419,7 +3432,7 @@ const BEAT_STILE = [
     { n: 'Zupfbass', g: 'bass', k: 'zupfbass', o: -2, b: 'X..O..F.X..F..O.' },
     { n: 'Akkord', g: 'akkord', k: 'streicher', o: -1, a: 'X__.X__.X__.X__.' },
     { n: 'Streicher', g: 'akkord', k: 'streicher', o: -1, a: 'X_______________' },
-    { n: 'Horn', g: 'melodie', k: 'horn', o: 0, t: '0:4:6 6:5:2 8:4:4 12:2:4 16:0:8 24:1:4 28:2:4' },
+    { n: 'Horn', g: 'melodie', k: 'horn', o: 0, t: '0:4:6 6:2:2 8:3:4 12:5:4 16:4:8 24:1:4 28:2:4' },
     { n: 'Harfe', g: 'melodie', k: 'harfe', o: 0, rel: true, t: '0:0:1 2:2:1 4:4:1 6:7:1 8:9:1 10:7:1 12:4:1 14:2:1' },
     { n: 'Celesta', g: 'melodie', k: 'glocke', o: 1, t: '0:0:4 4:2:4 8:4:8 16:3:4 20:2:4 24:1:8', L: 32 },
     { n: 'Wind', g: 'effekt', k: 'wind', o: 0, t: '0:0:64', L: 64 }
@@ -3489,18 +3502,20 @@ BEAT_STILE.forEach(st => {
 /* ---------- Der Takt-Motor (Master-Clock + Look-ahead-Scheduler) ----------
    opt.bpm(): aktuelles Tempo, opt.stil(): aktueller Stil, opt.ohneTimer: Scheduler wird von aussen getrieben */
 function BeatEngine(ctx, ziel, opt) {
-  const eng = { ctx, knoten: 0, stimmen: 0, geplantGesamt: 0, uebersprungen: 0, letzterTipp: null };
+  const eng = { ctx, knoten: 0, stimmen: 0, geplantGesamt: 0, uebersprungen: 0, letzterTipp: null, alle: new Set() };
+  /* Stimmen, die zum Zeitpunkt t wirklich klingen (freigegebene zaehlen nicht) */
+  const klingendBei = t => { let n = 0; eng.alle.forEach(v => { if (v.t <= t + 0.002 && v.tEnd > t) n++; }); return n; };
   const aktiv = new Map();   /* Pad-Index -> { g: GainNode } */
   let schritt = 0, naechste = 0, timer = 0, laeuft = false, geplant = [], messPad = -1, messErste = null;
   const dt = () => 60 / Math.max(10, opt.bpm()) / 4;
 
   function note(i, sitz, e, t, lenS) {
     const st = opt.stil(), p = st.pads[i], K = BEAT_KLANG[p.k];
-    if (eng.stimmen >= BEAT_MAX_STIMMEN) { eng.uebersprungen++; return null; }
+    if (klingendBei(t) >= BEAT_MAX_STIMMEN) { eng.uebersprungen++; return null; }
     const dauer = K.dauer ? K.dauer(lenS, p.P) : lenS + (K.rel || 0.1);
     const v = beatStimme(eng, t, dauer);
     const aus = K.bau(v, e.fs, e.vel, p.P || {});
-    v.los(aus, sitz.g);
+    v.los(aus, sitz.g, sitz);
     eng.geplantGesamt++;
     if (i === messPad && (messErste == null || t < messErste)) messErste = t;
     return t;
@@ -3543,7 +3558,7 @@ function BeatEngine(ctx, ziel, opt) {
     const g = ctx.createGain(), pegel = BEAT_PEGEL[opt.stil().pads[i].g] || 0.7;
     g.gain.setValueAtTime(0, jetzt); g.gain.linearRampToValueAtTime(pegel, jetzt + BEAT_EIN);
     g.connect(ziel); eng.knoten++;
-    aktiv.set(i, { g });
+    aktiv.set(i, { g, stimmen: new Set() });
     let erste = null;
     /* schon geplante Schritte im Vorlauf: diesen Pad nachtragen */
     geplant.forEach(x => { if (x.t >= jetzt) { const r = planePad(i, x.n, x.t); if (r != null && (erste == null || r < erste)) erste = r; } });
@@ -3557,10 +3572,28 @@ function BeatEngine(ctx, ziel, opt) {
     });
     tick();
     timerAn();
-    const t1 = (typeof performance !== 'undefined' ? performance.now() : 0);
     if (messErste != null && (erste == null || messErste < erste)) erste = messErste;
     messPad = -1;
-    eng.letzterTipp = { pad: i, rechenMs: t1 - t0, einblendVerzugMs: 0, ersteNoteMs: erste == null ? null : Math.max(0, (erste - jetzt) * 1000) };
+    /* naechste Muster-Note (rechnerisch) */
+    let naechsteSchritte = Infinity, vorher = null, vorherAbst = Infinity;
+    p.bahn.ev.forEach(e => {
+      const s0 = ((e.s % L) + L) % L, vor = ((s0 - inLoop) % L + L) % L, zur = ((inLoop - s0) % L + L) % L;
+      if (vor < naechsteSchritte) naechsteSchritte = vor;
+      if (zur < vorherAbst) { vorherAbst = zur; vorher = e; }
+    });
+    const naechsteMs = naechsteSchritte * d * 1000;
+    /* Bestaetigung: dauert es bis zur naechsten Note laenger als 0,4 s, sofort EINE kurze, leise Note
+       (-6 dB unter der LAUTESTEN Note des Pads, damit sie nicht von einer leisen Echo-Note abhaengt) */
+    const lautVel = p.bahn.ev.reduce((m, e) => Math.max(m, e.vel), 0);
+    const musterMs = Math.min(naechsteMs, erste == null ? Infinity : Math.max(0, (erste - jetzt) * 1000));
+    let bestaetigt = false;
+    if ((erste == null || erste - jetzt > BEAT_BESTAETIGUNG) && naechsteMs > BEAT_BESTAETIGUNG * 1000 && vorher) {
+      const r = note(i, aktiv.get(i), { fs: vorher.fs, vel: lautVel * 0.5 }, jetzt + 0.005, Math.min(vorher.len * d, 0.3));
+      if (r != null) { bestaetigt = true; erste = r; }
+    }
+    const t1 = (typeof performance !== 'undefined' ? performance.now() : 0);
+    eng.letzterTipp = { pad: i, rechenMs: t1 - t0, einblendVerzugMs: 0, ersteNoteMs: erste == null ? naechsteMs : Math.min(naechsteMs, Math.max(0, (erste - jetzt) * 1000)),
+      bestaetigung: bestaetigt, naechsteMusterMs: musterMs };
     return true;
   };
   eng.aus = i => {
@@ -3572,6 +3605,7 @@ function BeatEngine(ctx, ziel, opt) {
       else { g.gain.cancelScheduledValues(jetzt); g.gain.setValueAtTime(g.gain.value, jetzt); }
       g.gain.linearRampToValueAtTime(0, jetzt + BEAT_AUS);
     } catch (e) {}
+    s.stimmen.forEach(v => v.freigeben(jetzt + BEAT_AUS + 0.01));
     const weg = () => { try { g.disconnect(); } catch (e) {} eng.knoten--; };
     if (opt.ohneTimer) eng.spaeter = (eng.spaeter || []).concat([{ t: jetzt + BEAT_AUS + 0.05, fn: weg }]);
     else setTimeout(weg, (BEAT_AUS + 0.15) * 1000);
