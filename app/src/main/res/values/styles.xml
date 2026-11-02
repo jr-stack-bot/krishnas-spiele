@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Krishnas Spiele - Theme @ Joschy -->
+<!-- Krishnas Spiele - Theme: dunkler Fensterhintergrund, kein weisser Blitz beim Start @ Joschy -->
 <resources>
-    <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar.Fullscreen">
+    <style name="AppTheme" parent="android:Theme.Material.NoActionBar.Fullscreen">
         <item name="android:windowBackground">@color/bg</item>
         <item name="android:windowFullscreen">true</item>
+        <item name="android:statusBarColor">@color/bg</item>
+        <item name="android:navigationBarColor">@color/bg</item>
+        <item name="android:colorBackground">@color/bg</item>
     </style>
-    <color name="bg">#F4F1EA</color>
-    <color name="ic_bg">#8FB8A8</color>
+    <color name="bg">#060B0E</color>
 </resources>

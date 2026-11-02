@@ -1,18 +1,25 @@
 /*
  * Krishnas Spiele - startet die lokale index.html in einer Vollbild-WebView.
  * JS-Bruecke "AndroidHuelle": setVollbild(boolean), istVollbild().
+ * Datei-Auswahl: <input type="file" [multiple]> oeffnet den System-Dialog
+ * (Storage Access Framework, keine Speicher-Berechtigung noetig).
  * @ Joschy
  */
 package de.joschy.krishnaspiele;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.ClipData;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -23,12 +30,16 @@ public class MainActivity extends Activity {
 
     private static final String ASSET_URL = "file:///android_asset/";
     private static final String KEY_VOLLBILD = "vollbild";
+    private static final int REQ_DATEI_AUSWAHL = 4711;
 
     private WebView webView;
     /** Zuletzt gewaehlter Zustand; Standard beim Start: Leisten aus. */
     private volatile boolean vollbild = true;
+    /** Offener Callback der Datei-Auswahl (genau einer gleichzeitig). */
+    private ValueCallback<Uri[]> dateiCallback;
 
     @SuppressLint("SetJavaScriptEnabled")
+    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,7 +52,7 @@ public class MainActivity extends Activity {
         }
 
         webView = new WebView(this);
-        webView.setBackgroundColor(0xFFF4F1EA);
+        webView.setBackgroundColor(0xFF060B0E);
         setContentView(webView);
 
         WebSettings s = webView.getSettings();
@@ -55,6 +66,11 @@ public class MainActivity extends Activity {
         s.setUseWideViewPort(true);
         s.setLoadWithOverviewMode(true);
         s.setAllowFileAccess(true);
+        // Auswahl-Dateien kommen als content://-Uris; die WebView liest sie selbst.
+        s.setAllowContentAccess(true);
+        // Keine Ausweitung: file://-Seiten duerfen nicht frei auf andere Dateien/Urls zugreifen.
+        s.setAllowFileAccessFromFileURLs(false);
+        s.setAllowUniversalAccessFromFileURLs(false);
         s.setTextZoom(100);
 
         webView.setWebViewClient(new WebViewClient() {
@@ -64,7 +80,13 @@ public class MainActivity extends Activity {
                 return !istLokal(request.getUrl().toString());
             }
         });
-        webView.setWebChromeClient(new WebChromeClient());
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback,
+                                             FileChooserParams params) {
+                return oeffneDateiAuswahl(view, callback, params);
+            }
+        });
         webView.addJavascriptInterface(new Huelle(), "AndroidHuelle");
 
         if (savedInstanceState != null) {
@@ -78,6 +100,64 @@ public class MainActivity extends Activity {
 
     private static boolean istLokal(String url) {
         return url != null && url.startsWith(ASSET_URL);
+    }
+
+    private boolean oeffneDateiAuswahl(WebView view, ValueCallback<Uri[]> callback,
+                                       WebChromeClient.FileChooserParams params) {
+        // Laufenden Dialog sauber beenden, damit kein Callback haengen bleibt.
+        beendeDateiAuswahl(null);
+        if (view == null || !istLokal(view.getUrl()) || params == null) {
+            callback.onReceiveValue(null);
+            return true;
+        }
+        Intent intent = params.createIntent();
+        if (params.getMode() == WebChromeClient.FileChooserParams.MODE_OPEN_MULTIPLE) {
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        }
+        dateiCallback = callback;
+        try {
+            startActivityForResult(intent, REQ_DATEI_AUSWAHL);
+        } catch (ActivityNotFoundException e) {
+            beendeDateiAuswahl(null);
+        }
+        return true;
+    }
+
+    private void beendeDateiAuswahl(Uri[] ergebnis) {
+        ValueCallback<Uri[]> cb = dateiCallback;
+        dateiCallback = null;
+        if (cb != null) {
+            cb.onReceiveValue(ergebnis);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode != REQ_DATEI_AUSWAHL) {
+            super.onActivityResult(requestCode, resultCode, data);
+            return;
+        }
+        Uri[] ergebnis = null;
+        if (resultCode == RESULT_OK && data != null) {
+            ClipData clip = data.getClipData();
+            if (clip != null && clip.getItemCount() > 0) {
+                java.util.ArrayList<Uri> liste = new java.util.ArrayList<>();
+                for (int i = 0; i < clip.getItemCount(); i++) {
+                    Uri u = clip.getItemAt(i).getUri();
+                    if (u != null) {
+                        liste.add(u);
+                    }
+                }
+                if (!liste.isEmpty()) {
+                    ergebnis = liste.toArray(new Uri[0]);
+                }
+            }
+            if (ergebnis == null) {
+                ergebnis = WebChromeClient.FileChooserParams.parseResult(resultCode, data);
+            }
+        }
+        beendeDateiAuswahl(ergebnis);
+        wendeVollbildAn();
     }
 
     /** Bruecke fuer index.html (nur auf der lokalen Asset-Seite wirksam). */
@@ -168,6 +248,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        beendeDateiAuswahl(null);
         if (webView != null) {
             webView.destroy();
             webView = null;
