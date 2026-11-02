@@ -1,5 +1,15 @@
 # Krishnas Spiele
 
+## Download
+
+**[APK herunterladen](https://github.com/jr-stack-bot/krishnas-spiele/releases/latest/download/krishnas-spiele.apk)** · [Release-Seite](https://github.com/jr-stack-bot/krishnas-spiele/releases/latest)
+
+Für Android-Tablets und -Handys ab Android 8.
+
+1. Die heruntergeladene APK öffnen.
+2. Bei Nachfrage „Installation aus dieser Quelle zulassen“ erlauben.
+3. Installieren – fertig.
+
 Ruhige, reizarme Musik- und Tipp-Spiele für Kinder – eine Tablet-Web-App, verpackt als Android-APK.
 
 Die App startet eine lokale `index.html` im Vollbild (Querformat, Display bleibt an, kein Zoom). Läuft ab Android 8 (API 26).
