@@ -10,6 +10,25 @@ Für Android-Tablets und -Handys ab Android 8.
 2. Bei Nachfrage „Installation aus dieser Quelle zulassen“ erlauben.
 3. Installieren – fertig.
 
+## Screenshots
+
+Die Bilder stammen aus Version 3 und zeigen die App im Querformat auf einem Tablet.
+
+<table>
+  <tr>
+    <td width="50%" align="center"><img src="docs/screenshots/01-menue.png" width="100%" alt="Hauptmenü der App mit den sechs Spielmodi"><br><sub>Hauptmenü</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/02-liederauswahl.png" width="100%" alt="Liederauswahl mit Kategorie-Reitern und Liedliste"><br><sub>Liederauswahl mit Kategorien</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" align="center"><img src="docs/screenshots/03-lied-spielen.png" width="100%" alt="Ein Lied wird gespielt, Kacheln erscheinen im Takt"><br><sub>Lied spielen (Kacheln im Takt, sofort antippbar)</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/04-belohnung.png" width="100%" alt="Ruhiger Belohnungs-Bildschirm nach einem gespielten Lied"><br><sub>Ruhiger Belohnungs-Bildschirm</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" align="center"><img src="docs/screenshots/05-ruhige-spiele.png" width="100%" alt="Beruhigende Spiele mit Blasen und sanften Farben"><br><sub>Beruhigende Spiele</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/06-einstellungen.png" width="100%" alt="Einstellungen mit Ruhe-Modus und Auswahl des Farbthemas"><br><sub>Einstellungen: Ruhe-Modus und Farbthema</sub></td>
+  </tr>
+</table>
+
 Ruhige, reizarme Musik- und Tipp-Spiele für Kinder – eine Tablet-Web-App, verpackt als Android-APK.
 
 Die App startet eine lokale `index.html` im Vollbild (Querformat, Display bleibt an, kein Zoom). Läuft ab Android 8 (API 26).
