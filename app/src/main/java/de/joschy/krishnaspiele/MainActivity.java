@@ -3,6 +3,9 @@
  * JS-Bruecke "AndroidHuelle": setVollbild(boolean), istVollbild().
  * Datei-Auswahl: <input type="file" [multiple]> oeffnet den System-Dialog
  * (Storage Access Framework, keine Speicher-Berechtigung noetig).
+ * Beim Pausieren der App wird das laufende Spiel per musikKachelnPause() angehalten.
+ * Stirbt der WebView-Renderer (z. B. Speichermangel), wird die WebView neu
+ * aufgebaut statt die App abstuerzen zu lassen.
  * @ Joschy
  */
 package de.joschy.krishnaspiele;
@@ -16,9 +19,11 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -31,12 +36,17 @@ public class MainActivity extends Activity {
     private static final String ASSET_URL = "file:///android_asset/";
     private static final String KEY_VOLLBILD = "vollbild";
     private static final int REQ_DATEI_AUSWAHL = 4711;
+    /** Mehr Renderer-Abbrueche als das innerhalb des Zeitfensters: App sauber beenden statt Endlosschleife. */
+    private static final int MAX_NEUSTARTS = 3;
+    private static final long NEUSTART_FENSTER_MS = 60_000L;
 
     private WebView webView;
     /** Zuletzt gewaehlter Zustand; Standard beim Start: Leisten aus. */
     private volatile boolean vollbild = true;
     /** Offener Callback der Datei-Auswahl (genau einer gleichzeitig). */
     private ValueCallback<Uri[]> dateiCallback;
+    private int neustarts = 0;
+    private long ersterNeustart = 0L;
 
     @SuppressLint("SetJavaScriptEnabled")
     @SuppressWarnings("deprecation")
@@ -51,11 +61,24 @@ public class MainActivity extends Activity {
                     WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
         }
 
-        webView = new WebView(this);
-        webView.setBackgroundColor(0xFF060B0E);
+        webView = erstelleWebView();
         setContentView(webView);
 
-        WebSettings s = webView.getSettings();
+        if (savedInstanceState != null) {
+            vollbild = savedInstanceState.getBoolean(KEY_VOLLBILD, true);
+            webView.restoreState(savedInstanceState);
+        } else {
+            webView.loadUrl(ASSET_URL + "index.html");
+        }
+        wendeVollbildAn();
+    }
+
+    @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface"})
+    @SuppressWarnings("deprecation")
+    private WebView erstelleWebView() {
+        WebView wv = new WebView(this);
+        wv.setBackgroundColor(0xFF060B0E);
+        WebSettings s = wv.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
         s.setDatabaseEnabled(true);
@@ -73,29 +96,69 @@ public class MainActivity extends Activity {
         s.setAllowUniversalAccessFromFileURLs(false);
         s.setTextZoom(100);
 
-        webView.setWebViewClient(new WebViewClient() {
+        wv.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 // Nur lokale Asset-Seiten zulassen, alles andere blockieren.
                 return !istLokal(request.getUrl().toString());
             }
+
+            @Override
+            public boolean onRenderProcessGone(final WebView view, RenderProcessGoneDetail detail) {
+                // true = App laeuft weiter; die tote WebView wird ersetzt.
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        bauWebViewNeu(view);
+                    }
+                });
+                return true;
+            }
         });
-        webView.setWebChromeClient(new WebChromeClient() {
+        wv.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback,
                                              FileChooserParams params) {
                 return oeffneDateiAuswahl(view, callback, params);
             }
         });
-        webView.addJavascriptInterface(new Huelle(), "AndroidHuelle");
+        wv.addJavascriptInterface(new Huelle(), "AndroidHuelle");
+        return wv;
+    }
 
-        if (savedInstanceState != null) {
-            vollbild = savedInstanceState.getBoolean(KEY_VOLLBILD, true);
-            webView.restoreState(savedInstanceState);
-        } else {
-            webView.loadUrl(ASSET_URL + "index.html");
+    /** Renderer weg: alte WebView verwerfen (nicht wiederverwendbar), neue aufbauen und index.html laden. */
+    private void bauWebViewNeu(WebView tot) {
+        if (tot != webView || isFinishing()) {
+            return;
         }
-        wendeVollbildAn();
+        long jetzt = SystemClock.elapsedRealtime();
+        if (neustarts == 0 || jetzt - ersterNeustart > NEUSTART_FENSTER_MS) {
+            neustarts = 0;
+            ersterNeustart = jetzt;
+        }
+        neustarts++;
+        beendeDateiAuswahl(null);
+        webView = null;
+        if (neustarts <= MAX_NEUSTARTS) {
+            try {
+                WebView neu = erstelleWebView();
+                setContentView(neu);          // loest die tote WebView aus dem Fenster
+                webView = neu;
+                neu.loadUrl(ASSET_URL + "index.html");
+                wendeVollbildAn();
+            } catch (RuntimeException e) {
+                webView = null;
+            }
+        }
+        try {
+            tot.destroy();
+        } catch (RuntimeException ignoriert) {
+            // Bereits zerstoert - egal.
+        }
+        if (webView == null) {
+            // Zu viele Abbrueche kurz hintereinander oder Neuaufbau fehlgeschlagen: sauber beenden.
+            finish();
+        }
     }
 
     private static boolean istLokal(String url) {
@@ -232,6 +295,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         if (webView != null) {
+            // Laufendes Spiel anhalten, bevor die WebView pausiert wird.
+            webView.evaluateJavascript("window.musikKachelnPause&&musikKachelnPause()", null);
             webView.onPause();
         }
         super.onPause();
