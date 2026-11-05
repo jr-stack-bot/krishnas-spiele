@@ -12,30 +12,37 @@ Für Android-Tablets und -Handys ab Android 8.
 
 ## Was ist das?
 
-**Musik-Kacheln** (Version 6.0) ist ein ruhiges Tipp-Spiel für das Tablet: Du wählst eigene MP3-Dateien aus, die App hört sich die Musik an und macht daraus Kacheln. Die Kacheln fallen im Takt der Musik herunter. Tippe sie an, wenn sie die Linie erreichen.
+**Musik-Kacheln** (Version 6.1) ist ein ruhiges Tipp-Spiel für das Tablet: Du wählst eigene MP3-Dateien aus, die App hört sich die Musik an und macht daraus Kacheln. Die Kacheln fallen im Takt der Musik herunter. Tippe sie an, wenn sie die Linie erreichen.
 
 Auf dem Tablet heißt die App weiterhin **„Krishnas Spiele“**.
 
+## Neu in Version 6.1
+
+- **Alle löschen** – ein Knopf über der Liste entfernt alle Lieder auf einmal. Vorher kommt eine Rückfrage („Wirklich alle 8 Lieder löschen?“), „Nein, behalten“ ist voreingestellt. Die Einstellungen bleiben erhalten.
+- **Suche und Sortierung** – ab 8 Liedern erscheinen ein Suchfeld und ein Sortier-Knopf („Wie hinzugefügt“, „A–Z“, „Neueste zuerst“).
+- **Tempo und Stufe live ändern** – oben in der Spielansicht lassen sich Tempo (−/+) und Schwierigkeit (◀/▶) während des Liedes umstellen, ohne neu zu starten.
+- **Effekte: Ruhig, Normal oder Viel** (in den Einstellungen, Standard „Normal“) – Funken, Ringe, Serien-Anzeige („Super!“) und ein Feuerwerk am Lied-Ende. Mit Sicherheitsgrenzen:
+  - **kein Flackern**: höchstens 3 Hell-Dunkel-Blitze pro Sekunde (Grenze nach WCAG), keine großflächigen Helligkeitswechsel;
+  - feste **Obergrenze für Partikel** je Stufe;
+  - **adaptive Absenkung**: wird das Tablet zu langsam (unter etwa 45 Bilder pro Sekunde), schaltet die App die Effekte automatisch eine Stufe herunter;
+  - bei „Bewegung sparsam“ oder der System-Einstellung „Weniger Bewegung“ bleiben die Effekte immer auf „Ruhig“.
+
 ## Screenshots
 
-Die Bilder zeigen die App im Querformat (1138 × 711). Die Lieder darauf sind selbst erzeugte Test-Töne, keine echte Musik.
+Die Bilder zeigen die App im Querformat (1138 × 711, die Einstellungen 1138 × 790). Die Lieder darauf sind selbst erzeugte Test-Töne, keine echte Musik.
 
 <table>
   <tr>
-    <td width="50%" align="center"><img src="docs/screenshots/01-startseite.png" width="100%" alt="Startseite mit drei Beispiel-Liedern, Knopf MP3 hinzufügen und Auswahl der Schwierigkeit"><br><sub>Startseite: eigene Lieder und Schwierigkeit</sub></td>
-    <td width="50%" align="center"><img src="docs/screenshots/02-import.png" width="100%" alt="Fenster Lied wird vorbereitet mit Fortschrittsbalken"><br><sub>Ein Lied wird vorbereitet</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/01-startseite.png" width="100%" alt="Startseite mit acht Beispiel-Liedern, Suchfeld, Sortier-Knopf, Alle löschen und Auswahl der Schwierigkeit"><br><sub>Startseite: eigene Lieder, Suche und Sortierung ab 8 Liedern</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/02-alle-loeschen.png" width="100%" alt="Rückfrage Alle Lieder löschen mit den Knöpfen Nein, behalten und Ja, alle löschen"><br><sub>Alle löschen – mit Rückfrage</sub></td>
   </tr>
   <tr>
-    <td width="50%" align="center"><img src="docs/screenshots/03-countdown.png" width="100%" alt="Spielansicht mit Countdown 3 vor dem Start des Liedes"><br><sub>Start mit Countdown 3-2-1</sub></td>
-    <td width="50%" align="center"><img src="docs/screenshots/04-spiel-kacheln.png" width="100%" alt="Spielansicht mitten im Lied mit fallenden Kacheln auf vier Spuren"><br><sub>Mitten im Lied: Kacheln auf vier Spuren</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/03-spiel-effekte.png" width="100%" alt="Spielansicht mitten im Lied mit Kacheln auf vier Spuren, Funken an der Linie, Tempo- und Stufen-Regler oben"><br><sub>Mitten im Lied (Effekte „Normal“): Funken beim Treffer, Tempo und Stufe live änderbar</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/04-spiel-viel.png" width="100%" alt="Spielansicht mit Effekten Viel, Serie 11 und Einblendung Super! 10 Treffer hintereinander"><br><sub>Effekte „Viel“ mit Serien-Anzeige</sub></td>
   </tr>
   <tr>
-    <td width="50%" align="center"><img src="docs/screenshots/05-spiel-treffer.png" width="100%" alt="Spielansicht direkt nach einem Treffer, Ring an der Linie"><br><sub>Treffer: ein Ring an der Linie</sub></td>
-    <td width="50%" align="center"><img src="docs/screenshots/06-ergebnis.png" width="100%" alt="Ergebnis mit drei Sternen und den Knöpfen Nochmal und Zu meinen Liedern"><br><sub>Ergebnis mit Sternen</sub></td>
-  </tr>
-  <tr>
-    <td width="50%" align="center"><img src="docs/screenshots/07-einstellungen.png" width="100%" alt="Einstellungen: Tempo, Verzögerung, Fallgeschwindigkeit, Schwierigkeit, Countdown, Bewegung"><br><sub>Einstellungen</sub></td>
-    <td width="50%"></td>
+    <td width="50%" align="center"><img src="docs/screenshots/05-ergebnis.png" width="100%" alt="Ergebnis mit drei Sternen, Feuerwerk im Hintergrund und den Knöpfen Nochmal und Zu meinen Liedern"><br><sub>Ergebnis mit Sternen und Feuerwerk</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/06-einstellungen.png" width="100%" alt="Einstellungen: Tempo, Verzögerung, Fallgeschwindigkeit, Schwierigkeit, Countdown, Bewegung sparsam, Effekte und Treffer-Töne"><br><sub>Einstellungen mit Effekten (Bild etwas höher, damit alles drauf ist)</sub></td>
   </tr>
 </table>
 
@@ -44,10 +51,12 @@ Die Bilder zeigen die App im Querformat (1138 × 711). Die Lieder darauf sind se
 1. **MP3 aufs Tablet kopieren** – zum Beispiel per USB-Kabel in den Ordner „Download“ oder „Music“.
 2. In der App **„MP3 hinzufügen“** antippen und eine oder mehrere Dateien auswählen. Die App bereitet jedes Lied einmal vor (das dauert ein paar Sekunden). Danach steht es in der Liste.
 3. Oben die **Schwierigkeit** wählen: „Ganz leicht“, „Leicht“, „Mittel“ oder „Wie im Original“.
-4. Wer mag, stellt in den **Einstellungen** das **Tempo** ein (langsamer oder schneller, die Tonhöhe bleibt gleich).
-5. Beim Lied auf **Abspielen** tippen, Countdown abwarten, Kacheln an der Linie antippen.
+4. Wer mag, stellt in den **Einstellungen** das **Tempo** ein (langsamer oder schneller, die Tonhöhe bleibt gleich) und wählt die **Effekte** („Ruhig“, „Normal“ oder „Viel“).
+5. Beim Lied auf **Abspielen** tippen, Countdown abwarten, Kacheln an der Linie antippen. Tempo und Stufe lassen sich oben auch während des Liedes ändern.
 
-Ein Lied löschen: auf den Mülleimer tippen und noch einmal bestätigen.
+Ein Lied löschen: auf den Mülleimer tippen und noch einmal bestätigen. Alle Lieder löschen: „Alle löschen“ über der Liste, danach die Rückfrage mit „Ja, alle löschen“ bestätigen.
+
+Viele Lieder: Ab 8 Liedern gibt es ein Suchfeld und einen Sortier-Knopf über der Liste.
 
 ## Grenzen
 
