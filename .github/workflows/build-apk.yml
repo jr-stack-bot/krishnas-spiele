@@ -40,7 +40,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git tag -f latest
-          git push -f origin refs/tags/latest
+          # Tag verschieben ist nur Kosmetik; scheitert es (z. B. GitHub-Fehler "commit_refs_rules"), wird die APK trotzdem hochgeladen
+          git push -f origin refs/tags/latest || echo "::warning::Tag latest konnte nicht verschoben werden, APK wird trotzdem hochgeladen"
           if gh release view latest >/dev/null 2>&1; then
             gh release upload latest krishnas-spiele.apk --clobber
             gh release edit latest --title "Krishnas Spiele (aktuell)" --notes "Automatisch gebaute Debug-APK, Stand ${GITHUB_SHA::7}. @ Joschy"
