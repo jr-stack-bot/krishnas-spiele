@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <!--
   ================================================================
-   Musik-Kacheln  -  Version 6.1   gebaut @ Joschy
-   Teil von "Krishnas Spiele" (Samsung Galaxy Tab S5e, Android-WebView,
-   Querformat, Touch). Eine einzige Datei, keine externen Ressourcen,
+   Musik-Kacheln  -  Version 6.2   gebaut @ Joschy
+   Teil von "Krishnas Spiele" (Android-WebView, Touch). Entwickelt auf dem
+   Galaxy Tab S5e (Querformat); ab 6.2 auch fuer Handys (hoch/quer),
+   kleine/grosse Tablets, Falt-Geraete, Notch/Gesten-Leiste und alte
+   WebViews (Android 8, Chrome-70-Niveau, Fallbacks im Code). Eine einzige Datei, keine externen Ressourcen,
    kein Netzzugriff, laeuft komplett offline.
    Eigene Lieder (MP3, M4A, WAV, OGG) laden, die Original-Musik laeuft,
    dazu fallen Kacheln im Takt. Analyse (Onsets, Tempo, Beat-Raster)
-   laeuft auf dem Tablet. Ruhig, langsam, keine Strafen, kein Game Over.
+   laeuft auf dem Geraet. Ruhig, langsam, keine Strafen, kein Game Over.
    Es wird keine Musik mitgeliefert.
    Design: dunkles "Reaktor"-Thema wie Krishnas Spiele 5.x.
    Schrift: Barlow Semi Condensed (SIL Open Font License 1.1, Lizenztext
@@ -21,7 +23,7 @@
 <meta name="theme-color" content="#060b0e">
 <meta name="author" content="@ Joschy">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src data:; img-src data: blob:; media-src blob:; connect-src blob: data:">
-<title>Musik-Kacheln 6.1 – gebaut @ Joschy</title>
+<title>Musik-Kacheln 6.2 – gebaut @ Joschy</title>
 <style>
 /* ---------------------------------------------------------------
    Schrift "Barlow Semi Condensed" (Teilmenge: Latein + Umlaute),
@@ -138,13 +140,15 @@
   --fh:"Bahnschrift","Barlow Semi Condensed",system-ui,"Segoe UI",Roboto,sans-serif;
   --fm:"Consolas",ui-monospace,"Roboto Mono",monospace;
   --tipp:72px;
+  --sa-t:0px; --sa-r:0px; --sa-b:0px; --sa-l:0px;   /* sichere Raender (Notch, Gesten-Leiste), per JS gesetzt */
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;overflow:hidden;background:#060B0E;color:var(--text);font-family:var(--fh);
+html,body{margin:0;height:100%;overflow:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%;background:#060B0E;color:var(--text);font-family:var(--fh);
   user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;overscroll-behavior:none;touch-action:manipulation}
 button{font:inherit;color:inherit;border:0;cursor:pointer;background:none;padding:0;touch-action:manipulation}
 svg{display:block}
-.screen{position:fixed;inset:0;display:none;flex-direction:column;
+.screen{position:fixed;top:0;right:0;bottom:0;left:0;display:none;flex-direction:column;
+  padding:var(--sa-t,0px) var(--sa-r,0px) var(--sa-b,0px) var(--sa-l,0px);
   background:radial-gradient(ellipse at 50% 0%, var(--bg-innen), var(--bg) 70%)}
 .screen.active{display:flex}
 .hud{font-family:var(--fm);text-transform:uppercase;letter-spacing:.08em;font-size:13px;color:var(--text-dim)}
@@ -168,7 +172,7 @@ svg{display:block}
   background:var(--flaeche);box-shadow:inset 0 0 0 1px var(--rand);flex:0 0 auto}
 .ikon svg{width:30px;height:30px}
 .ikon:active{transform:scale(.95)}
-#vollbildBtn{position:fixed;top:12px;right:14px;z-index:60;width:64px;height:64px;background:var(--glas)}
+#vollbildBtn{position:fixed;top:calc(12px + var(--sa-t,0px));right:calc(14px + var(--sa-r,0px));z-index:60;width:64px;height:64px;background:var(--glas)}
 html[data-ruhig="1"] *{transition:none!important;animation:none!important}
 
 /* ---------- Startseite ---------- */
@@ -182,7 +186,7 @@ html[data-ruhig="1"] *{transition:none!important;animation:none!important}
 .stufenwahl{display:flex;gap:8px;flex-wrap:wrap}
 .stufenwahl .pille{min-height:56px;font-size:17px;padding:0 16px 0 24px}
 .liste{flex:1 1 auto;overflow-y:auto;touch-action:pan-y;padding:4px 26px 16px;display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;align-content:start;-webkit-overflow-scrolling:touch}
+  grid-template-columns:repeat(auto-fill,minmax(330px,1fr));grid-gap:14px;gap:14px;align-content:start;-webkit-overflow-scrolling:touch}
 .liste button{touch-action:pan-y}
 .leer{grid-column:1/-1;padding:46px 30px;text-align:center;color:var(--text-dim);font-size:22px;line-height:1.45}
 .leer b{color:var(--text);font-weight:600}
@@ -194,7 +198,7 @@ html[data-ruhig="1"] *{transition:none!important;animation:none!important}
 .karte .txt{min-width:0;display:flex;flex-direction:column;gap:6px}
 .karte .titel{font-size:22px;font-weight:600;line-height:1.15;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
 .karte .weg{width:64px;height:64px;color:var(--text-dim)}
-.karte .frage{position:absolute;inset:0;display:none;align-items:center;justify-content:center;gap:12px;padding:10px 16px;
+.karte .frage{position:absolute;top:0;right:0;bottom:0;left:0;display:none;align-items:center;justify-content:center;gap:12px;padding:10px 16px;
   background:#081115;font-size:20px}
 .karte.fragt .frage{display:flex}
 .karte .frage span{flex:1 1 auto;line-height:1.2}
@@ -213,10 +217,10 @@ footer.fuss{flex:0 0 auto;text-align:center;padding:6px 10px 10px}
 #alleUeber .panel p b{color:var(--text)}
 
 /* ---------- Einstellungen ---------- */
-#einst .raster{flex:1 1 auto;overflow-y:auto;touch-action:pan-y;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:4px 22px 12px;align-content:start}
+#einst .raster{flex:1 1 auto;overflow-y:auto;touch-action:pan-y;display:grid;grid-template-columns:1fr 1fr 1fr;grid-gap:12px;gap:12px;padding:4px 22px 12px;align-content:start}
 .block{padding:14px 18px 12px;display:flex;flex-direction:column;gap:8px;min-width:0}
 .block h2{margin:0;font-size:22px;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.block h2 .wert{font-family:var(--fm);font-size:20px;color:var(--akzent)}
+.block h2 .wert{font-family:var(--fm);font-size:20px;color:var(--akzent);white-space:nowrap}
 .block p{margin:0;color:var(--text-dim);font-size:16px;line-height:1.3}
 .block .reihe{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .block .reihe .pille{min-height:58px;font-size:18px;padding:0 16px 0 24px}
@@ -231,21 +235,22 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
 
 /* ---------- Spiel ---------- */
 #spiel{background:#060B0E}
-#feld{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
-.spielkopf{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:14px;padding:12px 92px 0 14px;pointer-events:none;z-index:5}
+#feld{position:absolute;top:0;left:0;width:100%;height:100%;touch-action:none;display:block}
+.spielkopf{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:14px;padding:calc(12px + var(--sa-t,0px)) calc(92px + var(--sa-r,0px)) 0 calc(14px + var(--sa-l,0px));pointer-events:none;z-index:5}
 .spielkopf > *{pointer-events:auto}
 .spielkopf .mitte{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:8px;pointer-events:none}
 .spielkopf .liedname{font-size:19px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);opacity:.85}
 .fortschritt{height:8px;border-radius:4px;background:rgba(29,58,64,.8);overflow:hidden}
 .fortschritt i{display:block;height:100%;width:100%;background:var(--akzent);transform-origin:0 50%;transform:scaleX(0);opacity:.8}
 .spielkopf .ikon{background:rgba(10,19,23,.75)}
-.ueber{position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(3,7,10,.74)}
+.ueber{position:absolute;top:0;right:0;bottom:0;left:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(3,7,10,.74);
+  padding:calc(10px + var(--sa-t,0px)) calc(10px + var(--sa-r,0px)) calc(10px + var(--sa-b,0px)) calc(10px + var(--sa-l,0px))}
 .ueber.an{display:flex}
-.ueber .panel{background:linear-gradient(160deg, rgba(46,230,214,.06), rgba(0,0,0,0) 45%), #0a1418;min-width:460px;max-width:720px;padding:30px 36px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center}
+.ueber .panel{background:linear-gradient(160deg, rgba(46,230,214,.06), rgba(0,0,0,0) 45%), #0a1418;min-width:460px;max-width:720px;max-height:100%;overflow-y:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch;padding:30px 36px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center}
 .ueber .panel h2{margin:0;font-size:34px;font-weight:600;letter-spacing:.04em}
 .ueber .panel p{margin:0;font-size:21px;color:var(--text-dim);line-height:1.35}
 .ueber .knoepfe{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
-#zaehler{position:absolute;inset:0;z-index:15;display:none;align-items:center;justify-content:center;pointer-events:none}
+#zaehler{position:absolute;top:0;right:0;bottom:0;left:0;z-index:15;display:none;align-items:center;justify-content:center;pointer-events:none}
 #zaehler.an{display:flex}
 #zaehler b{font-size:150px;font-weight:600;color:var(--akzent-weich);width:230px;height:230px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   box-shadow:inset 0 0 0 3px rgba(46,230,214,.55),0 0 50px var(--glow);background:rgba(6,11,14,.55);line-height:1}
@@ -302,10 +307,134 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
   .listenleiste{padding-bottom:6px}
   footer.fuss{padding:3px 10px 5px}
 }
+/* =================================================================
+   6.2: andere Android-Geraete (Handy hoch/quer, kleine/grosse Tablets,
+   Falt-Geraete). Tablet-Querformat (ab 1000 x 501) bleibt wie 6.1.
+   Bewusst ohne clamp()/min()/max(), inset, aspect-ratio, :has, dvh
+   (alte WebViews); Abstaende in Flex-Containern siehe "ohne-gap". @ Joschy
+   ================================================================= */
+#randProbe{position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;
+  padding-top:env(safe-area-inset-top,0px);padding-right:env(safe-area-inset-right,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px)}
+@media (max-height:600px){ #meldung .liste2{max-height:45vh} }
+/* kleine Hoehe (Handy quer) */
+@media (max-height:419px){
+  :root{--tipp:56px}
+  .kopf{min-height:60px;padding-top:6px;padding-bottom:2px}
+  .kopf h1{font-size:24px}
+  .karte{min-height:86px;padding:10px 12px 10px 14px}
+  .karte .play{width:56px;height:56px}
+  .karte .weg{width:56px;height:56px}
+  .karte .titel{font-size:20px}
+  .ueber .panel{padding:14px 22px;gap:10px}
+  .ueber .panel h2{font-size:26px}
+  .ueber .panel p{font-size:17px}
+  .sterne svg{width:50px;height:50px}
+  #zaehler b{font-size:92px;width:146px;height:146px}
+  #arbeit .panel{min-width:0;width:520px;max-width:100%}
+  .suche{flex:1 1 160px;min-width:140px}
+}
+/* ganze Startseite scrollt (statt nur der Liste), damit die Liste auf kleinen Bildschirmen Platz hat */
+@media (max-height:419px), (max-width:600px){
+  #start{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+  #start .liste{flex:1 0 auto;overflow:visible}
+  #start button{touch-action:pan-y}
+}
+/* schmale Breite (Handy hoch, Falt-Geraet aussen) */
+@media (max-width:600px){
+  :root{--tipp:56px}
+  .kopf{padding:10px 80px 6px 14px;gap:10px;min-height:72px}
+  .kopf h1{font-size:22px;letter-spacing:.1em}
+  #zuEinst{width:var(--tipp);padding:0}
+  #zuEinst::before{display:none}
+  #zuEinst .ltext{display:none}
+  .leiste{padding:4px 14px 10px;gap:10px}
+  .leiste .hinweis,.leiste .abstand{display:none}
+  #mp3Btn{flex:1 1 auto}
+  .stufenwahl{flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;grid-gap:8px;gap:8px}
+  .stufenwahl .pille{padding:0 10px 0 22px;font-size:16px}
+  .listenleiste{padding:0 14px 8px;gap:8px}
+  .suche{flex:1 1 100%;min-width:0}
+  .listenleiste .abstand{display:none}
+  .listenleiste .anzahl{flex:1 1 auto}
+  .liste{padding:4px 14px 12px;grid-template-columns:1fr;grid-gap:10px;gap:10px}
+  .karte{min-height:88px;padding:10px 10px 10px 12px;gap:8px}
+  .karte .spielen{gap:12px;min-height:64px}
+  .karte .play{width:56px;height:56px}
+  .karte .weg{width:56px;height:56px}
+  .karte .titel{font-size:19px}
+  .karte .frage{gap:8px;padding:8px 10px;font-size:17px}
+  .karte .frage .pille{padding:0 12px 0 22px;font-size:16px}
+  .leer{padding:30px 10px;font-size:19px}
+  #einst .raster{grid-template-columns:1fr;grid-gap:10px;gap:10px;padding:4px 12px 12px}
+  .block{padding:12px 14px 10px}
+  .block h2{font-size:20px;flex-wrap:wrap}
+  .ueber .panel{min-width:0;width:100%;padding:20px 16px;gap:14px}
+  .ueber .panel h2{font-size:26px}
+  .ueber .panel p{font-size:18px}
+  .ueber .knoepfe{flex-direction:column;align-self:stretch;gap:10px}
+  .ueber .knoepfe .pille{width:100%}
+  #arbeit .panel{min-width:0}
+  .sterne svg{width:64px;height:64px}
+  #meldung .liste2{font-size:17px}
+  footer.fuss{font-size:11px;letter-spacing:.04em}
+}
+@media (max-width:400px){ .kopf h1{font-size:19px;letter-spacing:.08em} }
+@media (max-width:340px){ .kopf h1{font-size:17px;letter-spacing:.05em} .karte .titel{font-size:18px} }
+/* mittlere Breite: Einstellungen zweispaltig */
+@media (min-width:601px) and (max-width:979px){ #einst .raster{grid-template-columns:1fr 1fr} }
+/* Spiel: kompakte Kopfzeile auf Handys und kleinen Tablets (Tippflaechen bleiben 56 px) */
+@media (max-width:999px), (max-height:500px){
+  .spielkopf{gap:8px;padding:calc(8px + var(--sa-t,0px)) calc(80px + var(--sa-r,0px)) 0 calc(8px + var(--sa-l,0px))}
+  .spielkopf .ikon{width:56px;height:56px}
+  #vollbildBtn{width:56px;height:56px;top:calc(8px + var(--sa-t,0px));right:calc(12px + var(--sa-r,0px))}
+  .regeln{gap:6px}
+  .regel{padding:0;gap:0}
+  .regel button{width:56px;height:56px}
+  .regel .rw{padding:0 2px}
+  .regel .rw b{font-size:15px}
+  .regel .rw .hud{font-size:10px}
+  .regel.tempo .rw{min-width:44px}
+  .regel.stufe .rw{min-width:64px;max-width:78px}
+  .regel.stufe .rw b{white-space:normal;text-align:center;line-height:1.05}
+  .spielkopf .liedname{font-size:16px}
+  .spielkopf .mitte{gap:6px}
+  .sternfort span,.sternfort span svg{width:16px;height:16px}
+}
+/* Hochformat schmal: Regler in einer zweiten Zeile ueber die volle Breite */
+@media (max-width:659px) and (orientation:portrait){
+  .spielkopf{-webkit-flex-wrap:wrap;flex-wrap:wrap;row-gap:8px;padding-left:calc(6px + var(--sa-l,0px))}
+  .spielkopf .mitte{flex:1 1 0px;min-width:0}
+  .spielkopf .regeln{order:5;flex:1 1 100%;justify-content:center;margin-right:-74px;flex-wrap:wrap;gap:4px}
+  .regel.stufe .rw{max-width:72px}
+}
+@media (max-width:359px){
+  .regel button{width:48px;height:48px}
+  .regel.tempo .rw{min-width:40px}
+  .regel.stufe .rw{min-width:58px}
+}
+/* Fallback fuer alte WebViews ohne "gap" in Flexbox (Chrome < 84): Abstaende per Rand */
+html.ohne-gap .pille svg{margin-right:10px}
+html.ohne-gap .pille.rund svg{margin-right:0}
+html.ohne-gap .kopf > * + *{margin-left:18px}
+html.ohne-gap .kopf .titelblock > * + *,html.ohne-gap .karte .txt > * + *{margin-top:6px}
+html.ohne-gap .leiste > *,html.ohne-gap .listenleiste > *{margin:5px 6px}
+html.ohne-gap .stufenwahl > *,html.ohne-gap .block .reihe > *,html.ohne-gap .ueber .knoepfe > *,html.ohne-gap .regeln > *{margin:4px}
+html.ohne-gap .karte > * + *,html.ohne-gap .karte .spielen > * + *,html.ohne-gap .karte .frage > * + *{margin-left:12px}
+html.ohne-gap .block > * + *{margin-top:8px}
+html.ohne-gap .block h2 > * + *{margin-left:10px}
+html.ohne-gap .spielkopf > *{margin-right:10px}
+html.ohne-gap .spielkopf .mitte > * + *{margin-top:8px}
+html.ohne-gap .spielkopf .zeile > * + *{margin-left:10px}
+html.ohne-gap .ueber .panel > * + *{margin-top:16px}
+html.ohne-gap .sterne > * + *{margin-left:14px}
+html.ohne-gap .sternfort > * + *{margin-left:3px}
+html.ohne-gap .regel > * + *{margin-left:2px}
+html.ohne-gap .regel .rw > * + *{margin-top:1px}
 </style>
 </head>
 <body>
 
+<div id="randProbe" aria-hidden="true"></div>
 <button id="vollbildBtn" class="ikon" type="button" aria-label="Vollbild"></button>
 
 <!-- ================= Startseite ================= -->
@@ -315,11 +444,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
       <h1>MUSIK-KACHELN</h1>
       <div class="hud">Meine Lieder</div>
     </div>
-    <button class="pille klein" id="zuEinst" type="button" style="--mark:var(--text-dim)"><span data-ik="zahnrad"></span>Einstellungen</button>
+    <button class="pille klein" id="zuEinst" type="button" style="--mark:var(--text-dim)"><span data-ik="zahnrad"></span><span class="ltext">Einstellungen</span></button>
   </div>
   <div class="leiste">
     <button class="pille haupt" id="mp3Btn" type="button"><span data-ik="plus"></span>MP3 hinzufügen</button>
-    <div class="hinweis">Wähle MP3-Dateien vom Tablet</div>
+    <div class="hinweis">Wähle MP3-Dateien vom Gerät</div>
     <input id="dateiWahl" type="file" multiple accept="*/*" hidden>
     <div class="abstand"></div>
     <div class="stufenwahl" id="stufenSchnell" aria-label="Schwierigkeit"></div>
@@ -332,7 +461,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
     <button class="pille" id="alleBtn" type="button" style="--mark:var(--wahl)"><span data-ik="weg"></span>Alle löschen</button>
   </div>
   <div class="liste" id="liedListe"></div>
-  <footer class="fuss hud">Musik-Kacheln · Version 6.1 · gebaut @ Joschy</footer>
+  <footer class="fuss hud">Musik-Kacheln · Version 6.2 · gebaut @ Joschy</footer>
 </section>
 
 <!-- ================= Einstellungen ================= -->
@@ -384,7 +513,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
       <p>Sehr leise, weiche Töne beim Treffen.</p>
     </div>
   </div>
-  <footer class="fuss hud">Musik-Kacheln · Version 6.1 · gebaut @ Joschy</footer>
+  <footer class="fuss hud">Musik-Kacheln · Version 6.2 · gebaut @ Joschy</footer>
 </section>
 
 <!-- ================= Spiel ================= -->
@@ -458,13 +587,71 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
 </div>
 
 <script>
-/* Musik-Kacheln 6.1 - gebaut @ Joschy */
+/* Musik-Kacheln 6.2 - gebaut @ Joschy */
 'use strict';
-const VERSION = '6.1';
+const VERSION = '6.2';
 const ALGO = 5;                     // Analyse-Version (Cache-Schluessel)
 const $ = s => document.querySelector(s);
 const STUFEN = ['Ganz leicht', 'Leicht', 'Mittel', 'Wie im Original'];
 const FALL = { langsam: 3.2, normal: 2.2 };   // Sekunden (echte Zeit) von oben bis zur Ziellinie
+
+/* ---- 6.2: Geraete-Angaben, Kompatibilitaet alter WebViews @ Joschy ---- */
+const GERAET = (() => {
+  let mem = 0, kerne = 0;
+  try { mem = +navigator.deviceMemory || 0; } catch (e) { }
+  try { kerne = +navigator.hardwareConcurrency || 0; } catch (e) { }
+  const wenigRam = mem > 0 && mem <= 2;            // 2-GB-Geraete melden 2 (oder weniger)
+  return { mem, kerne, wenigRam, schwach: wenigRam };
+})();
+// Blob/File -> ArrayBuffer (Blob.arrayBuffer() erst ab Chrome 76, sonst FileReader)
+function liesPuffer(b) {
+  if (b && typeof b.arrayBuffer === 'function') return b.arrayBuffer();   /* kompat-ok: mit Fallback */
+  return new Promise((res, rej) => {
+    try { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error || new Error('lesen')); r.readAsArrayBuffer(b); }
+    catch (e) { rej(e); }
+  });
+}
+const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+function tonhoeheHalten() { try { audio.preservesPitch = true; audio.mozPreservesPitch = true; audio.webkitPreservesPitch = true; } catch (e) { } }
+// "gap" in Flexbox erst ab Chrome 84: sonst Klasse "ohne-gap" (Abstaende per Rand)
+(function () {
+  let ok = true;
+  try {
+    if (window.__mkOhneGap) ok = false;          // nur fuer Tests
+    else {
+      const d = document.createElement('div');
+      d.style.cssText = 'display:flex;flex-direction:column;row-gap:1px;position:absolute;visibility:hidden';
+      d.appendChild(document.createElement('div')); d.appendChild(document.createElement('div'));
+      document.body.appendChild(d); ok = d.scrollHeight === 1; document.body.removeChild(d);
+    }
+  } catch (e) { }
+  if (!ok) document.documentElement.classList.add('ohne-gap');
+})();
+// Sichere Raender (Notch, abgerundete Ecken, Gesten-Leiste): CSS env() und/oder Werte der Android-Huelle
+const RAND = { t: 0, r: 0, b: 0, l: 0, huelle: null, txt: '' };
+function messeRand() {
+  let w = [0, 0, 0, 0];
+  try { const cs = getComputedStyle($('#randProbe')); w = [cs.paddingTop, cs.paddingRight, cs.paddingBottom, cs.paddingLeft].map(v => parseFloat(v) || 0); } catch (e) { }
+  if (!RAND.huelle) {
+    try { if (window.AndroidHuelle && AndroidHuelle.rand) { const h = String(AndroidHuelle.rand() || '').split(',').map(Number); if (h.length === 4 && h.every(isFinite)) RAND.huelle = h; } } catch (e) { }
+  }
+  if (RAND.huelle) w = w.map((v, i) => Math.max(v, RAND.huelle[i] || 0));
+  w = w.map(v => Math.max(0, Math.min(200, Math.round(v))));
+  RAND.t = w[0]; RAND.r = w[1]; RAND.b = w[2]; RAND.l = w[3];
+  const txt = w.join(',');
+  if (txt !== RAND.txt) {
+    RAND.txt = txt;
+    const st = document.documentElement.style;
+    st.setProperty('--sa-t', w[0] + 'px'); st.setProperty('--sa-r', w[1] + 'px'); st.setProperty('--sa-b', w[2] + 'px'); st.setProperty('--sa-l', w[3] + 'px');
+  }
+  return RAND;
+}
+// Aufruf aus der Android-Huelle (Werte in CSS-Pixeln): musikKachelnRand(oben, rechts, unten, links)
+window.musikKachelnRand = (t, r, b, l) => {
+  RAND.huelle = [t, r, b, l].map(v => Math.max(0, +v || 0));
+  messeRand();
+  try { if (G.aktiv) geometrie(); } catch (e) { }
+};
 
 /* ---------------- Symbole ---------------- */
 const IK = {
@@ -505,27 +692,48 @@ function ladeEinst() {
 function speichereEinst() { try { localStorage.setItem('mk6-einst', JSON.stringify(E)); } catch (e) { } }
 
 /* ---------------- IndexedDB ---------------- */
+// 6.2: Fehler beim Oeffnen werden nicht dauerhaft gemerkt (naechster Versuch oeffnet neu),
+// geschlossene Verbindung (Speicher geraeumt, Versionswechsel) wird neu aufgebaut, Zeitlimit statt Haengen.
 let dbP = null;
 function db() {
-  if (!dbP) dbP = new Promise((res, rej) => {
-    let r;
-    try { r = indexedDB.open('musik-kacheln', 1); } catch (e) { rej(e); return; }
-    r.onupgradeneeded = () => {
-      const d = r.result;
-      d.createObjectStore('lieder', { keyPath: 'id' });
-      d.createObjectStore('dateien', { keyPath: 'id' });
-      d.createObjectStore('analysen', { keyPath: 'id' });
-      d.createObjectStore('kacheln', { keyPath: 'key' });
-    };
-    r.onsuccess = () => res(r.result);
-    r.onerror = () => rej(r.error);
-  });
+  if (!dbP) {
+    const p = new Promise((res, rej) => {
+      let r, fertig = false;
+      const nein = e => { if (!fertig) { fertig = true; rej(e || fehler('db')); } };
+      const zeit = setTimeout(() => nein(fehler('db')), 10000);
+      try { r = (window.indexedDB || window.webkitIndexedDB).open('musik-kacheln', 1); } catch (e) { clearTimeout(zeit); nein(fehler('db')); return; }
+      r.onupgradeneeded = () => {
+        const d = r.result;
+        d.createObjectStore('lieder', { keyPath: 'id' });
+        d.createObjectStore('dateien', { keyPath: 'id' });
+        d.createObjectStore('analysen', { keyPath: 'id' });
+        d.createObjectStore('kacheln', { keyPath: 'key' });
+      };
+      r.onsuccess = () => {
+        clearTimeout(zeit);
+        const d = r.result;
+        if (fertig) { try { d.close(); } catch (e) { } return; }
+        fertig = true;
+        d.onclose = () => { if (dbP === p) dbP = null; };
+        d.onversionchange = () => { try { d.close(); } catch (e) { } if (dbP === p) dbP = null; };
+        res(d);
+      };
+      r.onerror = () => { clearTimeout(zeit); nein(r.error); };
+    });
+    dbP = p;
+    p.catch(() => { if (dbP === p) dbP = null; });
+  }
   return dbP;
 }
-async function tx(stores, mode, fn) {
+async function tx(stores, mode, fn, nochmal) {
   const d = await db();
+  let t0;
+  try { t0 = d.transaction(stores, mode); } catch (e) {     // Verbindung inzwischen zu: einmal neu oeffnen
+    if (!nochmal && e && e.name === 'InvalidStateError') { dbP = null; return tx(stores, mode, fn, true); }
+    throw e;
+  }
   return new Promise((res, rej) => {
-    const t = d.transaction(stores, mode);
+    const t = t0;
     let out;
     const r = fn(t);
     if (r) r.onsuccess = () => { out = r.result; };
@@ -589,7 +797,7 @@ function machFFT(N) {           // reelle FFT ueber komplexe FFT halber Laenge, 
 function dekodiere(ab) {
   return new Promise((res, rej) => {
     let oc;
-    try { oc = new OfflineAudioContext(1, 2, AN.sr); } catch (e) { rej(fehler('kaputt')); return; }
+    try { oc = new OAC(1, 2, AN.sr); } catch (e) { rej(fehler('kaputt')); return; }
     let fertig = false;
     const ok = b => { if (!fertig) { fertig = true; res(b); } }, nein = () => { if (!fertig) { fertig = true; rej(fehler('kaputt')); } };
     try { const p = oc.decodeAudioData(ab, ok, nein); if (p && p.then) p.then(ok, nein); } catch (e) { nein(); }
@@ -600,7 +808,9 @@ function dekodiere(ab) {
    decodeAudioData dekodiert sonst die ganze Datei auf einmal (bei 8 Min. > 300 MB Spitze, 15 Min. > 700 MB).
    MP3 wird deshalb in Stuecken von ~15 s dekodiert (an Rahmengrenzen, mit Vorlauf), die Stuecke werden
    per Kreuzkorrelation probengenau aneinandergesetzt und gleich zu Mono gemischt. Andere Formate: ganze Datei. */
-const MAX_MIN = 20, MAX_MIN_ANDERE = 8;          // nicht-MP3 wird am Stueck dekodiert (~60 MB je Minute Spitze)
+// nicht-MP3 wird am Stueck dekodiert (~60 MB je Minute Spitze). 6.2: auf 2-GB-Geraeten (navigator.deviceMemory <= 2) kuerzer.
+const MAX_MIN = GERAET.wenigRam ? 12 : 20, MAX_MIN_ANDERE = GERAET.wenigRam ? 5 : 8;
+const MAX_MB = GERAET.wenigRam ? 50 : 80;
 function mp3Rahmen(u8) {
   const BR1 = [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320], BR2 = [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160];
   const SR = [44100, 48000, 32000];
@@ -680,7 +890,7 @@ async function dekodiereMono(ab, fort, typ) {
   const gesamt = Math.ceil((NR + 4) * R.spf * ratio) + 4096;
   const x = new Float32Array(gesamt);
   let oc;
-  try { oc = new OfflineAudioContext(1, 2, AN.sr); } catch (e) { throw fehler('kaputt'); }
+  try { oc = new OAC(1, 2, AN.sr); } catch (e) { throw fehler('kaputt'); }
   const dek = teil => new Promise((res, rej) => {
     let f = false; const ok = b => { if (!f) { f = true; res(b); } }, nein = () => { if (!f) { f = true; rej(fehler('kaputt')); } };
     try { const p = oc.decodeAudioData(teil, ok, nein); if (p && p.then) p.then(ok, nein); } catch (e) { nein(); }
@@ -1025,7 +1235,7 @@ async function holeAnalyse(lied, fort) {
   if (an && an.v === ALGO) return an;
   const datei = await dbGet('dateien', lied.id);
   if (!datei || !datei.blob) throw fehler('fehlt');
-  const ab = await datei.blob.arrayBuffer();
+  const ab = await liesPuffer(datei.blob);
   an = await analysiere(ab, fort, datei.blob.type);
   an.id = lied.id;
   await dbPut('analysen', an);
@@ -1159,8 +1369,9 @@ async function alleLoeschen() {
   zeichneListe();
 }
 
+const DB_TEXT = ['Auf diesem Gerät können gerade keine Lieder gespeichert werden.', 'Schließe die App ganz und öffne sie noch einmal. Hilft das nicht, mach etwas Speicherplatz frei.'];
 async function ladeLieder() {
-  try { lieder = (await dbAll('lieder')) || []; } catch (e) { lieder = []; }
+  try { lieder = (await dbAll('lieder')) || []; } catch (e) { lieder = []; melde('Speichern klappt gerade nicht', DB_TEXT); }
   lieder.sort((a, b) => (a.erstellt || 0) - (b.erstellt || 0));
   zeichneListe();
 }
@@ -1185,10 +1396,10 @@ async function importiere(dateien) {
       const vor = (dateien.length > 1 ? 'Lied ' + (i + 1) + ' von ' + dateien.length + ': ' : '') + titel;
       if (lieder.some(l => l.name === f.name && l.groesse === f.size)) { probleme.push('„' + titel + '“ ist schon in deiner Liste.'); continue; }
       if (!f.size) { probleme.push('„' + titel + '“ ist leer.'); continue; }
-      if (f.size > 80 * 1024 * 1024) { probleme.push('„' + titel + '“ ist zu groß (mehr als 80 MB).'); continue; }
+      if (f.size > MAX_MB * 1024 * 1024) { probleme.push('„' + titel + '“ ist zu groß (mehr als ' + MAX_MB + ' MB).'); continue; }
       arbeit(true, vor);
       try {
-        const ab = await f.arrayBuffer();
+        const ab = await liesPuffer(f);
         const blob = new Blob([ab], { type: f.type || 'audio/mpeg' });       // Kopie, decodeAudioData leert den Puffer
         const an = await analysiere(ab, arbeitFort, f.type);
         if (!an.onsets.length) { probleme.push('„' + titel + '“ ist sehr leise oder still – da gibt es keine Kacheln.'); continue; }
@@ -1205,7 +1416,8 @@ async function importiere(dateien) {
         if (c === 'still') probleme.push('„' + titel + '“ ist ganz still – da gibt es nichts zu spielen.');
         else if (c === 'lang') probleme.push('„' + titel + '“ ist sehr lang. Bitte nimm ein Lied, das kürzer als ' + (e.max || MAX_MIN) + ' Minuten ist' + (e.max === MAX_MIN_ANDERE ? ' – oder dasselbe Lied als MP3.' : '.'));
         else if (c === 'kaputt' || c === 'kurz') probleme.push('„' + titel + '“ konnte nicht gelesen werden. Vielleicht ist die Datei beschädigt oder kein Lied.');
-        else if (e && (e.name === 'QuotaExceededError' || /quota/i.test(e.message || ''))) probleme.push('Für „' + titel + '“ ist auf dem Tablet nicht genug Platz.');
+        else if (e && (e.name === 'QuotaExceededError' || /quota/i.test(e.message || ''))) probleme.push('Für „' + titel + '“ ist auf diesem Gerät nicht genug Platz.');
+        else if (c === 'db' || (e && /^(InvalidStateError|UnknownError|NotFoundError|VersionError|AbortError)$/.test(e.name || ''))) { if (probleme.indexOf(DB_TEXT[0]) < 0) probleme.push(DB_TEXT[0], DB_TEXT[1]); }
         else probleme.push('„' + titel + '“ hat nicht geklappt. Bitte versuche es noch einmal.');
       }
     }
@@ -1229,7 +1441,7 @@ function zeichneEinst() {
   pillen($('#tonWahl'), [['0', 'Aus'], ['1', 'Leise']], E.toene ? '1' : '0', w => { E.toene = w === '1'; speichereEinst(); zeichneEinst(); });
   const red = bewegungReduziert();
   $('#fxText').textContent = E.ruhig ? '„Bewegung sparsam“ ist an – die Effekte bleiben ruhig.'
-    : red ? 'Das Tablet wünscht weniger Bewegung – die Effekte bleiben ruhig.'
+    : red ? 'Das Gerät wünscht weniger Bewegung – die Effekte bleiben ruhig.'
     : 'Funken, Ringe, Sterne und Feuerwerk. Ohne Flackern.';
   document.documentElement.dataset.ruhig = E.ruhig ? '1' : '0';
   zeichneRegeln();
@@ -1296,28 +1508,60 @@ $('#vollbildBtn').addEventListener('click', () => {
   setTimeout(vollbildIkon, 350);
 });
 document.addEventListener('fullscreenchange', vollbildIkon);
+document.addEventListener('webkitfullscreenchange', vollbildIkon);
 
 /* =================================================================
    SPIEL
    ================================================================= */
 const audio = new Audio();
 audio.preload = 'auto';
-try { audio.preservesPitch = true; audio.mozPreservesPitch = true; audio.webkitPreservesPitch = true; } catch (e) { }
+tonhoeheHalten();
 const cv = $('#feld'), cx = cv.getContext('2d');
 const G = { aktiv: false, phase: 'aus', kacheln: [], lied: null, url: null, ringe: [], glow: [0, 0, 0, 0], halte: {}, letzterTreffer: [0, 0, 0, 0], messen: null,
   rate: 1, rateAnz: 1, stufeNr: 0, spurLicht: [0, 0, 0, 0], serie: 0, serieT: 0, serieMax: 0, meilen: null, feuerwerk: null,
   beats: null, pegel: null, pegelGl: 0, beatI: 0, fxDeckel: 2, fxRunter: 0, fps: 0, fxMess: { t0: 0, n: 0 }, letzterFrame: 0, fxDt: 0,
-  ptMax: 0, zeiten: new Float32Array(600), zeitI: 0, zeitN: 0, bremse: 0, lumMess: null };
+  ptMax: 0, zeiten: new Float32Array(600), zeitI: 0, zeitN: 0, bremse: 0, lumMess: null, dprDeckel: 0, dprRunter: 0 };
 const SPUR_FARBE = ['#2ee6d6', '#8a7cff', '#e8b04a', '#e07ac8'];
 const SPUR_RGB = ['46,230,214', '138,124,255', '232,176,74', '224,122,200'];
 
+/* 6.2: Spielfeld passt sich an jede Bildschirmgroesse an @ Joschy
+   - Canvas-Aufloesung: devicePixelRatio, hoechstens 3 (2 auf 2-GB-Geraeten) und ein Pixel-Budget
+     (Tab S5e bleibt bei 2 wie in 6.1); adaptive Qualitaet kann die Aufloesung weiter senken.
+   - Feld: 4 Spuren ueber die volle Breite; bei sehr breiten Flaechen (Handy quer, riesige Tablets)
+     hoechstens 1,8 x Hoehe bzw. 1440 px breit, zentriert. Notch/Gesten-Leiste werden ausgespart.
+   - Ist die Kopfzeile hoch (Handy hoch/quer), beginnen die Spuren unter ihr (keine Kachel unter den Reglern).
+   - Ziellinie bei 84 % der Hoehe (Daumen-Bereich), Kachelhoehe/Fallweg proportional zur Hoehe. */
+function canvasDpr(W, H) {
+  const roh = window.devicePixelRatio || 1;
+  let d = Math.min(roh, GERAET.schwach ? 2 : 3);
+  const budget = GERAET.schwach ? 2.2e6 : 3.25e6;          // Geraete-Pixel (1138x711 bei dpr 2 = 3,24 Mio. wie 6.1)
+  if (W * H * d * d > budget) d = Math.sqrt(budget / (W * H));
+  if (G.dprDeckel) d = Math.min(d, G.dprDeckel);
+  return Math.max(1, Math.round(Math.min(roh, d) * 100) / 100);
+}
 function geometrie() {
-  const dpr = Math.min(2, window.devicePixelRatio || 1);
   const W = cv.clientWidth || innerWidth, H = cv.clientHeight || innerHeight;
+  const dpr = canvasDpr(W, H);
   if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const R = messeRand();
   const fall = FALL[E.fall] || 3.2;
-  const hitY = Math.round(H * 0.84);
-  G.geo = { dpr, W, H, laneW: W / 4, hitY, tileH: Math.round(Math.max(70, H * 0.15)), fall, v: hitY / fall };
+  let kopfU = 0;
+  try { if ($('#spiel').classList.contains('active')) kopfU = $('.spielkopf').getBoundingClientRect().bottom; } catch (e) { }
+  if (!(kopfU > 0)) kopfU = R.t + 84;
+  const top = (kopfU > H * 0.14 || W < H) ? Math.round(kopfU + 6) : 0;     // Hochformat / hohe Kopfzeile; Tablet quer: 0 wie bisher
+  const frei = Math.max(200, W - R.l - R.r);
+  const feldW = Math.min(frei, Math.max(640, H * 1.8), 1440);
+  const x0 = Math.round(R.l + (frei - feldW) / 2);
+  const laneW = feldW / 4;
+  const hitY = Math.round(Math.min(H * 0.84, H - R.b - 40));
+  const weg = Math.max(60, hitY - top);
+  const tileH = Math.round(Math.max(44, Math.min(Math.max(70, H * 0.15), weg * 0.3)));
+  const sk = Math.max(0.6, Math.min(1.25, laneW / 284.5));          // Effekt-Groesse (Tablet = 1)
+  const tsk = Math.max(0.62, Math.min(1.3, W / 1138, H / 711));      // Text-Groesse (Tablet = 1)
+  const pf = Math.max(0.45, Math.min(1, Math.sqrt(W * H / (1138 * 711)))) * (GERAET.wenigRam ? 0.6 : 1);   // Partikel-Menge
+  const alt = G.geo;
+  G.geo = { dpr, W, H, laneW, hitY, tileH, fall, v: weg / fall, x0, top, feldW, mx: laneW < 120 ? 6 : 10, sk, tsk, pf, kopfU: Math.round(kopfU) };
+  if (alt && (alt.W !== W || alt.H !== H)) { PT.n = 0; G.ringe = []; }      // nach Drehen: Partikel an alter Stelle verwerfen
   return G.geo;
 }
 
@@ -1390,7 +1634,7 @@ function pegelKurve(onsets, dauer) {       // Lautheit je 0,5 s (Maximum), fuer 
 
 function neuStart(erstesMal) {
   G.rate = E.tempo / 100; G.rateAnz = G.rate;
-  try { audio.preservesPitch = true; } catch (e) { }
+  tonhoeheHalten();
   audio.defaultPlaybackRate = G.rate; audio.playbackRate = G.rate;
   audio.pause();
   try { audio.currentTime = 0; } catch (e) { }
@@ -1438,7 +1682,7 @@ function wendeTempoAn() {
   if (G.phase === 'vor') { const roh = -(G.vorEnde - now) / 1000 * alt; G.vorEnde = now - roh / neu * 1000; }   // Spielzeit bleibt stetig
   if (G.phase === 'pause' && G.vorPhase === 'vor' && G.vorRest) G.vorRest = G.vorRest * alt / neu;
   G.rate = neu;
-  try { audio.preservesPitch = true; } catch (e) { }
+  tonhoeheHalten();
   audio.defaultPlaybackRate = neu; audio.playbackRate = neu;      // Tonhoehe bleibt (preservesPitch)
 }
 function setzeStufe(s) {
@@ -1515,7 +1759,24 @@ window.addEventListener('pagehide', () => { if (G.aktiv) pausiere(); });
 // Fuer die Android-Huelle: in onPause() aufrufbar -> window.musikKachelnPause && musikKachelnPause()
 window.musikKachelnPause = () => { if (G.aktiv) pausiere(); };
 audio.addEventListener('ended', () => { if (G.aktiv && G.phase === 'spielt') { G.phase = 'ausklang'; G.stand = audio.duration || G.stand; G.endeZeit = performance.now() + 900; feuerwerkStart(performance.now()); } });
-window.addEventListener('resize', () => { if (G.aktiv) geometrie(); vollbildIkon(); });
+function groesseNeu() { messeRand(); if (G.aktiv) geometrie(); vollbildIkon(); }
+window.addEventListener('resize', groesseNeu);
+// alte WebViews melden die neue Groesse bei "orientationchange" manchmal erst etwas spaeter
+window.addEventListener('orientationchange', () => { groesseNeu(); setTimeout(groesseNeu, 250); setTimeout(groesseNeu, 700); });
+/* 6.2: Zurueck-Taste / Zurueck-Geste der Android-Huelle. Liefert true, wenn die Seite es selbst erledigt hat
+   (offenes Fenster schliessen, laufendes Spiel pausieren statt verlassen). false = App darf zurueck/schliessen. */
+window.musikKachelnZurueck = () => {
+  if ($('#meldung').classList.contains('an')) { $('#meldung').classList.remove('an'); return true; }
+  if ($('#alleUeber').classList.contains('an')) { $('#alleUeber').classList.remove('an'); return true; }
+  if ($('#arbeit').classList.contains('an')) return true;              // Lied wird vorbereitet: nicht abbrechen
+  const fr = document.querySelector('.karte.fragt'); if (fr) { fr.classList.remove('fragt'); return true; }
+  if (G.aktiv) {
+    if (G.phase === 'spielt' || G.phase === 'vor' || G.phase === 'anlauf') { pausiere(); return true; }   // versehentliche Geste: nur Pause
+    zurueckAusSpiel(); return true;
+  }
+  if ($('#einst').classList.contains('active')) { $('#einstZurueck').click(); return true; }
+  return false;
+};
 
 /* =================================================================
    6.1 EFFEKTE  (Canvas 2D, Partikel-Obergrenze, adaptive Qualitaet)
@@ -1525,7 +1786,11 @@ window.addEventListener('resize', () => { if (G.aktiv) geometrie(); vollbildIkon
    ================================================================= */
 const FX_MAX = [0, 120, 250];           // Partikel-Obergrenze je Effekt-Stufe (Ruhig / Normal / Viel)
 let mqBewegung = null;
-try { mqBewegung = matchMedia('(prefers-reduced-motion: reduce)'); if (mqBewegung.addEventListener) mqBewegung.addEventListener('change', () => zeichneEinst()); } catch (e) { mqBewegung = null; }
+try {
+  mqBewegung = matchMedia('(prefers-reduced-motion: reduce)');
+  if (mqBewegung.addEventListener) mqBewegung.addEventListener('change', () => zeichneEinst());
+  else if (mqBewegung.addListener) mqBewegung.addListener(() => zeichneEinst());          // alte WebViews
+} catch (e) { mqBewegung = null; }
 function bewegungReduziert() { return !!(mqBewegung && mqBewegung.matches); }
 function fxStufe() {
   let s = E.effekte;
@@ -1537,8 +1802,9 @@ const PN = 250;
 const PT = { n: 0, x: new Float32Array(PN), y: new Float32Array(PN), vx: new Float32Array(PN), vy: new Float32Array(PN), g: new Float32Array(PN),
   alter: new Float32Array(PN), dauer: new Float32Array(PN), gr: new Float32Array(PN), ph: new Float32Array(PN), f: new Uint8Array(PN), art: new Uint8Array(PN) };
 const PT_FARBE = SPUR_FARBE.concat(['#ffd36b', '#e6fffb']);     // 4 = Gold, 5 = Weisslich
+function ptCap() { return Math.round(FX_MAX[fxStufe()] * (G.geo ? G.geo.pf : 1)); }     // 6.2: weniger Partikel auf kleinen Bildschirmen / 2-GB-Geraeten
 function partikel(x, y, vx, vy, g, dauer, gr, f, art) {
-  const cap = FX_MAX[fxStufe()];
+  const cap = ptCap();
   if (PT.n >= cap) return false;
   const i = PT.n++;
   PT.x[i] = x; PT.y[i] = y; PT.vx[i] = vx; PT.vy[i] = vy; PT.g[i] = g; PT.alter[i] = 0; PT.dauer[i] = dauer; PT.gr[i] = gr; PT.f[i] = f; PT.art[i] = art; PT.ph[i] = Math.random() * 6.28;
@@ -1551,15 +1817,17 @@ function partikelWeg(i) {
 }
 function funken(sp, x, y, gross) {
   const fs = fxStufe(); if (!fs) return;
-  const n = (fs === 2 ? 22 : 12) + (gross ? (fs === 2 ? 6 : 4) : 0);
+  const geo = G.geo || geometrie(), sk = geo.sk, gk = Math.max(0.75, sk);
+  const n = Math.round(((fs === 2 ? 22 : 12) + (gross ? (fs === 2 ? 6 : 4) : 0)) * Math.max(0.55, geo.pf));
   for (let i = 0; i < n; i++) {
-    const w = -Math.PI / 2 + (Math.random() - 0.5) * 2.4, v = 150 + Math.random() * (fs === 2 ? 320 : 260);
+    const w = -Math.PI / 2 + (Math.random() - 0.5) * 2.4, v = (150 + Math.random() * (fs === 2 ? 320 : 260)) * sk;
     const f = fs === 2 && i % 5 === 4 ? 5 : fs === 2 && i % 7 === 3 ? 4 : sp;
-    partikel(x + (Math.random() - 0.5) * 30, y, Math.cos(w) * v, Math.sin(w) * v, 560, 0.5 + Math.random() * 0.45, (fs === 2 ? 3.5 : 3) + Math.random() * 3, f, fs === 2 && i % 6 === 0 ? 2 : 0);
+    partikel(x + (Math.random() - 0.5) * 30 * sk, y, Math.cos(w) * v, Math.sin(w) * v, 560 * sk, 0.5 + Math.random() * 0.45, ((fs === 2 ? 3.5 : 3) + Math.random() * 3) * gk, f, fs === 2 && i % 6 === 0 ? 2 : 0);
   }
 }
 function sternRegen(n, art) {
   const geo = G.geo; if (!geo) return;
+  n = Math.round(n * Math.max(0.5, geo.pf));
   for (let i = 0; i < n; i++) {
     const f = art === 1 ? (i % 6) : (i % 3 === 0 ? 4 : i % 4);
     partikel(Math.random() * geo.W, -10 - Math.random() * geo.H * 0.25, (Math.random() - 0.5) * 50, 90 + Math.random() * 90, 30, 2.2 + Math.random() * 1.2, art === 1 ? 7 + Math.random() * 4 : 5 + Math.random() * 3, f, art);
@@ -1575,10 +1843,14 @@ function feuerwerkSchritt(now) {
   F.rest--; F.naechste = now + 620;          // < 2 Ausbrueche pro Sekunde, klein und weich
   const fs = fxStufe(), n = fs === 2 ? 42 : 26, links = F.rest % 2 === 0;
   // abwechselnd links/rechts neben dem Ergebnis-Fenster, damit man es sieht
-  const x = geo.W * (links ? 0.06 + Math.random() * 0.12 : 0.82 + Math.random() * 0.12), y = geo.H * (0.2 + Math.random() * 0.45), f = Math.floor(Math.random() * 5);
-  for (let i = 0; i < n; i++) {
-    const w = i / n * Math.PI * 2 + Math.random() * 0.2, v = 110 + Math.random() * 80;
-    partikel(x, y, Math.cos(w) * v, Math.sin(w) * v, 70, 1.3 + Math.random() * 0.5, 4 + Math.random() * 2.5, i % 4 === 0 ? 4 : f, i % 3 === 0 ? 2 : 0);
+  // Hochformat: das Fenster ist fast so breit wie der Bildschirm -> abwechselnd ober- und unterhalb
+  const hoch = geo.W < geo.H * 0.9, sk = geo.sk;
+  const x = hoch ? geo.W * (0.15 + Math.random() * 0.7) : geo.W * (links ? 0.06 + Math.random() * 0.12 : 0.82 + Math.random() * 0.12);
+  const y = hoch ? geo.H * (links ? 0.07 + Math.random() * 0.08 : 0.86 + Math.random() * 0.07) : geo.H * (0.2 + Math.random() * 0.45), f = Math.floor(Math.random() * 5);
+  const nn = Math.round(n * Math.max(0.5, geo.pf));
+  for (let i = 0; i < nn; i++) {
+    const w = i / nn * Math.PI * 2 + Math.random() * 0.2, v = (110 + Math.random() * 80) * sk;
+    partikel(x, y, Math.cos(w) * v, Math.sin(w) * v, 70 * sk, 1.3 + Math.random() * 0.5, (4 + Math.random() * 2.5) * Math.max(0.75, sk), i % 4 === 0 ? 4 : f, i % 3 === 0 ? 2 : 0);
   }
 }
 const MEILEN = { 10: 'Super!', 25: 'Klasse!', 50: 'Weiter so!', 75: 'Toll!', 100: 'Wunderbar!' };
@@ -1638,7 +1910,7 @@ function tippe(sp, pid, now) {
   if (fs || !E.ruhig) G.ringe.push({ sp, t0: now, gross });
   if (fs) {
     const yB = geo.hitY - (c.t - pos) / G.rateAnz * geo.v;
-    funken(sp, (sp + 0.5) * geo.laneW, Math.min(geo.hitY, yB) - 18, gross);
+    funken(sp, geo.x0 + (sp + 0.5) * geo.laneW, Math.min(geo.hitY, yB) - 18, gross);
     G.spurLicht[sp] = now;
   }
   serieTreffer(now);
@@ -1646,12 +1918,17 @@ function tippe(sp, pid, now) {
   ton(sp);
   return 'treffer';
 }
-function spurAus(x) { return Math.max(0, Math.min(3, Math.floor(x / (G.geo.W / 4)))); }
+function spurAus(x) { const g = G.geo || geometrie(); return Math.max(0, Math.min(3, Math.floor((x - g.x0) / g.laneW))); }   // neben dem Feld: naechste Spur
 cv.addEventListener('pointerdown', ev => {
   ev.preventDefault();
+  if (ev.pointerType === 'mouse' && ev.button !== 0) return;       // Maus (Chromebook/Emulator): nur linke Taste
+  // Maus/Stift: Zeiger festhalten, damit das Loslassen auch ausserhalb ankommt (Touch macht das von selbst)
+  if (ev.pointerType !== 'touch') { try { cv.setPointerCapture(ev.pointerId); } catch (e) { } }
   const r = cv.getBoundingClientRect();
   tippe(spurAus(ev.clientX - r.left), ev.pointerId, performance.now());
 });
+cv.addEventListener('contextmenu', ev => ev.preventDefault());       // langes Druecken: kein Menue
+document.addEventListener('contextmenu', ev => { if (!(ev.target && ev.target.closest && ev.target.closest('input'))) ev.preventDefault(); });
 function loslassen(ev) { const c = G.halte[ev.pointerId]; if (c) { c.pid = null; delete G.halte[ev.pointerId]; } }
 cv.addEventListener('pointerup', loslassen); cv.addEventListener('pointercancel', loslassen);
 window.addEventListener('keydown', ev => {
@@ -1666,7 +1943,9 @@ window.addEventListener('keyup', ev => { const i = ['d', 'f', 'j', 'k'].indexOf(
 function schleife(now) {
   if (!G.aktiv) return;
   requestAnimationFrame(schleife);
-  const geo = G.geo || geometrie();
+  let geo = G.geo || geometrie();
+  // 6.2: Drehen/Falten/Fenstergroesse: neu vermessen (Zeitbasis bleibt die Wiedergabeposition -> kein Sync-Verlust)
+  if (cv.clientWidth && (cv.clientWidth !== geo.W || cv.clientHeight !== geo.H)) geo = geometrie();
   const dtEcht = G.letzterFrame ? Math.min(0.1, (now - G.letzterFrame) / 1000) : 0;
   G.letzterFrame = now;
   // angezeigtes Tempo gleitet weich zum eingestellten (Kacheln ruecken ruhig zusammen/auseinander)
@@ -1686,7 +1965,7 @@ function schleife(now) {
   for (const k of G.kacheln) {
     if (k.t - pos > 1) break;
     if (!k.hit && !k.miss && pos - k.t > 0.45 * r + k.d) { k.miss = now; G.serie = 0; }       // Serie endet still, ohne Strafe
-    if (k.hit && k.d > 0 && !k.voll && k.pid != null && pos >= k.t + k.d) { k.voll = now; delete G.halte[k.pid]; k.pid = null; if (fxStufe() || !E.ruhig) G.ringe.push({ sp: k.sp, t0: now, gross: true }); if (fxStufe()) { funken(k.sp, (k.sp + 0.5) * geo.laneW, geo.hitY - 18, true); G.spurLicht[k.sp] = now; } }
+    if (k.hit && k.d > 0 && !k.voll && k.pid != null && pos >= k.t + k.d) { k.voll = now; delete G.halte[k.pid]; k.pid = null; if (fxStufe() || !E.ruhig) G.ringe.push({ sp: k.sp, t0: now, gross: true }); if (fxStufe()) { funken(k.sp, geo.x0 + (k.sp + 0.5) * geo.laneW, geo.hitY - 18, true); G.spurLicht[k.sp] = now; } }
   }
   if (G.messen && G.phase === 'spielt') G.messen.push([now, pos + versatzS(), audio.currentTime, audio.playbackRate]);
   const dauer = (audio.duration && isFinite(audio.duration)) ? audio.duration : (G.lied ? G.lied.dauer : 1);
@@ -1705,6 +1984,8 @@ function schleife(now) {
         // erst nach zwei langsamen Messungen hintereinander (ein einzelner Haenger, z. B. Speicherbereinigung, zaehlt nicht)
         G.fxLangsam = G.fps < 45 ? (G.fxLangsam || 0) + 1 : 0;
         if (G.fxLangsam >= 2 && G.adaptiv !== false && fxStufe() > 0) { G.fxDeckel = fxStufe() - 1; G.fxRunter++; G.fxLangsam = 0; }
+        // 6.2: Effekte schon aus und immer noch zu langsam -> Canvas-Aufloesung schrittweise senken (bis dpr 1)
+        else if (G.fxLangsam >= 2 && G.adaptiv !== false && geo.dpr > 1.05) { G.dprDeckel = Math.max(1, geo.dpr * 0.8); G.dprRunter++; G.fxLangsam = 0; geo = geometrie(); }
         F.t0 = now; F.n = 0;
       }
     }
@@ -1822,12 +2103,13 @@ function textBild(txt, px, gew, farbe, dpr) {      // Text einmal als Bild rende
 }
 function malText(b, x, y, sk) { const w = b.w * sk, h = b.h * sk; cx.drawImage(b.c, x - w / 2, y - h / 2, w, h); }
 function texte(now, geo) {
-  const { W, H, dpr } = geo;
+  const { W, H, dpr, tsk } = geo;
+  const xm = geo.x0 + geo.feldW / 2;
   if (G.serie >= 3 && (G.phase === 'spielt' || G.phase === 'pause' || G.phase === 'anlauf')) {
     const pop = 1 + 0.14 * Math.exp(-(now - G.serieT) / 160);
-    const gr = Math.round(24 + Math.min(G.serie, 60) * 0.25);
+    const gr = Math.round((24 + Math.min(G.serie, 60) * 0.25) * Math.max(0.8, tsk));
     cx.globalAlpha = 0.82;
-    malText(textBild('Serie ' + G.serie, gr, 600, '#7ff5ea', dpr), W / 2, Math.max(104, H * 0.17), pop);
+    malText(textBild('Serie ' + G.serie, gr, 600, '#7ff5ea', dpr), xm, Math.max(geo.kopfU + 20, H * 0.17, geo.top + gr), pop);   // unter der Kopfzeile
   }
   const M = G.meilen;
   if (M) {
@@ -1836,21 +2118,28 @@ function texte(now, geo) {
     else {
       const a = t < 0.3 ? t / 0.3 : t > 1.35 ? Math.max(0, (1.8 - t) / 0.45) : 1, sk = 0.9 + 0.1 * Math.min(1, t / 0.3);
       cx.globalAlpha = 0.95 * a;
-      malText(textBild(M.txt, 58, 600, '#ffd36b', dpr), W / 2, H * 0.38, sk);
+      const yM = Math.max(H * 0.38, geo.top + 70 * tsk), g1 = Math.round(58 * tsk), g2 = Math.max(16, Math.round(22 * tsk));
+      malText(textBild(M.txt, g1, 600, '#ffd36b', dpr), xm, yM, sk);
       cx.globalAlpha = 0.8 * a;
-      malText(textBild(M.sub, 22, 500, '#dff7f4', dpr), W / 2, H * 0.38 + 46, 1);
+      malText(textBild(M.sub, g2, 500, '#dff7f4', dpr), xm, yM + Math.round(46 * tsk), 1);
     }
   }
   cx.globalAlpha = 1;
 }
 function zeichne(pos, now, geo) {
-  const { dpr, W, H, laneW, hitY, v } = geo, r = G.rateAnz, fs = fxStufe();
+  const { dpr, W, H, laneW, hitY, v, x0, top, feldW } = geo, r = G.rateAnz, fs = fxStufe(), sk = geo.sk;
   cx.setTransform(dpr, 0, 0, dpr, 0, 0);
   if (fs) hintergrund(pos, now, geo, fs);
   else { cx.fillStyle = '#060B0E'; cx.fillRect(0, 0, W, H); }
+  // 6.2: Feld beginnt unter einer hohen Kopfzeile (Handy) -> dort abschneiden, Kacheln gleiten unter ihr hervor
+  if (top > 0) {
+    cx.fillStyle = 'rgba(29,58,64,.55)'; cx.fillRect(x0, top - 1, feldW, 1);
+    cx.save(); cx.beginPath(); cx.rect(0, top, W, H - top); cx.clip();
+  }
+  if (x0 > 0) { cx.fillStyle = 'rgba(29,58,64,.45)'; cx.fillRect(x0 - 1, top, 1, H - top); cx.fillRect(x0 + feldW, top, 1, H - top); }
   // Spuren
   for (let s = 0; s < 4; s++) {
-    const x = s * laneW;
+    const x = x0 + s * laneW;
     const gr = cx.createLinearGradient(0, 0, 0, H);
     gr.addColorStop(0, 'rgba(10,19,23,0)'); gr.addColorStop(1, s % 2 ? 'rgba(18,38,45,.55)' : 'rgba(13,26,31,.55)');
     cx.fillStyle = gr; cx.fillRect(x, 0, laneW, H);
@@ -1871,10 +2160,10 @@ function zeichne(pos, now, geo) {
     if (s) { cx.fillStyle = 'rgba(29,58,64,.7)'; cx.fillRect(Math.round(x) - 1, 0, 2, H); }
   }
   // Ziellinie
-  cx.fillStyle = 'rgba(46,230,214,.07)'; cx.fillRect(0, hitY - geo.tileH * 0.5, W, geo.tileH * 0.5 + 6);
-  cx.fillStyle = 'rgba(46,230,214,.55)'; cx.fillRect(0, hitY, W, 2);
+  cx.fillStyle = 'rgba(46,230,214,.07)'; cx.fillRect(x0, hitY - geo.tileH * 0.5, feldW, geo.tileH * 0.5 + 6);
+  cx.fillStyle = 'rgba(46,230,214,.55)'; cx.fillRect(x0, hitY, feldW, 2);
   // Kacheln
-  const mx = 10, sicht = geo.fall * r;
+  const mx = geo.mx, sicht = geo.fall * r;
   for (const k of G.kacheln) {
     if (k.t - pos > sicht + 0.1) break;
     const yB = hitY - (k.t - pos) / r * v;
@@ -1882,7 +2171,7 @@ function zeichne(pos, now, geo) {
     const tileH = Math.max(26, Math.min(geo.tileH, k.luecke / r * v - 10));
     let yT = yB - tileH - lang;
     if (yT > H + 10 && !k.hit) continue;
-    const x = k.sp * laneW + mx, w = laneW - 2 * mx;
+    const x = x0 + k.sp * laneW + mx, w = laneW - 2 * mx;
     const col = SPUR_FARBE[k.sp];
     if (k.hit && !(k.d > 0)) {
       const a = (now - k.hit) / 320; if (a >= 1) continue;
@@ -1940,6 +2229,7 @@ function zeichne(pos, now, geo) {
     cx.fillStyle = col; rundRect(x + 8, yB - 12, w - 16, 6, 3); cx.fill();
     cx.strokeStyle = col; cx.lineWidth = 2; rundRect(x + 1, yB - tileH + 1, w - 2, tileH - 2, 13); cx.stroke();
   }
+  if (top > 0) cx.restore();
   // Ringe
   if (G.ringe.length) {
     G.ringe = G.ringe.filter(g => now - g.t0 < 650);
@@ -1947,16 +2237,16 @@ function zeichne(pos, now, geo) {
       const a = (now - g.t0) / 500;
       if (a < 1) {
         cx.globalAlpha = 0.5 * (1 - a); cx.strokeStyle = SPUR_FARBE[g.sp]; cx.lineWidth = 3;
-        cx.beginPath(); cx.arc((g.sp + 0.5) * laneW, hitY, (g.gross ? 30 : 22) + a * 60, 0, Math.PI * 2); cx.stroke();
+        cx.beginPath(); cx.arc(x0 + (g.sp + 0.5) * laneW, hitY, ((g.gross ? 30 : 22) + a * 60) * sk, 0, Math.PI * 2); cx.stroke();
       }
       if (fs === 2 && now - g.t0 < 260) {     // kleiner weicher Trefferschein (kleine Flaeche, kein Blitz)
         const c = (now - g.t0) / 260;
         cx.globalAlpha = 0.28 * (1 - c); cx.fillStyle = SPUR_FARBE[g.sp];
-        cx.beginPath(); cx.arc((g.sp + 0.5) * laneW, hitY - 10, 24 + c * 26, 0, Math.PI * 2); cx.fill();
+        cx.beginPath(); cx.arc(x0 + (g.sp + 0.5) * laneW, hitY - 10, (24 + c * 26) * sk, 0, Math.PI * 2); cx.fill();
       }
       if (fs === 2) {           // zweiter, spaeterer Ring
         const b = (now - g.t0 - 150) / 500;
-        if (b > 0 && b < 1) { cx.globalAlpha = 0.3 * (1 - b); cx.strokeStyle = SPUR_FARBE[g.sp]; cx.lineWidth = 2; cx.beginPath(); cx.arc((g.sp + 0.5) * laneW, hitY, 18 + b * 90, 0, Math.PI * 2); cx.stroke(); }
+        if (b > 0 && b < 1) { cx.globalAlpha = 0.3 * (1 - b); cx.strokeStyle = SPUR_FARBE[g.sp]; cx.lineWidth = 2; cx.beginPath(); cx.arc(x0 + (g.sp + 0.5) * laneW, hitY, (18 + b * 90) * sk, 0, Math.PI * 2); cx.stroke(); }
       }
     }
     cx.globalAlpha = 1;
@@ -1982,18 +2272,19 @@ function zeigeEnde() {
 /* ---- Test-/Diagnose-Schnittstelle (nur lesend) ---- */
 window.__MK = {
   version: VERSION, audio, analysiere, macheKacheln, titelAus, dekodiereMono, mp3Rahmen,
-  zustand: () => ({ phase: G.phase, aktiv: G.aktiv, pos: G.aktiv ? spielZeit(performance.now()) : 0, ct: audio.currentTime, rate: audio.playbackRate, rateAnz: G.rateAnz, paused: audio.paused, treffer: G.treffer, gesamt: G.kacheln.length, glow: G.glow.slice(), ergebnis: G.ergebnis || null, geo: G.geo, serie: G.serie, serieMax: G.serieMax, stufe: E.stufe, tempo: E.tempo, mischGrenze: G.mischGrenze }),
+  zustand: () => ({ phase: G.phase, aktiv: G.aktiv, pos: G.aktiv ? spielZeit(performance.now()) : 0, stand: G.stand, rand: [RAND.t, RAND.r, RAND.b, RAND.l], geraet: GERAET, maxMin: [MAX_MIN, MAX_MIN_ANDERE, MAX_MB], ct: audio.currentTime, rate: audio.playbackRate, rateAnz: G.rateAnz, paused: audio.paused, treffer: G.treffer, gesamt: G.kacheln.length, glow: G.glow.slice(), ergebnis: G.ergebnis || null, geo: G.geo, serie: G.serie, serieMax: G.serieMax, stufe: E.stufe, tempo: E.tempo, mischGrenze: G.mischGrenze }),
   kacheln: () => G.kacheln.map(k => ({ t: k.t, sp: k.sp, d: k.d, hit: !!k.hit, miss: !!k.miss, voll: !!k.voll, luecke: k.luecke })),
   messen: an => { G.messen = an ? [] : null; }, messwerte: () => G.messen,
   tippeSpur: sp => tippe(sp, null, performance.now()),
   // 6.1: Effekt-Diagnose (nur fuer Tests)
-  fx: () => { const n = G.zeitN, a = Array.from(G.zeiten.subarray(0, n)).sort((x, y) => x - y); return { stufe: fxStufe(), deckel: G.fxDeckel, runter: G.fxRunter, partikel: PT.n, maxPartikel: G.ptMax, cap: FX_MAX[fxStufe()], fps: G.fps, zeichneMs: n ? a.reduce((x, y) => x + y, 0) / n : 0, zeichneP95: n ? a[Math.floor(n * 0.95)] : 0, feuerwerk: !!G.feuerwerk, meilen: G.meilen && G.meilen.txt }; },
+  fx: () => { const n = G.zeitN, a = Array.from(G.zeiten.subarray(0, n)).sort((x, y) => x - y); return { stufe: fxStufe(), deckel: G.fxDeckel, runter: G.fxRunter, partikel: PT.n, maxPartikel: G.ptMax, cap: ptCap(), fps: G.fps, dpr: G.geo ? G.geo.dpr : 0, dprRunter: G.dprRunter, zeichneMs: n ? a.reduce((x, y) => x + y, 0) / n : 0, zeichneP95: n ? a[Math.floor(n * 0.95)] : 0, feuerwerk: !!G.feuerwerk, meilen: G.meilen && G.meilen.txt }; },
   fxReset: () => { G.zeitN = 0; G.zeitI = 0; G.ptMax = 0; G.fxMess.t0 = 0; },
   bremse: ms => { G.bremse = ms || 0; }, adaptiv: an => { G.adaptiv = an !== false; }, fxDeckel: d => { G.fxDeckel = d; },
   lumMess: fn => { G.lumMess = fn || null; }, canvas: cv
 };
 
 setzeIkonen();
+messeRand();
 zeichneEinst();
 vollbildIkon();
 ladeLieder();

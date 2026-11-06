@@ -6,6 +6,13 @@
  * Beim Pausieren der App wird das laufende Spiel per musikKachelnPause() angehalten.
  * Stirbt der WebView-Renderer (z. B. Speichermangel), wird die WebView neu
  * aufgebaut statt die App abstuerzen zu lassen.
+ * 6.2 (andere Geraete): Ausrichtung kommt aus dem Manifest (fullUser = hoch und quer,
+ * Drehsperre wird beachtet); Drehen/Falten startet die Activity nicht neu (configChanges),
+ * die Seite rechnet das Spielfeld nahtlos neu. Sichere Raender der Kamera-Aussparung
+ * (Notch) gehen als CSS-Pixel an die Seite: musikKachelnRand(o, r, u, l) bzw. AndroidHuelle.rand().
+ * Zurueck-Taste/-Geste fragt zuerst die Seite (musikKachelnZurueck): offenes Fenster schliessen,
+ * laufendes Spiel nur pausieren; erst danach WebView-Verlauf bzw. App schliessen.
+ * Textgroesse bleibt bei 100 % (Layout ist fuer grosse Schrift ausgelegt, nichts wird abgeschnitten).
  * @ Joschy
  */
 package de.joschy.krishnaspiele;
@@ -15,12 +22,14 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.view.DisplayCutout;
 import android.view.View;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.RenderProcessGoneDetail;
@@ -47,6 +56,8 @@ public class MainActivity extends Activity {
     private ValueCallback<Uri[]> dateiCallback;
     private int neustarts = 0;
     private long ersterNeustart = 0L;
+    /** Sichere Raender (oben,rechts,unten,links) in CSS-Pixeln fuer die Seite. */
+    private volatile String rand = "0,0,0,0";
 
     @SuppressLint("SetJavaScriptEnabled")
     @SuppressWarnings("deprecation")
@@ -54,7 +65,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        // Ausrichtung: android:screenOrientation="fullUser" im Manifest (6.2: hoch und quer).
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             getWindow().getAttributes().layoutInDisplayCutoutMode =
@@ -94,6 +105,7 @@ public class MainActivity extends Activity {
         // Keine Ausweitung: file://-Seiten duerfen nicht frei auf andere Dateien/Urls zugreifen.
         s.setAllowFileAccessFromFileURLs(false);
         s.setAllowUniversalAccessFromFileURLs(false);
+        // Feste Textgroesse: verhindert ungewolltes Vergroessern/Abschneiden; die Seite nutzt grosse Schriften.
         s.setTextZoom(100);
 
         wv.setWebViewClient(new WebViewClient() {
@@ -101,6 +113,11 @@ public class MainActivity extends Activity {
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 // Nur lokale Asset-Seiten zulassen, alles andere blockieren.
                 return !istLokal(request.getUrl().toString());
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                sendeRand();
             }
 
             @Override
@@ -123,6 +140,15 @@ public class MainActivity extends Activity {
             }
         });
         wv.addJavascriptInterface(new Huelle(), "AndroidHuelle");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            wv.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+                @Override
+                public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+                    merkeRand(insets);
+                    return v.onApplyWindowInsets(insets);
+                }
+            });
+        }
         return wv;
     }
 
@@ -161,6 +187,36 @@ public class MainActivity extends Activity {
         }
     }
 
+    /** Kamera-Aussparung (Notch) als sichere Raender merken und an die Seite geben (ab Android 9). */
+    private void merkeRand(WindowInsets insets) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P || insets == null) {
+            return;
+        }
+        int o = 0, r = 0, u = 0, l = 0;
+        DisplayCutout c = insets.getDisplayCutout();
+        if (c != null) {
+            o = c.getSafeInsetTop();
+            r = c.getSafeInsetRight();
+            u = c.getSafeInsetBottom();
+            l = c.getSafeInsetLeft();
+        }
+        float d = getResources().getDisplayMetrics().density;
+        if (d <= 0f) {
+            d = 1f;
+        }
+        String neu = Math.round(o / d) + "," + Math.round(r / d) + "," + Math.round(u / d) + "," + Math.round(l / d);
+        if (!neu.equals(rand)) {
+            rand = neu;
+            sendeRand();
+        }
+    }
+
+    private void sendeRand() {
+        if (webView != null && istLokal(webView.getUrl())) {
+            webView.evaluateJavascript("window.musikKachelnRand&&musikKachelnRand(" + rand + ")", null);
+        }
+    }
+
     private static boolean istLokal(String url) {
         return url != null && url.startsWith(ASSET_URL);
     }
@@ -173,17 +229,44 @@ public class MainActivity extends Activity {
             callback.onReceiveValue(null);
             return true;
         }
-        Intent intent = params.createIntent();
-        if (params.getMode() == WebChromeClient.FileChooserParams.MODE_OPEN_MULTIPLE) {
+        boolean mehrere = params.getMode() == WebChromeClient.FileChooserParams.MODE_OPEN_MULTIPLE;
+        Intent intent = null;
+        try {
+            intent = params.createIntent();
+        } catch (RuntimeException e) {
+            intent = null;
+        }
+        if (intent == null) {
+            intent = einfacheAuswahl();
+        }
+        if (mehrere) {
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         }
         dateiCallback = callback;
         try {
             startActivityForResult(intent, REQ_DATEI_AUSWAHL);
         } catch (ActivityNotFoundException e) {
-            beendeDateiAuswahl(null);
+            // Manche Geraete haben fuer den Standard-Dialog keinen Empfaenger: System-Dateiauswahl (SAF) versuchen.
+            try {
+                Intent saf = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                saf.addCategory(Intent.CATEGORY_OPENABLE);
+                saf.setType("*/*");
+                if (mehrere) {
+                    saf.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                }
+                startActivityForResult(saf, REQ_DATEI_AUSWAHL);
+            } catch (ActivityNotFoundException e2) {
+                beendeDateiAuswahl(null);
+            }
         }
         return true;
+    }
+
+    private static Intent einfacheAuswahl() {
+        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.setType("*/*");
+        return i;
     }
 
     private void beendeDateiAuswahl(Uri[] ergebnis) {
@@ -243,6 +326,12 @@ public class MainActivity extends Activity {
         public boolean istVollbild() {
             return vollbild;
         }
+
+        /** Sichere Raender "oben,rechts,unten,links" in CSS-Pixeln. */
+        @JavascriptInterface
+        public String rand() {
+            return rand;
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -276,10 +365,41 @@ public class MainActivity extends Activity {
     @SuppressWarnings("deprecation")
     @Override
     public void onBackPressed() {
+        final WebView wv = webView;
+        if (wv == null || !istLokal(wv.getUrl())) {
+            standardZurueck();
+            return;
+        }
+        // Erst die Seite fragen: Fenster schliessen / Spiel pausieren. Antwort "true" = erledigt.
+        wv.evaluateJavascript(
+                "(function(){try{return !!(window.musikKachelnZurueck&&musikKachelnZurueck());}catch(e){return false;}})()",
+                new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String wert) {
+                        if ("true".equals(wert) || wv != webView || isFinishing()) {
+                            return;
+                        }
+                        standardZurueck();
+                    }
+                });
+    }
+
+    @SuppressWarnings("deprecation")
+    private void standardZurueck() {
         if (webView != null && webView.canGoBack()) {
             webView.goBack();
         } else {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration neu) {
+        // Drehen, Falten, Fenstergroesse: keine neue Activity (configChanges); Leisten und Raender neu setzen.
+        super.onConfigurationChanged(neu);
+        wendeVollbildAn();
+        if (webView != null) {
+            webView.requestApplyInsets();
         }
     }
 

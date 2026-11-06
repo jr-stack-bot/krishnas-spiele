@@ -12,9 +12,22 @@ Für Android-Tablets und -Handys ab Android 8.
 
 ## Was ist das?
 
-**Musik-Kacheln** (Version 6.1) ist ein ruhiges Tipp-Spiel für das Tablet: Du wählst eigene MP3-Dateien aus, die App hört sich die Musik an und macht daraus Kacheln. Die Kacheln fallen im Takt der Musik herunter. Tippe sie an, wenn sie die Linie erreichen.
+**Musik-Kacheln** (Version 6.2) ist ein ruhiges Tipp-Spiel für Tablet und Handy: Du wählst eigene MP3-Dateien aus, die App hört sich die Musik an und macht daraus Kacheln. Die Kacheln fallen im Takt der Musik herunter. Tippe sie an, wenn sie die Linie erreichen.
 
-Auf dem Tablet heißt die App weiterhin **„Krishnas Spiele“**.
+Auf dem Gerät heißt die App weiterhin **„Krishnas Spiele“**.
+
+## Neu in Version 6.2
+
+- **Läuft auf Handys und Tablets** – die Oberfläche passt sich der Bildschirmgröße an, vom kleinen Handy bis zum großen Tablet.
+- **Hoch- und Querformat** – die App folgt der Drehung des Geräts (die Drehsperre von Android wird beachtet).
+- **Falt-Geräte** – Auf- und Zuklappen wird ohne Neustart übernommen.
+- **Notch-Ränder** – Kamera-Aussparungen werden freigehalten, nichts Wichtiges liegt darunter.
+- **Ältere Android-Versionen** – läuft ab **Android 8**, auch mit älteren WebView-Versionen.
+- **Drehen im Spiel** – beim Drehen oder Falten läuft das Lied weiter, das Spielfeld wird nahtlos neu eingeteilt.
+- **Zurück-Taste pausiert im Spiel** – die Zurück-Taste bzw. -Geste schließt zuerst ein offenes Fenster und hält ein laufendes Spiel nur an, statt die App zu verlassen.
+- **Grenzen bei wenig Speicher** – auf Geräten mit wenig Arbeitsspeicher (etwa 2 GB) nimmt die App kürzere Lieder an (MP3 bis 12 Minuten, andere Formate bis 5 Minuten, Dateien bis 50 MB), zeichnet mit weniger Partikeln und senkt bei Bedarf die Auflösung, damit nichts abstürzt.
+
+**Hinweis:** Echt getestet ist die App bisher nur auf dem Tablet **Samsung Galaxy Tab S5e**. Handys, Falt-Geräte und ältere Android-Versionen wurden nur im Browser nachgestellt. Rückmeldungen von anderen Geräten sind sehr willkommen!
 
 ## Neu in Version 6.1
 
@@ -29,26 +42,28 @@ Auf dem Tablet heißt die App weiterhin **„Krishnas Spiele“**.
 
 ## Screenshots
 
-Die Bilder zeigen die App im Querformat (1138 × 711, die Einstellungen 1138 × 790). Die Lieder darauf sind selbst erzeugte Test-Töne, keine echte Musik.
+Die Bilder zeigen die App auf dem Tablet im Querformat (1138 × 711), auf dem Handy hochkant (393 × 851) und auf dem Handy quer (851 × 393). Die Lieder darauf sind selbst erzeugte Test-Töne, keine echte Musik.
 
 <table>
   <tr>
-    <td width="50%" align="center"><img src="docs/screenshots/01-startseite.png" width="100%" alt="Startseite mit acht Beispiel-Liedern, Suchfeld, Sortier-Knopf, Alle löschen und Auswahl der Schwierigkeit"><br><sub>Startseite: eigene Lieder, Suche und Sortierung ab 8 Liedern</sub></td>
-    <td width="50%" align="center"><img src="docs/screenshots/02-alle-loeschen.png" width="100%" alt="Rückfrage Alle Lieder löschen mit den Knöpfen Nein, behalten und Ja, alle löschen"><br><sub>Alle löschen – mit Rückfrage</sub></td>
+    <td colspan="3" align="center"><img src="docs/screenshots/01-tablet-startseite.png" width="100%" alt="Tablet quer: Startseite MUSIK-KACHELN mit acht Test-Liedern, Suchfeld, Sortier-Knopf, Alle löschen und Auswahl der Schwierigkeit"><br><sub>Tablet quer: Startseite mit eigenen Liedern</sub></td>
   </tr>
   <tr>
-    <td width="50%" align="center"><img src="docs/screenshots/03-spiel-effekte.png" width="100%" alt="Spielansicht mitten im Lied mit Kacheln auf vier Spuren, Funken an der Linie, Tempo- und Stufen-Regler oben"><br><sub>Mitten im Lied (Effekte „Normal“): Funken beim Treffer, Tempo und Stufe live änderbar</sub></td>
-    <td width="50%" align="center"><img src="docs/screenshots/04-spiel-viel.png" width="100%" alt="Spielansicht mit Effekten Viel, Serie 11 und Einblendung Super! 10 Treffer hintereinander"><br><sub>Effekte „Viel“ mit Serien-Anzeige</sub></td>
+    <td colspan="3" align="center"><img src="docs/screenshots/02-tablet-spiel-effekte.png" width="100%" alt="Tablet quer: Spielansicht mitten im Lied mit Kacheln auf vier Spuren, Funken und Ringen an der Linie, Serien-Anzeige sowie Tempo- und Stufen-Regler oben"><br><sub>Tablet quer: mitten im Lied mit Effekten „Viel“ und Serien-Anzeige</sub></td>
   </tr>
   <tr>
-    <td width="50%" align="center"><img src="docs/screenshots/05-ergebnis.png" width="100%" alt="Ergebnis mit drei Sternen, Feuerwerk im Hintergrund und den Knöpfen Nochmal und Zu meinen Liedern"><br><sub>Ergebnis mit Sternen und Feuerwerk</sub></td>
-    <td width="50%" align="center"><img src="docs/screenshots/06-einstellungen.png" width="100%" alt="Einstellungen: Tempo, Verzögerung, Fallgeschwindigkeit, Schwierigkeit, Countdown, Bewegung sparsam, Effekte und Treffer-Töne"><br><sub>Einstellungen mit Effekten (Bild etwas höher, damit alles drauf ist)</sub></td>
+    <td width="33%" align="center"><img src="docs/screenshots/03-handy-startseite.png" width="100%" alt="Handy hochkant: Startseite mit MP3 hinzufügen, Schwierigkeit, Suche und Liederliste untereinander"><br><sub>Handy hochkant: Startseite</sub></td>
+    <td width="33%" align="center"><img src="docs/screenshots/04-handy-spiel.png" width="100%" alt="Handy hochkant: Spielansicht mit vier schmalen Spuren und den Reglern in zwei Zeilen oben"><br><sub>Handy hochkant: Spiel</sub></td>
+    <td width="33%" align="center"><img src="docs/screenshots/05-handy-einstellungen.png" width="100%" alt="Handy hochkant: Einstellungen mit Tempo, Verzögerung, Fallgeschwindigkeit und Schwierigkeit untereinander"><br><sub>Handy hochkant: Einstellungen (lassen sich weiter nach unten schieben)</sub></td>
+  </tr>
+  <tr>
+    <td colspan="3" align="center"><img src="docs/screenshots/06-handy-quer-spiel.png" width="100%" alt="Handy quer: Spielansicht mit Reglern in einer Zeile und Spielfeld in der Mitte"><br><sub>Handy quer: Spiel</sub></td>
   </tr>
 </table>
 
 ## Kurzanleitung
 
-1. **MP3 aufs Tablet kopieren** – zum Beispiel per USB-Kabel in den Ordner „Download“ oder „Music“.
+1. **MP3 aufs Gerät kopieren** – zum Beispiel per USB-Kabel in den Ordner „Download“ oder „Music“.
 2. In der App **„MP3 hinzufügen“** antippen und eine oder mehrere Dateien auswählen. Die App bereitet jedes Lied einmal vor (das dauert ein paar Sekunden). Danach steht es in der Liste.
 3. Oben die **Schwierigkeit** wählen: „Ganz leicht“, „Leicht“, „Mittel“ oder „Wie im Original“.
 4. Wer mag, stellt in den **Einstellungen** das **Tempo** ein (langsamer oder schneller, die Tonhöhe bleibt gleich) und wählt die **Effekte** („Ruhig“, „Normal“ oder „Viel“).
@@ -62,6 +77,8 @@ Viele Lieder: Ab 8 Liedern gibt es ein Suchfeld und einen Sortier-Knopf über de
 
 - **MP3** bis **20 Minuten** Länge.
 - **Andere Formate** (z. B. M4A, OGG, WAV) bis **8 Minuten**.
+- Dateien bis **80 MB**.
+- Auf Geräten mit **wenig Arbeitsspeicher** (etwa 2 GB): MP3 bis **12 Minuten**, andere Formate bis **5 Minuten**, Dateien bis **50 MB**. Effekte und Bildauflösung werden dort automatisch gesenkt.
 - Stille oder beschädigte Dateien werden mit einer freundlichen Meldung abgelehnt.
 - Der Dateidialog von Android zeigt alle Dateien an; die App übernimmt nur Musikdateien, die sie lesen kann.
 
@@ -97,7 +114,7 @@ Die Schwierigkeit bestimmt, wie viele der gefundenen Einsätze zu Kacheln werden
 
 - `app/src/main/assets/index.html` – die Web-App Musik-Kacheln
 - `app/src/main/assets/OFL-Barlow.txt` – Lizenztext der eingebetteten Schrift
-- `app/src/main/java/.../MainActivity.java` – Vollbild-WebView mit JS-Brücke `AndroidHuelle` (Vollbild an/aus), System-Dateiauswahl für `<input type="file">`, Display bleibt an, Spiel pausiert beim Verlassen der App, und nach einem Absturz der WebView wird sie neu geladen statt die App zu beenden
+- `app/src/main/java/.../MainActivity.java` – Vollbild-WebView mit JS-Brücke `AndroidHuelle` (Vollbild an/aus, Notch-Ränder), hoch und quer ohne Neustart beim Drehen/Falten, Zurück-Taste pausiert das Spiel, System-Dateiauswahl für `<input type="file">`, Display bleibt an, Spiel pausiert beim Verlassen der App, und nach einem Absturz der WebView wird sie neu geladen statt die App zu beenden
 - `app/src/main/res/` – adaptives App-Icon (Hintergrund, Vordergrund, Monochrom) und dunkles Theme
 - `archive/` – frühere Version (nicht in der APK)
 - `.github/workflows/build-apk.yml` – baut bei jedem Push auf `main` die Debug-APK und veröffentlicht sie als Release `latest`
